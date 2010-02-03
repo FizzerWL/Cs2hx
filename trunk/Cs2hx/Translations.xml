@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Translations>
+  <Method SourceObject="*" Match="ToString" ReplaceWith="toString" />
+
+  <Method SourceObject="System.String" Match="IndexOf" ReplaceWith="indexOf" />
+  <Method SourceObject="System.String" Match="LastIndexOf" ReplaceWith="lastIndexOf" />
+  <Method SourceObject="System.String" Match="Substring" ReplaceWith="substr" />
+  <Method SourceObject="System.String" Match="Split" ReplaceWith="split" />
+  <Method SourceObject="System.String" Match="Replace" ReplaceWith="replace" />
+  <Method SourceObject="System.String" Match="StartsWith" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="IsNullOrEmpty" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+
+  <Method SourceObject="Queue" Match="Enqueue" ReplaceWith="push" />
+  <Method SourceObject="Queue" Match="Dequeue" ReplaceWith="shift" />
+  <Method SourceObject="Queue" Match="Peek" ReplaceWith="First" ExtensionNamespace="Linq" />
+  <Method SourceObject="Queue" Match=".ctor">
+    <Argument Location="0" Action="DeleteIfPresent" />
+  </Method>
+  <Method SourceObject="Queue" Match="Clear" ReplaceWith="clear"/>
+
+  <Method SourceObject="*" Match="Reverse" ReplaceWith="reverse" />
+  <Method SourceObject="List" Match="Add" ReplaceWith="push" />
+  <Method SourceObject="List" Match="Clear" ReplaceWith="clear"/>
+  <Method SourceObject="*" Match="Sort" ReplaceWith="sort" />
+  <Method SourceObject="List" Match="Insert" ReplaceWith="insert" />
+  <Method SourceObject="*" Match="RemoveAt" ReplaceWith="splice">
+    <Argument Location="1" Action="Insert 1" />
+  </Method>
+  <Method SourceObject="List" Match=".ctor">
+    <Argument Location="0" Action="DeleteIfPresent" />
+  </Method>
+
+  <Method SourceObject="Stack" Match="Push" ReplaceWith="push" />
+  <Method SourceObject="Stack" Match="Pop" ReplaceWith="pop" />
+  <Method SourceObject="Stack" Match=".ctor">
+    <Argument Location="0" Action="DeleteIfPresent" />
+  </Method>
+
+  <Method SourceObject="Math" Match="Max" ReplaceWith="max" />
+  <Method SourceObject="Math" Match="Min" ReplaceWith="min" />
+  <Method SourceObject="Math" Match="Abs" ReplaceWith="abs" />
+
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="First" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="FirstWhere" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="FirstOrDefault" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Any" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="AnyWhere" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="All" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="AllWhere" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Single" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="SingleWhere" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="SingleOrDefault" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Select" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="SelectMany" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Last" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="LastWhere" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="LastOrDefault" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="ElementAt" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Count" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="CountWhere" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Intersect" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Where" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="ToDictionary" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="ToList" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="ToArray" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Distinct" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="GroupBy" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Min" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Max" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="MinInt" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="MaxInt" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="MaxDate" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="MinDate" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="CompareTo" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="OrderByDescending" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="OrderBy" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Sum" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Concat" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Except" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="OfType">
+    <Argument Location="0" Action="InsertVar GenericType" />
+  </Method>
+
+  <Property SourceObject="*" Match="Length" ReplaceWith="length" />
+  <Property SourceObject="*" Match="Count" ReplaceWith="length" />
+
+  <Type Match="Random" SourceObject="*" ReplaceWith="RandomAS" />
+  <Type Match="MulticastDelegate" SourceObject="*" ReplaceWith="Dynamic" />
+  <Type Match="Guid" SourceObject="*" ReplaceWith="String" />
+</Translations>

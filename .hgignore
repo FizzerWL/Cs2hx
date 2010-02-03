@@ -1,0 +1,9 @@
+syntax: glob
+*/bin/*
+*/obj/*
+*/Bin/*
+*/ClientBin/*
+*/TestResults/*
+*.suo
+*.vsmdi
+*.csproj.user
