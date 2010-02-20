@@ -64,6 +64,10 @@ import flash.utils.ByteArray;
             if (!Directory.Exists(OutDir))
                 Directory.CreateDirectory(outDir);
 
+            foreach (var sourceFile in sourceFiles)
+                if (!File.Exists(sourceFile))
+                    throw new FileNotFoundException(sourceFile + " does not exist");
+
             var parsers = sourceFiles.ToDictionary(o => o, o => ParserFactory.CreateParser(o));
 
             Console.WriteLine("Parsing...");
@@ -391,7 +395,38 @@ package ;");
             writer.WriteOpenBrace();
 
             if (!derivesFromObject)
-                writer.WriteLine("super();"); //TODO: What if the function calls its base class explicitly?
+            {
+                if (ctor != null && ctor.ConstructorInitializer != null)
+                {
+                    switch (ctor.ConstructorInitializer.ConstructorInitializerType)
+                    {
+                        case ConstructorInitializerType.Base:
+                            writer.WriteIndent();
+                            writer.Write("super(");
+
+                            bool firstArgument = true;
+                            foreach (var arg in ctor.ConstructorInitializer.Arguments)
+                            {
+                                if (firstArgument)
+                                    firstArgument = false;
+                                else
+                                    writer.Write(", ");
+
+                                WriteStatement(writer, arg);
+                            }
+
+                            writer.Write(");\r\n");
+                            break;
+                        case ConstructorInitializerType.None:
+                            writer.WriteLine("super();");
+                            break;
+                        case ConstructorInitializerType.This:
+                            throw new Exception(ctor.ConstructorInitializer.ConstructorInitializerType + " not supported.  " + Utility.Descriptor(ctor));
+                    }
+                }
+                else
+                    writer.WriteLine("super();");
+            }
 
             foreach (var field in instanceFieldsNeedingInitialization)
             {
@@ -772,7 +807,7 @@ package ;");
         private void WriteThisReferenceExpression(HaxeWriter writer, ThisReferenceExpression thisReferenceExpression)
         {
             if (InLambda > 0)
-                throw new InvalidOperationException("Cannot use \"this\" in a lambda.  Simply remove the \"this\" and use the field directly.  If you must access the \"this\" pointer, you must create a reference to it outside the lambda. Found at " + Utility.Descriptor(thisReferenceExpression));
+                throw new InvalidOperationException("Cannot use \"this\" in a lambda. You must create a reference to the \"this\" object outside the lambda for use inside. Found at " + Utility.Descriptor(thisReferenceExpression));
             writer.Write("this");
         }
 
@@ -1713,13 +1748,21 @@ package ;");
                             case "Parse":
                                 var t = ConvertRawType(memberReferenceExpression.TargetObject.As<TypeReferenceExpression>().TypeReference);
                                 if (t == null)
-                                    throw new Exception("Could not identify Parse method");
-                                if (t != "Int" && t != "Float")
-                                    throw new Exception("Parse method called on non-Int/Float type");
-                                writer.Write("Std.parse" + t);
+                                    throw new Exception("Could not identify Parse method at " + Utility.Descriptor(memberReferenceExpression));
+                                if (t == "Bool")
+                                {
+                                    writer.Write("HaxeUtility.ParseBool");
+                                }
+                                else if (t == "Int" || t == "Float")
+                                {
+                                    writer.Write("Std.parse" + t);
+                                }
+                                else
+                                    throw new Exception("Parse method on " + t + " is not supported.  " + Utility.Descriptor(memberReferenceExpression));
+                                
                                 break;
                             default:
-                                throw new Exception("Need handler for " + methodName);
+                                throw new Exception(methodName + " is not supported.  " + Utility.Descriptor(memberReferenceExpression));
                         }
                     }
                     else

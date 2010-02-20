@@ -27,7 +27,7 @@ CS2HX can derive your C# source files and pre-processor definitions from a .cspr
 can specify them yourself.
 
 Usage 1:
-    cs2hx.exe /out:<OutputDirectory> /csproj:<PathToCsprojFile> [/define:<symbol>] [options]
+    cs2hx.exe /out:<OutputDirectory> [options] /csproj:<PathToCsprojFile>
 
 Usage 2:
     cs2hx.exe /out:<OutputDirectory> [options] <SourceFile1> [SourceFile2]...
@@ -36,7 +36,7 @@ Usage 2:
 Options available:
 
     /define:<symbol>            
-        Defines a pre-processor symbol to obey when reading the source file.  The symbol CS2AS is automatically defined in all cases.
+        Defines a pre-processor symbol to obey when reading the source file.  The symbol CS2HX is automatically defined for you.
 
     /extraTranslation:<xml file>
         Defines extra conversion parameters for use with this project.  See Translations.xml for examples.");

@@ -14,6 +14,51 @@ namespace Test
     class UnitTest1
     {
         [Test]
+        public void ConstructorCallsBaseConstructor()
+        {
+            var cs = @"
+using System;
+
+namespace Blargh
+{
+    public static class Top
+    {
+        public Top(int i) { }
+    }
+
+    public static class Derived : Top
+    {
+        public Derived() : base(4) { }
+    }
+}";
+
+            var haxe1 = @" 
+package blargh;
+" + Program.StandardImports + @"
+
+class Top
+{
+    public function new(i:Int)
+    {
+    }
+}";
+
+            var haxe2 = @"
+package blargh;
+" + Program.StandardImports + @"
+
+class Derived extends Top
+{
+    public function new()
+    {
+        super(4);
+    }
+}";
+
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, cs, new string[] { haxe1, haxe2 }); 
+        }
+
+        [Test]
         public void ImportStatements()
         {
             var cSharp = @"

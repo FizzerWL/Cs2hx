@@ -7,6 +7,31 @@ import system.Cs2Hx;
 
 class Linq
 {
+	public static function Take<T>(a:Array<T>, numToTake:Int):Array<T>
+	{
+		var ret = new Array<T>();
+		for (e in a)
+		{
+			if (numToTake-- <= 0)
+				break;
+			ret.push(e);
+		}
+		return ret;
+	}
+	
+	public static function Skip<T>(a:Array<T>, numToSkip:Int):Array<T>
+	{
+		var ret = new Array<T>();
+		for (e in a)
+		{
+			if (numToSkip > 0)
+				numToSkip--;
+			else
+				ret.push(e);
+		}
+		return ret;
+	}
+	
 	public static function CompareTo(a:Int, b:Int):Int
 	{
 		return a - b; 
@@ -368,7 +393,7 @@ class Linq
 				
 		return ret;
 	}
-	
+		
 	public static function OrderBy<T>(a:Array<T>, selector:T -> Float):Array<T>
 	{
 		var list:Array<T> = ToArray(a);
