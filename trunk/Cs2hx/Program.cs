@@ -20,6 +20,7 @@ namespace Cs2hx
         internal Dictionary<string, IEnumerable<DelegateDeclaration>> Delegates;
         internal HashSet<string> StaticConstructors = new HashSet<string>();
         internal int InLambda = 0;
+        internal int InForLoop = 0;
 
         public static string StandardImports = @"
 import system.collections.generic.CSDictionary;
@@ -801,6 +802,8 @@ package ;");
 
         private void WriteContinueStatement(HaxeWriter writer, ContinueStatement continueStatement)
         {
+            if (InForLoop > 0)
+                throw new Exception("Cannot use \"continue\" in a \"for\" loop.  Consider changing to a while loop instead. " + Utility.Descriptor(continueStatement));
             writer.WriteLine("continue;");
         }
 
@@ -1117,6 +1120,8 @@ package ;");
 
         private void WriteForStatement(HaxeWriter writer, ForStatement forStatement)
         {
+            InForLoop++;
+
             writer.WriteLine("{ //for");
             writer.Indent++;
 
@@ -1138,6 +1143,8 @@ package ;");
             writer.WriteCloseBrace();
             writer.Indent--;
             writer.WriteLine("} //end for");
+
+            InForLoop--;
         }
 
         private void WriteDoLoopStatement(HaxeWriter writer, DoLoopStatement doLoopStatement)

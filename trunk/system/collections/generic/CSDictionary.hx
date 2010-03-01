@@ -4,6 +4,7 @@ import flash.Error;
 import flash.events.KeyboardEvent;
 import system.collections.generic.KeyValuePair;
 import system.Cs2Hx;
+import system.Exception;
 
 class CSDictionary<K, V>
 {
@@ -26,7 +27,11 @@ class CSDictionary<K, V>
 	
 	public function GetValue(key:K):V
 	{
-		return store.get(Cs2Hx.Hash(key));
+		var h = Cs2Hx.Hash(key);
+		
+		if (!store.exists(h))
+			throw new Exception("Key does not exist: " + h);
+		return store.get(h);
 	}
 	
 	public function ContainsKey(key:K):Bool

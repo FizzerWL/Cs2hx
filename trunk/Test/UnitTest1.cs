@@ -14,6 +14,30 @@ namespace Test
     class UnitTest1
     {
         [Test]
+        [ExpectedException(ExpectedMessage = "Cannot use \"continue\" in a \"for\" loop", MatchType = MessageMatch.StartsWith)]
+        public void CannotUseContinueInForLoop()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class SomeClass
+    {
+        public void SomeMethod()
+        {
+            for(int i=0;i<40;i++)
+            {
+                if (i % 3 == 0)
+                    continue;
+                trace(i);
+            }
+        }
+    }
+}", ""); 
+        }
+
+        [Test]
         public void ConstructorCallsBaseConstructor()
         {
             var cs = @"
