@@ -1,7 +1,6 @@
 package system.collections.generic;
 
-import flash.Error;
-import flash.events.KeyboardEvent;
+
 import system.collections.generic.KeyValuePair;
 import system.Cs2Hx;
 import system.Exception;
@@ -20,7 +19,7 @@ class CSDictionary<K, V>
 	public function Add(key:K, value:V):Void
 	{
 		if (ContainsKey(key))
-			throw new Error("Key already exists: " + key);
+			throw new Exception("Key already exists: " + key);
 		store.set(Cs2Hx.Hash(key), value);
 		keys.push(key);
 	}

@@ -17,7 +17,7 @@ class Nullable_Int
 	public function ValueGetter():Int
 	{
 		if (!HasValue)
-			throw new Exception("Tried to access the value of a null Nullable_Number");
+			throw new Exception("Tried to access the value of a null Nullable_Int");
 			
 		return val;
 	}

@@ -1,5 +1,5 @@
 package system;
-import flash.Error;
+
 import system.Cs2Hx;
 
 class Guid
@@ -13,7 +13,7 @@ class Guid
 			ret += Cs2Hx.CharToHex(Std.random(16));
 		
 		if (ret.length != 32)
-			throw new Error();
+			throw new Exception();
 		return ret;
 	}
 	

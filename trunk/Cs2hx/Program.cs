@@ -23,30 +23,37 @@ namespace Cs2hx
         internal int InForLoop = 0;
 
         public static string StandardImports = @"
+import system.ArgumentException;
 import system.collections.generic.CSDictionary;
 import system.collections.generic.HashSet;
-import system.TimeSpan;
+import system.collections.generic.KeyValuePair;
+import system.Cs2Hx;
 import system.DateTime;
+import system.diagnostics.Stopwatch;
+import system.Enumerable;
+import system.Exception;
+import system.Guid;
+import system.IDisposable;
+import system.InvalidOperationException;
 import system.io.BinaryReader;
 import system.io.BinaryWriter;
-import system.text.StringBuilder;
-import system.linq.Linq;
 import system.KeyNotFoundException;
-import system.ArgumentException;
-import system.InvalidOperationException;
-import system.Exception;
-import system.Cs2Hx;
-import system.RandomAS;
-import system.collections.generic.KeyValuePair;
-import system.IDisposable;
-import system.ThreadAbortException;
-import system.OverflowException;
-import system.Nullable_Int;
-import system.Nullable_Float;
+import system.linq.Linq;
 import system.NotImplementedException;
-import system.Enumerable;
-import system.Guid;
-import flash.utils.ByteArray;
+import system.Nullable_Float;
+import system.Nullable_Int;
+import system.Nullable_Bool;
+import system.Nullable_TimeSpan;
+import system.Nullable_DateTime;
+import system.OverflowException;
+import system.RandomAS;
+import system.text.StringBuilder;
+import system.text.UTF8Encoding;
+import system.ThreadAbortException;
+import system.TimeoutException;
+import system.TimeSpan;
+
+import haxe.io.Bytes;
 ";
 
         /// <summary>
@@ -1231,7 +1238,11 @@ package ;");
                 if (arrayCreateExpression.ArrayInitializer.CreateExpressions.Count > 0)
                     throw new Exception("Cannot use array initialization syntax for byte arrays");
 
-                writer.Write("new ByteArray()");
+                writer.Write("Bytes.alloc(");
+
+				if (arrayCreateExpression.Arguments.Any())
+					WriteStatement(writer, arrayCreateExpression.Arguments.Single(), false);
+				writer.Write(")");
             }
             else
             {
@@ -1418,7 +1429,7 @@ package ;");
         public string ConvertRawType(TypeReference type, bool ignoreArrayType, bool ignoreGenericArguments)
         {
             if (type.IsArrayType && type.Type == "System.Byte")
-                return "ByteArray";
+                return "Bytes";
             if (!ignoreArrayType && type.IsArrayType)
                 return "Array<" + ConvertRawType(type, true, false) + ">";
 
@@ -1767,6 +1778,12 @@ package ;");
                                 else
                                     throw new Exception("Parse method on " + t + " is not supported.  " + Utility.Descriptor(memberReferenceExpression));
                                 
+                                break;
+                            case "IsNaN":
+                                writer.Write("Math.isNaN");
+                                break;
+                            case "IsInfinity":
+                                writer.Write("Cs2Hx.IsInfinity");
                                 break;
                             default:
                                 throw new Exception(methodName + " is not supported.  " + Utility.Descriptor(memberReferenceExpression));

@@ -3,6 +3,11 @@ import system.Exception;
 
 class Cs2Hx
 {
+	public static inline function IsInfinity(f:Float):Bool
+	{
+		return !Math.isFinite(f);
+	}
+	
 	public static inline function Hash(o:Dynamic):String
 	{
 		return Std.string(o);

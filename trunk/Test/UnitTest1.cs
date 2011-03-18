@@ -13,6 +13,39 @@ namespace Test
     [TestFixture]
     class UnitTest1
     {
+		[Test]
+		public void ByteArrays()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction()
+        {
+            byte[] b1 = new byte[4];
+			byte[] b2 = new byte[SomeFunction()];
+        }
+    }
+}", @"
+package blargh;
+" + Program.StandardImports + @"
+
+class Utilities
+{
+    public static function SomeFunction():Void
+    {
+        var b1:Bytes = Bytes.alloc(4);
+		var b2:Bytes = Bytes.alloc(SomeFunction());
+    }
+    public function new()
+    {
+    }
+}");
+		}
+
         [Test]
         [ExpectedException(ExpectedMessage = "Cannot use \"continue\" in a \"for\" loop", MatchType = MessageMatch.StartsWith)]
         public void CannotUseContinueInForLoop()

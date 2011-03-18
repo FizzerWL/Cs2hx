@@ -1,18 +1,34 @@
 package system.io;
 
+import haxe.Int32;
+import haxe.io.BytesInput;
+import haxe.io.Bytes;
+import system.text.StringBuilder;
+import system.Exception;
+import system.text.UTF8Encoding;
+
+#if flash
 import flash.utils.ByteArray;	
 import flash.utils.Endian;
-import flash.Error;
-import system.text.StringBuilder;
+#end
 
 class BinaryReader
 {
-	public var arr:ByteArray;
+	#if flash
+	private var arr:ByteArray;
+	#else
+	private var reader:BytesInput;
+	#end
 	
-	public function new(readFrom:ByteArray)
+	public function new(readFrom:Bytes)
 	{
-		arr = readFrom;
+		#if flash
+		arr = readFrom.getData();
+		arr.position = 0;
 		arr.endian = Endian.LITTLE_ENDIAN;
+		#else
+		reader = new BytesInput(readFrom);
+		#end
 	}
 	
 	public function Read7BitEncodedInt():Int
@@ -23,7 +39,7 @@ class BinaryReader
 		do
 		{
 			if (num2 == 0x23)
-				throw new Error("Bad format");
+				throw new Exception("Bad format");
 				
 			num3 = this.ReadByte();
 			num |= (num3 & 0x7f) << num2;
@@ -33,15 +49,15 @@ class BinaryReader
 		return num;
 	}
 	
-	public function ReadBytes(num:Int):ByteArray
+	public function ReadBytes(num:Int):Bytes
 	{
-		var ret:ByteArray = new ByteArray();
-		while (num > 0)
-		{
-			ret.writeByte(this.ReadByte());
-			num--;
-		}
-		return ret;
+		var r:Bytes = Bytes.alloc(num);
+		
+		var i:Int = 0;
+		while (i < num)
+			r.set(i++, this.ReadByte());
+
+		return r;
 	}
 	
 	public function ReadInt64():Float
@@ -50,50 +66,78 @@ class BinaryReader
 	}
 	public function ReadInt32():Int
 	{
+		#if flash
 		return arr.readInt();
+		#else
+		return haxe.Int32.toInt(reader.readInt32());
+		#end
 	}
 	public function ReadUInt16():Int
 	{
+		#if flash
 		return arr.readUnsignedShort();
+		#else
+		return reader.readUInt16();
+		#end
 	}
 	public function ReadInt16():Int
 	{
+		#if flash
 		return arr.readShort();
+		#else
+		return reader.readInt16();
+		#end
 	}
 	public function ReadUInt32():Int //should be uint
 	{
+		#if flash
 		return arr.readUnsignedInt();
+		#else
+		return Int32.toInt(reader.readInt32());
+		#end
 	}
 	public function ReadString():String
 	{
-		var length:Int = Read7BitEncodedInt();
+		var bytes:Int = Read7BitEncodedInt();
 		
-		//trace("Read string length of " + length);
+		#if flash
 		
-		if (length == 0)
-			return "";
-			
-		var sb:StringBuilder = new StringBuilder();
-		
-		for (i in 0...length) 
-			sb.AppendChar(this.ReadByte());
-		return sb.toString();
+		return arr.readUTFBytes(bytes);
+
+		#else
+		throw new Exception("TODO");
+		#end
 	}
 	public function ReadBoolean():Bool
 	{
-		var ret:Bool = arr.readBoolean();
-		return ret;
+		#if flash
+		return arr.readBoolean();
+		#else
+		return reader.readByte() != 0;
+		#end
 	}
 	public function ReadDouble():Float
 	{
+		#if flash
 		return arr.readDouble();
+		#else
+		return reader.readDouble();
+		#end
 	}
 	public function ReadSingle():Float
 	{
+		#if flash
 		return arr.readFloat();
+		#else
+		return reader.readFloat();
+		#end
 	}
 	public function ReadByte():Int
 	{
+		#if flash
 		return arr.readUnsignedByte();
+		#else
+		return reader.readByte();
+		#end
 	}
 }

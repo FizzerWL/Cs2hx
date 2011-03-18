@@ -43,4 +43,10 @@ class StringBuilder
 	{
 		Append(String.fromCharCode(char));
 	}
+	
+	public inline function AppendLine(append:String):Void
+	{
+		Append(append);
+		Append("\n");
+	}
 }

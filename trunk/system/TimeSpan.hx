@@ -26,6 +26,11 @@ class TimeSpan
 		MinValue = new TimeSpan(-922337203685477);
 	}
 	
+	public function toString():String
+	{
+		return Std.string(this.Ticks);
+	}
+	
 	public function new(milliseconds : Float)
 	{
 		_totalMilliseconds = Math.floor(milliseconds);
@@ -39,6 +44,11 @@ class TimeSpan
 	public static inline function FromTicks(ticks:Float):TimeSpan
 	{
 		return new TimeSpan(ticks);
+	}
+	
+	public inline function Subtract(other:TimeSpan):TimeSpan
+	{
+		return TimeSpan.FromTicks(this.TicksGetter() - other.TicksGetter());
 	}
 	
 	public inline function TicksGetter() : Float

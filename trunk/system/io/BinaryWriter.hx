@@ -1,69 +1,109 @@
 package system.io;
 
-import flash.Error;
+#if flash
 import flash.utils.ByteArray;
 import flash.utils.Endian;
+import system.Exception;
+import system.text.UTF8Encoding;
+#end
+
+import haxe.io.Bytes;
+import haxe.io.BytesOutput;
 
 class BinaryWriter
 {
-	public var arr:ByteArray;
+	#if flash
+	private var writer:ByteArray;
+	#else
+	private var writer:BytesOutput;
+	#end
 	
 	public function new()
 	{
-		arr = new ByteArray();
-		arr.endian = Endian.LITTLE_ENDIAN;
+		#if flash
+		writer = new ByteArray();
+		writer.endian = Endian.LITTLE_ENDIAN;
+		#else
+		writer = new BytesOutput();
+		#end
 	}
 	
-	public function WriteInt64(data:Float):Void
+	public function GetBytes():Bytes
 	{
-		throw new Error("WriteInt64 TODO");
-		//for (i in 0...8)
-		//	arr.writeByte(data >> (8 * i));
+		#if flash
+		return Bytes.ofData(writer);
+		#else
+		return writer.getBytes();
+		#end
 	}
-	public function WriteByteArray(data:ByteArray):Void
+	
+	public function WriteByteArray(data:Bytes):Void
 	{
-		arr.writeBytes(data, 0, data.length);
+		#if flash
+		writer.writeBytes(data.getData(), 0, data.length);
+		#else
+		writer.writeFullBytes(data, 0, data.length);
+		#end
 	}
 	public function WriteInt32(data:Int):Void
 	{
-		arr.writeInt(data);
+		#if flash
+		writer.writeInt(data);
+		#else
+		writer.writeInt32(haxe.Int32.ofInt(data));
+		#end
 	}
 	public function WriteUInt16(data:Int):Void
 	{
 		for (i in 0...2)
-			arr.writeByte(data >> (8 * i));
+			writer.writeByte(data >> (8 * i));
 	}
 	public function WriteInt16(data:Int):Void
 	{
 		for (i in 0...2)
-			arr.writeByte(data >> (8 * i));
+			writer.writeByte(data >> (8 * i));
 	}
 	public function WriteUInt32(data:Int):Void //Should be uint...
 	{
-		arr.writeUnsignedInt(data);
+		#if flash
+		writer.writeUnsignedInt(data);
+		#else
+		writer.writeUInt30(data);
+		#end
 	}
 	public function WriteString(data:String):Void
 	{
-		this.Write7BitEncodedInt(data.length);
+		#if flash
 		
-		for (i in 0...data.length)
-			WriteByte(data.charCodeAt(i));
+		var b:ByteArray = new ByteArray();
+		b.writeUTFBytes(data);
+		
+		this.Write7BitEncodedInt(b.length);
+		writer.writeBytes(b);
+		
+		#else
+		throw new Exception("TODO");
+		#end
 	}
 	public function WriteBoolean(data:Bool):Void
 	{
-		arr.writeBoolean(data);
+		#if flash
+		writer.writeBoolean(data);
+		#else
+		writer.writeByte(data ? 1 : 0);
+		#end
 	}
 	public function WriteDouble(data:Float):Void
 	{
-		arr.writeDouble(data);
+		writer.writeDouble(data);
 	}
 	public function WriteSingle(data:Float):Void
 	{
-		arr.writeFloat(data);
+		writer.writeFloat(data);
 	}
 	public function WriteByte(data:Int):Void
 	{
-		arr.writeByte(data);
+		writer.writeByte(data);
 	}
 	
 	public function Write7BitEncodedInt(value:Int):Void

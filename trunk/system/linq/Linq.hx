@@ -75,46 +75,36 @@ class Linq
 
 	public static function First<T>(a:Array<T>):T
 	{
-		var iterator:Iterator<T> = a.iterator();
-		if (!iterator.hasNext())
-			throw new Exception("First() called on empty item");
-		return iterator.next();
+		for (e in a)
+			return e;
+			
+		throw new Exception("First() called on empty collection");
 	}
 	
 	
 	public static function FirstWhere<T>(a:Array<T>, match:T -> Bool):T
 	{
-		var iterator:Iterator<T> = a.iterator();
-		while (iterator.hasNext())
-		{
-			var i:T = iterator.next();
+		for(i in a)
 			if (match(i))
 				return i;
-		}
-		throw new Exception("No matching items");
+
+		throw new Exception("No matching item");
 	}
 	
 	public static function ElementAt<T>(a:Array<T>, index:Int):T
 	{
-		var iterator:Iterator<T> = a.iterator();
-		
-		while (iterator.hasNext())
-		{
-			var i:T = iterator.next();
+		for(i in a)
 			if (index-- <= 0)
 				return i;
-		}
 		
 		throw new Exception("ElementAt out of range");
 	}
 	
 	public static function Last<T>(a:Array<T>):T
 	{
-		var iterator:Iterator<T> = a.iterator();
-
 		var i:T = null;
-		while (iterator.hasNext())
-			i = iterator.next();
+		for (e in a)
+			i = e;
 			
 		if (i == null)
 			throw new Exception("No matching items");
@@ -122,40 +112,27 @@ class Linq
 	}
 	public static function Count<T>(a:Array<T>):Int
 	{
-		var iterator:Iterator<T> = a.iterator();
-
 		var i:Int = 0;
-		while (iterator.hasNext())
-		{
-			iterator.next();
+		for (e in a)
 			i++;
-		}
 		return i;
 	}
 	public static function Where<T>(a:Array<T>, match:T -> Bool):Array<T>
 	{
-		var iterator:Iterator<T> = a.iterator();
 		var ret = new Array<T>();
 
-		while (iterator.hasNext())
-		{
-			var e:T = iterator.next();
-			
+		for (e in a)
 			if (match(e)) 
 				ret.push(e);
-		}
+
 		return ret;
 	}
 	public static function CountWhere<T>(a:Array<T>, match:T -> Bool):Int
 	{
-		var iterator:Iterator<T> = a.iterator();
-
 		var i:Int = 0;
-		while (iterator.hasNext())
-		{
-			if (match(iterator.next()))
+		for(e in a)
+			if (match(e))
 				i++;
-		}
 		return i;
 	}
 	

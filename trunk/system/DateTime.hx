@@ -17,6 +17,11 @@ class DateTime
 			date = Date.fromTime(ticks);
 	}
 	
+	public function Add(span:TimeSpan):DateTime
+	{
+		return new DateTime(date.getTime() + span.TicksGetter());
+	}
+	
 	public inline function toString():String
 	{
 		return date.toString();
