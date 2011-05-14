@@ -263,6 +263,16 @@ package ;");
 
                 if (!isEnum)
                 {
+                    //Look for generic arguments
+                    var genericArgs = partials.SelectMany(o => o.Templates).ToList();
+                    if (genericArgs.Count > 0)
+                    {
+                        writer.Write("<");
+                        writer.Write(string.Join(", ", genericArgs.Select(o => o.Name).ToArray()));
+                        writer.Write(">");
+                    }
+
+
                     writer.Write(" ");
 
                     var firstExtends = true;
@@ -280,6 +290,13 @@ package ;");
                         {
                             writer.Write("implements ");
                             writer.Write(baseType.Type);
+
+                            if (baseType.GenericTypes.Count > 0)
+                            {
+                                writer.Write("<");
+                                writer.Write(string.Join(", ", baseType.GenericTypes.Select(o => o.Type).ToArray()));
+                                writer.Write(">");
+                            }
                         }
                         else
                         {
@@ -533,66 +550,76 @@ package ;");
                 if (!property.HasGetRegion && !property.HasSetRegion)
                     throw new Exception("Property must have either a get or a set");
 
-                Func<Modifiers, bool> oneRegionHas = mod => property.Modifier.Has(mod) || (property.HasGetRegion && property.GetRegion.Modifier.Has(mod)) || (property.HasSetRegion && property.SetRegion.Modifier.Has(mod));
-
-                if (!oneRegionHas(Modifiers.Override))
+                if (property.HasGetRegion && property.HasSetRegion && property.GetRegion.Block.IsNull && property.SetRegion.Block.IsNull)
                 {
-                    //Write the property declaration.  Overridden properties don't need this.
-                    writer.WriteIndent();
-                    if (oneRegionHas(Modifiers.Public) || oneRegionHas(Modifiers.Internal))
-                        writer.Write("public ");
-                    if (oneRegionHas(Modifiers.Static))
-                        writer.Write("static ");
-                    writer.Write("var ");
-                    writer.Write(property.Name);
-                    writer.Write("(");
+                    //Both get and set are null, which means this is an automatic property.  This is the equivilant of a field in haxe.
+                    WriteField(writer, property.Modifier, property.Name, property.TypeReference);
+                }
+                else
+                {
+
+                    Func<Modifiers, bool> oneRegionHas = mod => property.Modifier.Has(mod) || (property.HasGetRegion && property.GetRegion.Modifier.Has(mod)) || (property.HasSetRegion && property.SetRegion.Modifier.Has(mod));
+
+                    if (!oneRegionHas(Modifiers.Override))
+                    {
+                        //Write the property declaration.  Overridden properties don't need this.
+                        writer.WriteIndent();
+                        if (oneRegionHas(Modifiers.Public) || oneRegionHas(Modifiers.Internal))
+                            writer.Write("public ");
+                        if (oneRegionHas(Modifiers.Static))
+                            writer.Write("static ");
+                        writer.Write("var ");
+                        writer.Write(property.Name);
+                        writer.Write("(");
+
+                        if (property.HasGetRegion)
+                            writer.Write("get_" + property.Name);
+                        else
+                            writer.Write("never");
+
+                        writer.Write(", ");
+
+                        if (property.HasSetRegion)
+                            writer.Write("set_" + property.Name);
+                        else
+                            writer.Write("never");
+
+                        writer.Write(")");
+                        writer.Write(TryConvertType(property.TypeReference));
+                        writer.Write(";\r\n");
+                    }
 
                     if (property.HasGetRegion)
-                        writer.Write("get_" + property.Name);
-                    else
-                        writer.Write("never");
-
-                    writer.Write(", ");
-
+                        writeRegion(property.GetRegion, true);
                     if (property.HasSetRegion)
-                        writer.Write("set_" + property.Name);
-                    else
-                        writer.Write("never");
-
-                    writer.Write(")");
-                    writer.Write(TryConvertType(property.TypeReference));
-                    writer.Write(";\r\n");
+                        writeRegion(property.SetRegion, false);
                 }
-
-                if (property.HasGetRegion)
-                    writeRegion(property.GetRegion, true);
-                if (property.HasSetRegion)
-                    writeRegion(property.SetRegion, false);
             }
         }
 
         private void GenerateFields(HaxeWriter writer, IEnumerable<FieldDeclaration> fields)
         {
             foreach (var field in fields)
-            {
                 foreach (var declaration in field.Fields)
-                {
-                    writer.WriteIndent();
-                    if (field.Modifier.Has(Modifiers.Public) || field.Modifier.Has(Modifiers.Protected) || field.Modifier.Has(Modifiers.Internal))
-                        writer.Write("public ");
-                    if (field.Modifier.Has(Modifiers.Private))
-                        writer.Write("private ");
-                    if (field.Modifier.Has(Modifiers.Static) || field.Modifier.Has(Modifiers.Const))
-                        writer.Write("static ");
+                    WriteField(writer, field.Modifier, declaration.Name, field.TypeReference);
+        }
 
-                    writer.Write("var ");
+        private void WriteField(HaxeWriter writer, Modifiers modifier, string name, TypeReference type)
+        {
+            writer.WriteIndent();
+            if (modifier.Has(Modifiers.Public) || modifier.Has(Modifiers.Protected) || modifier.Has(Modifiers.Internal))
+                writer.Write("public ");
+            if (modifier.Has(Modifiers.Private))
+                writer.Write("private ");
+            if (modifier.Has(Modifiers.Static) || modifier.Has(Modifiers.Const))
+                writer.Write("static ");
 
-                    writer.Write(declaration.Name);
-                    writer.Write(TryConvertType(field.TypeReference));
-                    writer.Write(";");
-                    writer.WriteLine();
-                }
-            }
+            writer.Write("var ");
+
+            writer.Write(name);
+            writer.Write(TryConvertType(type));
+            writer.Write(";");
+            writer.WriteLine();
         }
 
         private void GenerateMethods(HaxeWriter writer, IEnumerable<MethodDeclaration> methods, bool typeDerivesFromObject)

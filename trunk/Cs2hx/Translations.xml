@@ -16,11 +16,17 @@
   <Method SourceObject="Queue" Match=".ctor">
     <Argument Location="0" Action="DeleteIfPresent" />
   </Method>
-  <Method SourceObject="Queue" Match="Clear" ReplaceWith="clear"/>
+  <Method SourceObject="Queue" Match="Clear" ReplaceWith="splice">
+    <Argument Location="0" Action="Insert 0" />
+    <Argument Location="1" Action="Insert {varName}.length" />
+  </Method>
 
   <Method SourceObject="*" Match="Reverse" ReplaceWith="reverse" />
   <Method SourceObject="List" Match="Add" ReplaceWith="push" />
-  <Method SourceObject="List" Match="Clear" ReplaceWith="clear"/>
+  <Method SourceObject="List" Match="Clear" ReplaceWith="splice">
+    <Argument Location="0" Action="Insert 0" />
+    <Argument Location="1" Action="Insert {varName}.length" />
+  </Method>
   <Method SourceObject="*" Match="Sort" ReplaceWith="sort" />
   <Method SourceObject="List" Match="Insert" ReplaceWith="insert" />
   <Method SourceObject="*" Match="RemoveAt" ReplaceWith="splice">
@@ -78,7 +84,7 @@
   <Method SourceObject="*" ExtensionNamespace="Linq" Match="Concat" />
   <Method SourceObject="*" ExtensionNamespace="Linq" Match="Except" />
   <Method SourceObject="*" ExtensionNamespace="Linq" Match="OfType">
-    <Argument Location="0" Action="InsertVar GenericType" />
+    <Argument Location="0" Action="Insert {genericType}" />
   </Method>
 
   <Property SourceObject="*" Match="Length" ReplaceWith="length" />

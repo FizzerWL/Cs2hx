@@ -13,6 +13,98 @@ namespace Test
     [TestFixture]
     class UnitTest1
     {
+        [Test]
+        public void AutomaticProperties()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    class Box
+    {
+        public float Width
+        {
+            get;
+            set;
+        }
+    }
+}", @"
+package blargh;
+" + Program.StandardImports + @"
+
+class Box
+{
+    public var Width:Float;
+    public function new()
+    {
+    }
+}");
+        }
+
+        [Test]
+        public void GenericClass()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public class KeyValueList<K,V> : ISomeInterface<K>
+    {
+        private List<KeyValuePair<K, V>> _list = new List<KeyValuePair<K, V>>();
+        
+        public void Add(K key, V value)
+        {
+            _list.Add(new KeyValuePair<K, V>(key, value));
+        }
+
+        public void Insert(int index, K key, V value)
+        {
+            _list.Insert(index, new KeyValuePair<K, V>(key, value));
+        }
+
+        public void Clear()
+        {
+            _list.Clear();
+        }
+
+        public void RemoveAt(int index)
+        {
+            _list.RemoveAt(index);
+        }
+    }
+}", @"
+package blargh;
+" + Program.StandardImports + @"
+
+class KeyValueList<K, V> implements ISomeInterface<K>
+{
+    private var _list:Array<KeyValuePair<K, V>>;
+
+    public function Add(key:K, value:V):Void
+    {
+        _list.push(new KeyValuePair<K, V>(key, value));
+    }
+    public function Insert(index:Int, key:K, value:V):Void
+    {
+        _list.insert(index, new KeyValuePair<K, V>(key, value));
+    }
+    public function Clear():Void
+    {
+        _list.splice(0, _list.length);
+    }
+    public function RemoveAt(index:Int):Void
+    {
+        _list.splice(index, 1);
+    }
+    public function new()
+    {
+        _list = new Array<KeyValuePair<K, V>>();
+    }
+}");
+        }
+
 		[Test]
 		public void ByteArrays()
 		{
@@ -704,7 +796,7 @@ namespace Blargh
             trace(e.CountWhere(o => true) + 2);
 
             Dictionary<int, int> dict = e.ToDictionary(o => o, o => 555);
-            //e.OfType<int>();
+            e.OfType<int>();
         }
     }
 }", @"
@@ -740,6 +832,7 @@ class Utilities
         {
             return 555;
         } );
+        Linq.OfType(e, Int);
     }
     public function new()
     {
@@ -1297,7 +1390,7 @@ class Utilities
         queue.push(4);
         queue.push(2);
         trace(queue.shift());
-        queue.clear();
+        queue.splice(0, queue.length);
 
         var list:Array<String> = new Array<String>();
         list.push(""Three"");

@@ -142,6 +142,16 @@ namespace Cs2hx
                         }
                     }
                 }
+                else if (t is FieldDeclaration)
+                {
+                    var fields = t.As<FieldDeclaration>();
+
+                    if (fields.Fields.Any(o => o.Name == identifier.Identifier))
+                    {
+                        type = fields.TypeReference;
+                        return true;
+                    }
+                }
             }
 
             if (startAt.Parent.Parent != null && TryFindType(identifier, startAt.Parent, out type))

@@ -35,6 +35,38 @@ namespace Cs2hx.Translations
                 }).ToList();
         }
 
+        private string ReplaceSpecialIndicators(string rawString, Program p, InvocationExpression invoke)
+        {
+            if (rawString.Contains("{genericType}"))
+                rawString = ReplaceGenericVar(rawString, p, invoke);
+
+            if (rawString.Contains("{varName}"))
+                rawString = ReplaceVarName(rawString, p, invoke);
+
+            return rawString;
+        }
+
+        private string ReplaceVarName(string rawString, Program p, InvocationExpression invoke)
+        {
+            var memberReference = invoke.TargetObject.As<MemberReferenceExpression>();
+
+            var identifier = memberReference.TargetObject as IdentifierExpression;
+
+            if (identifier == null)
+                throw new Exception("Calling method " + memberReference.MemberName + " needs to be called directly from an identifier, since we need to reference this object in its arguments list.");
+
+            var varName = identifier.Identifier;
+
+            return rawString.Replace("{varName}", varName);
+        }
+
+        private string ReplaceGenericVar(string rawString, Program p, InvocationExpression invoke)
+        {
+            var genericVar = p.ConvertRawType(invoke.TargetObject.As<MemberReferenceExpression>().TypeArguments.Single());
+
+            return rawString.Replace("{genericType}", genericVar);
+        }
+
 
         internal IEnumerable<Expression> TranslateParameters(List<Expression> list, InvocationExpression invoke, Program p)
         {
@@ -57,23 +89,7 @@ namespace Cs2hx.Translations
                     list.Insert(int.Parse(arg.Action.Substring(7)), item);
                 }
                 else if (arg.Action.StartsWith("Insert "))
-                    list.Insert(arg.Location, new IdentifierExpression(arg.Action.Substring(7)));
-                else if (arg.Action.StartsWith("InsertVar"))
-                {
-                    var var = arg.Action.Substring("InsertVar".Length + 1);
-                    string result;
-
-                    switch (var)
-                    {
-                        case "GenericType":
-                            result = p.ConvertRawType(invoke.TargetObject.As<MemberReferenceExpression>().TypeArguments.Single());
-                            break;
-                        default:
-                            throw new Exception("Need handler for " + var);
-                    }
-
-                    list.Insert(arg.Location, new IdentifierExpression(result));
-                }
+                    list.Insert(arg.Location, new IdentifierExpression(ReplaceSpecialIndicators(arg.Action.Substring(7), p, invoke)));
                 else
                     throw new Exception("Need handler for " + arg.Action);
             }
