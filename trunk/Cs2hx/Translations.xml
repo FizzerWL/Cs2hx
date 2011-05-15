@@ -7,6 +7,8 @@
   <Method SourceObject="System.String" Match="Substring" ReplaceWith="substr" />
   <Method SourceObject="System.String" Match="Split" ReplaceWith="split" />
   <Method SourceObject="System.String" Match="Replace" ReplaceWith="replace" />
+  <Method SourceObject="System.String" Match="ToLower" ReplaceWith="toLowerCase" />
+  <Method SourceObject="System.String" Match="ToUpper" ReplaceWith="toUpperCase" />
   <Method SourceObject="System.String" Match="StartsWith" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="IsNullOrEmpty" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
 
