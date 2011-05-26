@@ -33,7 +33,7 @@ namespace Cs2hx.Translations
             return ret;
         }
 
-        public static Translation GetTranslation(IEnumerable<XDocument> docs, TranslationType type, string objectName, TypeReference typeReference)
+        public static Translation GetTranslation(TranslationType type, string objectName, TypeReference typeReference)
         {
             string sourceTypeName;
 
@@ -42,10 +42,10 @@ namespace Cs2hx.Translations
             else
                 sourceTypeName = typeReference.Type;
 
-            return GetTranslation(docs, type, objectName, sourceTypeName);
+            return GetTranslation(type, objectName, sourceTypeName);
         }
 
-        public static Translation GetTranslation(IEnumerable<XDocument> docs, TranslationType type, string objectName, Expression expression)
+        public static Translation GetTranslation(TranslationType type, string objectName, Expression expression)
         {
             string source = null;
 
@@ -62,20 +62,20 @@ namespace Cs2hx.Translations
             else if (expression is TypeReferenceExpression)
                 source = expression.As<TypeReferenceExpression>().TypeReference.Type;
 
-            return GetTranslation(docs, type, objectName, source);
+            return GetTranslation(type, objectName, source);
         }
 
-        public static IEnumerable<string> ExtraImports(IEnumerable<XDocument> docs)
+        public static IEnumerable<string> ExtraImports()
         {
-            return docs.SelectMany(o => o.XPathSelectElements("/Translations/ExtraImport")).Select(o => o.Attribute("Import").Value);
+            return Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/ExtraImport")).Select(o => o.Attribute("Import").Value);
         }
 
-        public static Translation GetTranslation(IEnumerable<XDocument> docs, TranslationType type, string objectName, string sourceTypeName)
+        public static Translation GetTranslation(TranslationType type, string objectName, string sourceTypeName)
         {
             if (string.IsNullOrEmpty(sourceTypeName))
                 sourceTypeName = "*";
 
-            var matches = docs.SelectMany(o => o.XPathSelectElements("/Translations/" + type.ToString() + "[(@SourceObject = '*' or @SourceObject = '" + sourceTypeName + "') and @Match='" + objectName + "']")).ToList();
+            var matches = Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/" + type.ToString() + "[(@SourceObject = '*' or @SourceObject = '" + sourceTypeName + "') and @Match='" + objectName + "']")).ToList();
 
             if (matches.Count == 0)
                 return null;

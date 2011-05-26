@@ -15,46 +15,47 @@ namespace Cs2hx
     {
         internal string OutDir;
         internal List<MethodDeclaration> ConvertingExtensionMethods;
-        internal List<XDocument> TranslationDocs;
+        static internal List<XDocument> TranslationDocs;
         internal HashSet<string> EnumNames;
         internal Dictionary<string, IEnumerable<DelegateDeclaration>> Delegates;
         internal HashSet<string> StaticConstructors = new HashSet<string>();
         internal int InLambda = 0;
         internal int InForLoop = 0;
 
-        public static string StandardImports = @"
-import system.ArgumentException;
-import system.collections.generic.CSDictionary;
-import system.collections.generic.HashSet;
-import system.collections.generic.KeyValuePair;
-import system.Cs2Hx;
-import system.DateTime;
-import system.diagnostics.Stopwatch;
-import system.Enumerable;
-import system.Exception;
-import system.Guid;
-import system.IDisposable;
-import system.InvalidOperationException;
-import system.io.BinaryReader;
-import system.io.BinaryWriter;
-import system.KeyNotFoundException;
-import system.linq.Linq;
-import system.NotImplementedException;
-import system.Nullable_Float;
-import system.Nullable_Int;
-import system.Nullable_Bool;
-import system.Nullable_TimeSpan;
-import system.Nullable_DateTime;
-import system.OverflowException;
-import system.RandomAS;
-import system.text.StringBuilder;
-import system.text.UTF8Encoding;
-import system.ThreadAbortException;
-import system.TimeoutException;
-import system.TimeSpan;
-
-import haxe.io.Bytes;
-";
+        public static string StandardImports = @"import system.Cs2Hx;
+import system.Exception;";
+        
+        public string[] SystemImports = new string[] { 
+"system.ArgumentException",
+"system.collections.generic.CSDictionary",
+"system.collections.generic.HashSet",
+"system.collections.generic.KeyValuePair",
+"system.DateTime",
+"system.diagnostics.Stopwatch",
+"system.Enumerable",
+"system.Exception",
+"system.Guid",
+"system.IDisposable",
+"system.InvalidOperationException",
+"system.io.BinaryReader",
+"system.io.BinaryWriter",
+"system.KeyNotFoundException",
+"system.linq.Linq",
+"system.NotImplementedException",
+"system.Nullable_Float",
+"system.Nullable_Int",
+"system.Nullable_Bool",
+"system.Nullable_TimeSpan",
+"system.Nullable_DateTime",
+"system.OverflowException",
+"system.RandomAS",
+"system.text.StringBuilder",
+"system.text.UTF8Encoding",
+"system.ThreadAbortException",
+"system.TimeoutException",
+"system.TimeSpan",
+"haxe.io.Bytes"
+        };
 
         /// <summary>
         /// 
@@ -217,14 +218,16 @@ package ;");
 
             using (var writer = new HaxeWriter(Path.Combine(dir, typeName + ".hx")))
             {
-                writer.WriteLine("package " + typeNamespace.Name.ToLower() + @";
+                writer.WriteLine("package " + typeNamespace.Name.ToLower() + @";");
 
-" + StandardImports + @"
-");
-                foreach (var extraImport in Translations.Translation.ExtraImports(TranslationDocs))
-                    writer.WriteLine("import " + extraImport + ";");
+                //Write import statements.  First, all StandardImports are always considered
+                var imports = SystemImports.ToList();
 
+                //Also allow users to specify extra import statements in the xml file
+                foreach (var extraImport in Translations.Translation.ExtraImports())
+                    imports.Add(extraImport);
 
+                //Add in imports from the C#'s using statements
                 foreach (var usingDeclaration in
                     partials.SelectMany(o => o.Parent.Children.OfType<UsingDeclaration>())
                     .Concat(partials.SelectMany(o => o.Parent.Parent.Children.OfType<UsingDeclaration>()))
@@ -237,8 +240,18 @@ package ;");
                         continue; //system usings are handled by our standard imports
 
                     foreach (var t in getTypesInNamespace(usingDeclaration))
-                        writer.WriteLine("import " + usingDeclaration.ToLower() + "." + t.Name + ";");
+                        imports.Add(usingDeclaration.ToLower() + "." + t.Name);
                 }
+
+                //Filter out any ones that aren't being used by this file
+                imports = FilterUnusedImports(imports, partials);
+
+                //Cs2hx is always present, since we can't easily determine if it should be filtered
+                writer.WriteLine(StandardImports);
+
+                //Write the imports
+                foreach (var import in imports.OrderBy(o => o))
+                    writer.WriteLine("import " + import + ";");
 
 
                 bool isEnum = first.Type == ClassType.Enum;
@@ -338,6 +351,53 @@ package ;");
                 }
 
                 writer.WriteCloseBrace();
+            }
+        }
+
+        /// <summary>
+        /// Filters out import statements that we know aren't needed.
+        /// This algorithm isn't perfect, and in some edge cases will leave extra import statements that aren't needed.  These don't cause any problems, though, they just look ugly.
+        /// </summary>
+        /// <param name="imports"></param>
+        /// <param name="partials"></param>
+        /// <returns></returns>
+        private List<string> FilterUnusedImports(List<string> imports, IEnumerable<TypeDeclaration> partials)
+        {
+            var allNodes = partials.SelectMany(classType => classType.AllLogicalChildren()).Concat(partials.Cast<INode>());
+            var typeObjects = allNodes.SelectMany(o => o.ReferencesTypes());
+            var typesReferenced = typeObjects.Select(o => ConvertRawType(o)).RemoveNull().SelectMany(o => SplitGenericTypes(o)).Concat(typeObjects.Select(o => o.Type)).ToHashSet(false);
+
+            var ret = imports.Where(o => typesReferenced.Contains(o.Split('.').Last())).Distinct().ToList();
+
+            return ret;
+        }
+
+        private IEnumerable<string> SplitGenericTypes(string typeString)
+        {
+            typeString = typeString.Trim('(', ')', ' ');
+
+            if (typeString.Contains("->"))
+            {
+                //Split up delegates
+                return typeString.Split('-').Select(o => o.StartsWith(">") ? o.Substring(1) : o).SelectMany(o => SplitGenericTypes(o.Trim()));
+            }
+            
+            int i = typeString.IndexOf('<');
+            if (i == -1) //no generic types. Check for commas.
+                return typeString.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            else
+            {
+                if (!typeString.EndsWith(">"))
+                    throw new Exception("Unbalanced generic type: " + typeString);
+
+                var ret = new List<string>();
+
+                var baseType = typeString.Substring(0, i);
+                var genericType = typeString.Substring(i + 1, typeString.Length - i - 2);
+
+                ret.AddRange(SplitGenericTypes(baseType));
+                ret.AddRange(SplitGenericTypes(genericType));
+                return ret;
             }
         }
 
@@ -996,7 +1056,7 @@ package ;");
             if (!objectCreateExpression.ObjectInitializer.IsNull)
                 throw new Exception("C# 3.5 object initialization syntax is not supported. " + Utility.Descriptor(objectCreateExpression));
 
-            var translate = Translations.Translation.GetTranslation(TranslationDocs, Translations.Translation.TranslationType.Method, ".ctor", objectCreateExpression.CreateType) as Translations.Method;
+            var translate = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Method, ".ctor", objectCreateExpression.CreateType) as Translations.Method;
 
             var type = ConvertRawType(objectCreateExpression.CreateType);
 
@@ -1460,7 +1520,7 @@ package ;");
             if (!ignoreArrayType && type.IsArrayType)
                 return "Array<" + ConvertRawType(type, true, false) + ">";
 
-            var translation = Translations.Translation.GetTranslation(TranslationDocs, Translations.Translation.TranslationType.Type, type.Type, type) as Translations.Type;
+            var translation = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Type, type.Type, type) as Translations.Type;
 
             string genericSuffix;
             if (type.GenericTypes.Count > 0 && !ignoreGenericArguments)
@@ -1692,7 +1752,7 @@ package ;");
         {
             string memberName = memberReferenceExpression.MemberName;
 
-            var translation = Translations.Translation.GetTranslation(TranslationDocs, Translations.Translation.TranslationType.Property, memberName, memberReferenceExpression) as Translations.Property;
+            var translation = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Property, memberName, memberReferenceExpression) as Translations.Property;
 
             if (translation != null)
                 memberName = translation.ReplaceWith;
@@ -1731,7 +1791,7 @@ package ;");
             {
                 var memberReferenceExpression = invocationExpression.TargetObject.As<MemberReferenceExpression>();
 
-                translate = Translations.Translation.GetTranslation(TranslationDocs, Translations.Translation.TranslationType.Method, memberReferenceExpression.MemberName, memberReferenceExpression.TargetObject) as Translations.Method;
+                translate = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Method, memberReferenceExpression.MemberName, memberReferenceExpression.TargetObject) as Translations.Method;
                 string methodName;
                 string extensionNamespace;
 

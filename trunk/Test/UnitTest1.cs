@@ -77,6 +77,7 @@ namespace Blargh
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import system.collections.generic.KeyValuePair;
 
 class KeyValueList<K, V> implements ISomeInterface<K>
 {
@@ -124,6 +125,7 @@ namespace Blargh
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import haxe.io.Bytes;
 
 class Utilities
 {
@@ -236,7 +238,6 @@ namespace SomeInterfaceNamespace
 package someclassnamespace;
 " + Program.StandardImports + @"
 import someinterfacenamespace.ISomeInterface;
-import someinterfacenamespace.UnusedClass;
 
 class SomeClass implements ISomeInterface
 {
@@ -524,6 +525,7 @@ namespace Blargh
     {
         public static void SomeFunction()
         {
+            StringBuilder.DateTime.MythicalField = 4;
             trace(int.MaxValue);
             trace(int.MinValue);
             string s = ""123"";
@@ -535,11 +537,13 @@ namespace Blargh
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import system.text.StringBuilder;
 
 class Utilities
 {
     public static function SomeFunction():Void
     {
+        StringBuilder.DateTime.MythicalField = 4;
         trace(2147483647);
         trace(-2147483648);
         var s:String = ""123"";
@@ -588,6 +592,8 @@ namespace Blargh
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import system.collections.generic.CSDictionary;
+import system.collections.generic.HashSet;
 
 class Utilities
 {
@@ -645,6 +651,7 @@ namespace Blargh
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import system.Nullable_Int;
 
 class Utilities
 {
@@ -742,13 +749,14 @@ namespace Blargh
                 case ""NotMe"": trace(4); break;
                 case ""Box"": trace(4); break;
                 case ""Blah"": trace(3); break;
-                default: trace(2); break;
+                default: throw new InvalidOperationException();
             }
         }
     }
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import system.InvalidOperationException;
 
 class Utilities
 {
@@ -764,7 +772,7 @@ class Utilities
             case ""Blah"": 
                 trace(3); 
             default: 
-                trace(2); 
+                throw new InvalidOperationException();
         }
     }
     public function new()
@@ -802,6 +810,8 @@ namespace Blargh
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import system.collections.generic.CSDictionary;
+import system.linq.Linq;
 
 class Utilities
 {
@@ -1126,6 +1136,7 @@ namespace Blargh
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import system.text.StringBuilder;
 
 class Box
 {
@@ -1223,7 +1234,7 @@ class Pokable implements ITesting
         }
 
         [Test]
-        public void TryCatchFinally()
+        public void TryCatchThrow()
         {
             TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
@@ -1243,10 +1254,6 @@ namespace Blargh
             {
                 trace(""In catch"");
             }
-//            finally
-//            {
-//                trace(""In finally"");
-//            }
 
             try
             {
@@ -1256,11 +1263,16 @@ namespace Blargh
             {
                 trace(""In second catch"");
             }
+
+            throw new InvalidOperationException(StringBuilder.MythicalField);
         }
     }
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import system.Exception;
+import system.InvalidOperationException;
+import system.text.StringBuilder;
 
 class Utilities
 {
@@ -1283,6 +1295,8 @@ class Utilities
         {
             trace(""In second catch"");
         }
+
+        throw new InvalidOperationException(StringBuilder.MythicalField);
     }
     public function new()
     {
