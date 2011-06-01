@@ -19,6 +19,13 @@ class StringBuilder
 			buffer = "";
 	}
 	
+	public var length(get_Length, never):Int;
+	
+	public function get_Length():Int
+	{
+		return buffer.length;
+	}
+	
 	public function Insert(location:Int, ins:String):Void
 	{
 		buffer = buffer.substr(0, location) + ins + buffer.substr(location);
