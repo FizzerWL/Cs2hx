@@ -355,6 +355,8 @@ namespace Cs2hx
                 return new TypeReference[] { node.As<FieldDeclaration>().TypeReference };
             else if (node is CatchClause)
                 return new TypeReference[] { node.As<CatchClause>().TypeReference };
+            else if (node is ConstructorDeclaration)
+                return node.As<ConstructorDeclaration>().Parameters.Select(o => o.TypeReference);
             else if (node is MethodDeclaration)
             {
                 var method = node.As<MethodDeclaration>();

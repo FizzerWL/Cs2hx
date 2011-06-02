@@ -272,39 +272,45 @@ class UnusedClass
         }
 
         [Test]
-        public void TypeInferance()
+        public void TypeInference()
         {
             TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 namespace Blargh
 {
-    public static class Utilities
+    public class Box
     {
         public static void Main()
         {
             SomeFunction(o => o + 1);
         }
 
-        public static int SomeFunction(Func<int, int> doWork)
+        public static int SomeFunction(Func<StringBuilder, int> doWork)
         {
             var value = SomeOtherClass.SomeOtherMethod(doWork(3));
+        }
+
+        public Box(Action<DateTime> doWork)
+        {
         }
     }
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import system.DateTime;
+import system.text.StringBuilder;
 
-class Utilities
+class Box
 {
     public static function Main():Void
     {
         SomeFunction(function (o) { return o + 1; } );
     }
 
-    public static function SomeFunction(doWork:(Int -> Int)):Int
+    public static function SomeFunction(doWork:(StringBuilder -> Int)):Int
     {
         var value = SomeOtherClass.SomeOtherMethod(doWork(3));
     }
-    public function new()
+    public function new(doWork:(DateTime -> Void))
     {
     }
 }
