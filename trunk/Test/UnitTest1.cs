@@ -1548,11 +1548,13 @@ namespace Blargh
             var z = one.As<Two>();
             one.two.three.As<Four>().five;
             one.two().As<Three>().four;
+            var a = (DateTime)z;
         }
     }
 }", @"
 package blargh;
 " + Program.StandardImports + @"
+import system.DateTime;
 
 class Utilities
 {
@@ -1561,6 +1563,7 @@ class Utilities
         var z = cast(one, Two);
         cast(one.two.three, Four).five;
         cast(one.two(), Three).four;
+        var a = cast(z, DateTime);
     }
     public function new()
     {
