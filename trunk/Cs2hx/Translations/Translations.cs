@@ -61,6 +61,16 @@ namespace Cs2hx.Translations
             }
             else if (expression is TypeReferenceExpression)
                 source = expression.As<TypeReferenceExpression>().TypeReference.Type;
+            else if (expression is MemberReferenceExpression && expression.As<MemberReferenceExpression>().TargetObject is ThisReferenceExpression)
+            {
+                //If an expression is simply this.<expr>, we can still easily identify it's type just as we could if it was an identifier
+                var identifier = expression.As<MemberReferenceExpression>().MemberName;
+                TypeReference typeRef;
+                if (Utility.TryFindType(identifier, expression, out typeRef))
+                    source = typeRef.Type;
+                else
+                    source = identifier;
+            }
 
             return GetTranslation(type, objectName, source);
         }

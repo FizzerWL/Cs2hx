@@ -92,10 +92,10 @@ namespace Cs2hx
         /// <returns></returns>
         public static bool TryFindType(IdentifierExpression identifier, out TypeReference type)
         {
-            return TryFindType(identifier, identifier, out type);
+            return TryFindType(identifier.Identifier, identifier, out type);
         }
 
-        private static bool TryFindType(IdentifierExpression identifier, INode startAt, out TypeReference type)
+        public static bool TryFindType(string identifier, INode startAt, out TypeReference type)
         {
             if (startAt == null)
             {
@@ -107,7 +107,7 @@ namespace Cs2hx
             {
                 //Check to see if it's a parameter
                 var method = startAt.As<MethodDeclaration>();
-                var prm = method.Parameters.SingleOrDefault(o => o.ParameterName == identifier.Identifier);
+                var prm = method.Parameters.SingleOrDefault(o => o.ParameterName == identifier);
 
                 if (prm != null)
                 {
@@ -119,7 +119,7 @@ namespace Cs2hx
             {
                 //Check to see if it's an iterator variable
                 var forEach = startAt.As<ForeachStatement>();
-                if (forEach.VariableName == identifier.Identifier)
+                if (forEach.VariableName == identifier)
                 {
                     type = forEach.TypeReference;
                     return true;
@@ -135,7 +135,7 @@ namespace Cs2hx
                     var lvd = t.As<LocalVariableDeclaration>();
                     foreach (var declaration in lvd.Variables)
                     {
-                        if (declaration.Name == identifier.Identifier)
+                        if (declaration.Name == identifier)
                         {
                             type = DetermineType(lvd);
                             return true;
@@ -146,7 +146,7 @@ namespace Cs2hx
                 {
                     var fields = t.As<FieldDeclaration>();
 
-                    if (fields.Fields.Any(o => o.Name == identifier.Identifier))
+                    if (fields.Fields.Any(o => o.Name == identifier))
                     {
                         type = fields.TypeReference;
                         return true;
@@ -277,7 +277,11 @@ namespace Cs2hx
             else if (node is SwitchSection)
                 ret.AddRange(node.As<SwitchSection>().SwitchLabels.Cast<INode>());
             else if (node is CaseLabel)
-                ret.Add(node.As<CaseLabel>().ToExpression);
+            {
+                var lbl = node.As<CaseLabel>();
+                ret.Add(lbl.ToExpression);
+                ret.Add(lbl.Label);
+            }
             else if (node is ObjectCreateExpression)
             {
                 var create = node.As<ObjectCreateExpression>();
@@ -293,6 +297,7 @@ namespace Cs2hx
             else if (node is IfElseStatement)
             {
                 var n = node.As<IfElseStatement>();
+                ret.Add(n.Condition);
                 ret.AddRange(n.TrueStatement.Cast<INode>());
                 ret.AddRange(n.FalseStatement.Cast<INode>());
                 ret.AddRange(n.ElseIfSections.Cast<INode>());

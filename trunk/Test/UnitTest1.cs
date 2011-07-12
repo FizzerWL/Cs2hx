@@ -56,7 +56,7 @@ namespace Blargh
         
         public void Add(K key, V value)
         {
-            _list.Add(new KeyValuePair<K, V>(key, value));
+            this._list.Add(new KeyValuePair<K, V>(key, value));
         }
 
         public void Insert(int index, K key, V value)
@@ -85,7 +85,7 @@ class KeyValueList<K, V> implements ISomeInterface<K>
 
     public function Add(key:K, value:V):Void
     {
-        _list.push(new KeyValuePair<K, V>(key, value));
+        this._list.push(new KeyValuePair<K, V>(key, value));
     }
     public function Insert(index:Int, key:K, value:V):Void
     {
@@ -678,7 +678,7 @@ class Utilities
         public void Enums()
         {
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, new string[] { @"
 namespace Blargh
 {
     public enum MostlyNumbered
@@ -702,7 +702,21 @@ namespace Blargh
             int i = (int)f;
         }
     }
-}", new string[] { @"
+}", @"
+using Blargh;
+
+namespace OtherNamespace
+{
+    class OtherClass
+    {
+        public OtherClass()
+        {
+            if (SomethingElse.Foo() == MostlyNumbered.One)
+            {
+            }
+        }
+    }
+}" }, new string[] { @"
 package blargh;
 " + Program.StandardImports + @"
 class MostlyNumbered
@@ -734,7 +748,22 @@ class Clazz
     public function new()
     {
     }
-}"});
+}", @"
+package othernamespace;
+" + Program.StandardImports + @"
+import blargh.MostlyNumbered;
+
+class OtherClass
+{
+    public function new()
+    {
+        if (SomethingElse.Foo() == MostlyNumbered.One)
+        {
+        }
+    }
+}
+
+"});
         }
         [Test]
         public void SwitchStatement()
@@ -1444,6 +1473,8 @@ namespace Blargh
             trace(f1(3));
             Func<int, int> f2 = x => { return x + 5; };
             trace(f2(3));
+
+            List<Action> actions = new List<Action>();
         }
     }
 }", @"
@@ -1464,6 +1495,7 @@ class Utilities
             return x + 5; 
         } ;
         trace(f2(3));
+        var actions:Array<(Void -> Void)> = new Array<(Void -> Void)>();
     }
     public function new()
     {

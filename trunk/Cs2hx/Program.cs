@@ -128,8 +128,6 @@ import system.Exception;";
 
             GenerateConstructorsHelper(allTypes);
             GenerateMain();
-
-            Console.WriteLine("Done.");
         }
 
         private void GenerateMain()
@@ -365,40 +363,53 @@ package ;");
         {
             var allNodes = partials.SelectMany(classType => classType.AllLogicalChildren()).Concat(partials.Cast<INode>());
             var typeObjects = allNodes.SelectMany(o => o.ReferencesTypes());
-            var typesReferenced = typeObjects.Select(o => ConvertRawType(o)).RemoveNull().SelectMany(o => SplitGenericTypes(o)).Concat(typeObjects.Select(o => o.Type)).ToHashSet(false);
+            var typesReferenced = typeObjects.Select(o => ConvertRawType(o)).RemoveNull().SelectMany(this.SplitGenericTypes).Concat(typeObjects.Select(o => o.Type)).ToHashSet(false);
 
             var ret = imports.Where(o => typesReferenced.Contains(o.Split('.').Last())).Distinct().ToList();
 
             return ret;
         }
 
-        private IEnumerable<string> SplitGenericTypes(string typeString)
+        static string[] GenericTokens = new string[] { "->", "(", ")", "<", ">", " " };
+
+        private List<string> SplitGenericTypes(string typeString)
         {
-            typeString = typeString.Trim('(', ')', ' ');
+            int readerIndex = 0;
 
-            if (typeString.Contains("->"))
+            Func<char, bool> isLiteralChar = c => char.IsLetterOrDigit(c) || c == '_';
+
+            Func<string> readToken = () =>
+                {
+                    var sb = new StringBuilder();
+                    var first = typeString[readerIndex++];
+                    sb.Append(first.ToString());
+                    while (readerIndex < typeString.Length)
+                    {
+                        var c = typeString[readerIndex];
+
+                        if (isLiteralChar(c) != isLiteralChar(first))
+                            return sb.ToString().Trim();
+
+                        sb.Append(c.ToString());
+                        readerIndex++;
+                    }
+                    return sb.ToString().Trim();
+                };
+
+            var ret = new List<string>();
+
+            while (readerIndex < typeString.Length)
             {
-                //Split up delegates
-                return typeString.Split('-').Select(o => o.StartsWith(">") ? o.Substring(1) : o).SelectMany(o => SplitGenericTypes(o.Trim()));
+                var token = readToken();
+
+                if (token.Length == 0)
+                    continue;
+
+                if (!GenericTokens.Contains(token))
+                    ret.Add(token);
             }
-            
-            int i = typeString.IndexOf('<');
-            if (i == -1) //no generic types. Check for commas.
-                return typeString.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            else
-            {
-                if (!typeString.EndsWith(">"))
-                    throw new Exception("Unbalanced generic type: " + typeString);
 
-                var ret = new List<string>();
-
-                var baseType = typeString.Substring(0, i);
-                var genericType = typeString.Substring(i + 1, typeString.Length - i - 2);
-
-                ret.AddRange(SplitGenericTypes(baseType));
-                ret.AddRange(SplitGenericTypes(genericType));
-                return ret;
-            }
+            return ret;
         }
 
         private void GenerateEnumBody(HaxeWriter writer, IEnumerable<INode> allChildren)
@@ -1590,6 +1601,7 @@ package ;");
                     return "List" + genericSuffix;
                 case "Queue":
                 case "List":
+                case "IList":
                 case "Stack":
                     return "Array" + genericSuffix;
                 case "HashSet":
@@ -1765,7 +1777,9 @@ package ;");
                 if (memberName == "Empty" && typeRef.TypeReference.Type == "System.String")
                     writer.Write("\"\"");
                 else if (memberName == "MinValue" && typeRef.TypeReference.Type == "System.Double")
-                    writer.Write("-1.7976931348623e+308");  //We change MinValue since haXe can't deal with the real MinValue.  Any checks against this should use <= in place of ==
+                    writer.Write("-1.7976931348623e+308");  //We change double.MinValue since haXe can't deal with the real MinValue.  Any checks against this should use <= in place of ==
+                else if (memberName == "MaxValue" && typeRef.TypeReference.Type == "System.Int64")
+                    writer.Write("999900000000000000"); //We change long.MaxValue since haXe can't deal with the real MaxValue. Any checks against this should use >= in place of ==
                 else
                     writer.Write(Type.GetType(typeRef.TypeReference.Type).GetField(memberName).GetValue(null).ToString());
             }

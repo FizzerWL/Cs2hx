@@ -11,15 +11,16 @@ namespace Cs2hx
         TextWriter Writer;
         private string _path;
         public int Indent;
+        private StringBuilder _builder = new StringBuilder(5000);
 
         public HaxeWriter(string path)
         {
-            //Remove read only so we can write it
-            if (File.Exists(path))
-                File.SetAttributes(path, FileAttributes.Normal);
+            if (path == null)
+                throw new ArgumentNullException("path");
+            
 
             _path = path;
-            Writer = File.CreateText(path);
+            Writer = new StringWriter(_builder);
         }
 
         public HaxeWriter(TextWriter stream)
@@ -44,11 +45,19 @@ namespace Cs2hx
 
         public void Dispose()
         {
-            Writer.Dispose();
+            if (_path == null)
+                return;
+
+            //Remove read only so we can write it
+            if (File.Exists(_path))
+                File.SetAttributes(_path, FileAttributes.Normal);
+
+            File.WriteAllText(_path, _builder.ToString());
 
             //Set read-only on generated files
-            if (!string.IsNullOrEmpty(_path))
-                File.SetAttributes(_path, FileAttributes.ReadOnly);
+            File.SetAttributes(_path, FileAttributes.ReadOnly);
+
+            Writer.Dispose();
         }
 
         public void WriteOpenBrace()

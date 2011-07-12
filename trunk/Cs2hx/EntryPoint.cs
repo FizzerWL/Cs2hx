@@ -6,6 +6,7 @@ using System.IO;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Xml;
+using System.Diagnostics;
 
 namespace Cs2hx
 {
@@ -82,7 +83,12 @@ Options available:
                         sourceFiles.Add(arg);
                 }
 
+                var sw = Stopwatch.StartNew();
+
                 new Program().Go(sourceFiles, outDir, conditionalCompilationSymbols, extraTranslations);
+
+                Console.WriteLine("Completed in " + sw.Elapsed.TotalSeconds + " seconds");
+
                 Environment.ExitCode = 0;
             }
             catch (Exception ex)

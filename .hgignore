@@ -6,4 +6,5 @@ syntax: glob
 */TestResults/*
 *.suo
 *.vsmdi
-*.csproj.user
+*.user
+*_ReSharper*

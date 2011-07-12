@@ -3,6 +3,34 @@ import system.Exception;
 
 class Cs2Hx
 {
+	private static function MakeMap(str:String):IntHash<Bool>
+	{
+		var hash:IntHash<Bool> = new IntHash<Bool>();
+		
+		var i = 0;
+		while (i < str.length)
+			hash.set(str.charCodeAt(i++), true);
+		return hash;
+	}
+	
+	static var charOrDigitMap:IntHash<Bool>;
+	public static function IsLetterOrDigit(ch:Int):Bool
+	{
+		if (charOrDigitMap == null)
+			charOrDigitMap = MakeMap("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+		
+		return charOrDigitMap.exists(ch);
+	}
+	
+	static var digitMap:IntHash<Bool>;
+	public static function IsDigit(ch:Int):Bool
+	{
+		if (digitMap == null)
+			digitMap = MakeMap("0123456789");
+			
+		return digitMap.exists(ch);
+	}
+	
 	public static inline function IsInfinity(f:Float):Bool
 	{
 		return !Math.isFinite(f);
@@ -44,6 +72,23 @@ class Cs2Hx
 				return Std.string(i);
 		}
 	}
+	
+	public static function Trim(str:String):String
+	{
+		var i:Int = 0;
+		while (str.charCodeAt(i) < 33)
+			i++;
+			
+		var e:Int = str.length - 1;
+		while (str.charCodeAt(e) < 33) 
+			e--;
+
+		if (e < 0)
+			return "";
+
+		return str.substr(i, e - i + 1);
+	}
+	
 	
 	public static inline function SortInts(f:Int, s:Int):Int
 	{
