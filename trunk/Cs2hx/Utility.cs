@@ -74,10 +74,12 @@ namespace Cs2hx
             if (localVariableDeclaration.TypeReference.Type == "var")
             {
                 //If var is used, try to identify the type by the right-hand identifier
-                foreach (var inititalizers in localVariableDeclaration.Variables)
+                foreach (var initializers in localVariableDeclaration.Variables)
                 {
-                    if (inititalizers.Initializer is ObjectCreateExpression)
-                        return inititalizers.Initializer.As<ObjectCreateExpression>().CreateType;
+                    if (initializers.Initializer is ObjectCreateExpression)
+                        return initializers.Initializer.As<ObjectCreateExpression>().CreateType;
+                    else if (initializers.Initializer is CastExpression)
+                        return initializers.Initializer.As<CastExpression>().CastTo;
                 }
             }
 

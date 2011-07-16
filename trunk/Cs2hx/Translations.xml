@@ -34,6 +34,7 @@
   </Method>
   <Method SourceObject="*" Match="Sort" ReplaceWith="sort" />
   <Method SourceObject="List" Match="Insert" ReplaceWith="insert" />
+  <Method SourceObject="List" Match="IndexOf" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="*" Match="RemoveAt" ReplaceWith="splice">
     <Argument Location="1" Action="Insert 1" />
   </Method>

@@ -1581,6 +1581,8 @@ namespace Blargh
             one.two.three.As<Four>().five;
             one.two().As<Three>().four;
             var a = (DateTime)z;
+            object o = new object();
+            var b = (DateTime)o;
         }
     }
 }", @"
@@ -1595,7 +1597,9 @@ class Utilities
         var z = cast(one, Two);
         cast(one.two.three, Four).five;
         cast(one.two(), Three).four;
-        var a = cast(z, DateTime);
+        var a:DateTime = cast(z, DateTime);
+        var o:Dynamic = new Dynamic();
+        var b:DateTime = o;
     }
     public function new()
     {

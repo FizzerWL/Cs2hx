@@ -1142,6 +1142,8 @@ package ;");
                     {
                         WriteStatement(writer, castExpression.Expression);
                     }
+                    else if (castingFrom != null && castingFrom == "Dynamic")
+                        WriteStatement(writer, castExpression.Expression); //ignore casts from dynamic as dynamic can be used as any type.  haXe throws errors when casting dynamic too, which is odd.
                     else
                     {
                         writer.Write("cast(");

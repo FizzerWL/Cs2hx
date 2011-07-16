@@ -21,6 +21,14 @@ class Cs2Hx
 		
 		return charOrDigitMap.exists(ch);
 	}
+
+	public static function IndexOf<T>(a:Array<T>, item:T):Int
+	{
+		for (i in 0...a.length)
+			if (a[i] == item)
+				return i;
+		return -1;
+	}
 	
 	static var digitMap:IntHash<Bool>;
 	public static function IsDigit(ch:Int):Bool
