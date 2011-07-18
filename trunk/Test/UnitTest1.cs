@@ -1566,6 +1566,32 @@ class Utilities
         }
 
         [Test]
+        public void ReplaceTypeWithAttribute()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public class Foo
+    {
+        [Cs2Hx(ReplaceWithType = ""bar.Baz"")]
+        public object Obj;
+    }
+}", @"
+package blargh;
+" + Program.StandardImports + @"
+
+class Foo
+{
+    public var Obj:bar.Baz;
+    public function new()
+    {
+    }
+}");
+        }
+
+        [Test]
         public void CastsWithAs()
         {
             TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"

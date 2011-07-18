@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory;
-using System.Diagnostics;
-using ICSharpCode.NRefactory.Ast;
-using System.IO;
-using ICSharpCode.NRefactory.Parser;
 using System.Xml.Linq;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.Ast;
+using ICSharpCode.NRefactory.Parser;
 
 namespace Cs2hx
 {
@@ -25,7 +24,7 @@ namespace Cs2hx
         public static string StandardImports = @"import system.Cs2Hx;
 import system.Exception;";
         
-        public string[] SystemImports = new string[] { 
+        public string[] SystemImports = new[] { 
 "system.ArgumentException",
 "system.collections.generic.CSDictionary",
 "system.collections.generic.HashSet",
@@ -745,11 +744,7 @@ package ;");
                     writer.Write("static ");
 
                 writer.Write("function ");
-
-                if (method.Name == "ToString")
-                    writer.Write("toString");
-                else
-                    writer.Write(method.Name);
+                writer.Write(method.Name == "ToString" ? "toString" : method.Name);
 
                 if (method.Templates.Count > 0)
                 {
@@ -807,11 +802,7 @@ package ;");
         }
 
 
-        private void WriteStatement(HaxeWriter writer, INode statement)
-        {
-            WriteStatement(writer, statement, false);
-        }
-        private void WriteStatement(HaxeWriter writer, INode statement, bool suppressSemicolonAndIndent)
+        private void WriteStatement(HaxeWriter writer, INode statement, bool suppressSemicolonAndIndent = false)
         {
             if (statement is ExpressionStatement)
                 WriteExpressionStatement(writer, statement.As<ExpressionStatement>(), suppressSemicolonAndIndent);
@@ -1112,9 +1103,7 @@ package ;");
 
         private void WriteCastExpression(HaxeWriter writer, CastExpression castExpression)
         {
-            var destType = ConvertRawType(castExpression.CastTo);
-            if (destType == null)
-                destType = "Dynamic";
+            var destType = this.ConvertRawType(castExpression.CastTo) ?? "Dynamic";
 
             switch (castExpression.CastType)
             {
@@ -1172,12 +1161,12 @@ package ;");
                 if (lambdaType.Type == "Action")
                 {
                     returnType = ":Void";
-                    parameterTypes = lambdaType.GenericTypes.Select(o => TryConvertType(o)).ToArray();
+                    parameterTypes = lambdaType.GenericTypes.Select(this.TryConvertType).ToArray();
                 }
                 else if (lambdaType.Type == "Func")
                 {
                     returnType = TryConvertType(lambdaType.GenericTypes.Last());
-                    parameterTypes = lambdaType.GenericTypes.Take(lambdaType.GenericTypes.Count - 1).Select(o => TryConvertType(o)).ToArray();
+                    parameterTypes = lambdaType.GenericTypes.Take(lambdaType.GenericTypes.Count - 1).Select(this.TryConvertType).ToArray();
                 }
             }
 
@@ -1526,8 +1515,22 @@ package ;");
             return ConvertRawType(type, false, false);
         }
 
+        private static IEnumerable<NamedArgumentExpression> GetAttributes(INode node)
+        {
+            if (!(node is AttributedNode))
+                return new List<NamedArgumentExpression>();
+
+            var attributedNode = (AttributedNode)node;
+            return attributedNode.Attributes.SelectMany(o => o.Attributes).Where(o => o.Name == "Cs2Hx").SelectMany(o => o.NamedArguments);
+        }
+
         public string ConvertRawType(TypeReference type, bool ignoreArrayType, bool ignoreGenericArguments)
         {
+            //Check for the Cs2Hx attribute which could have a directive that tells us what type to use
+            var attributeReplace = GetAttributes(type.Parent).SingleOrDefault(o => o.Name == "ReplaceWithType");
+            if (attributeReplace != null)
+                return attributeReplace.Expression.As<PrimitiveExpression>().Value.ToString();
+
             if (type.IsArrayType && type.Type == "System.Byte")
                 return "Bytes";
             if (!ignoreArrayType && type.IsArrayType)
@@ -1582,7 +1585,7 @@ package ;");
                 if (type.GenericTypes.Count == 0)
                     return "(Void -> Void)";
                 else
-                    return "(" + string.Join(" -> ", type.GenericTypes.Select(o => ConvertRawType(o)).ToArray()) + " -> Void)";
+                    return "(" + string.Join(" -> ", type.GenericTypes.Select(ConvertRawType).ToArray()) + " -> Void)";
             }
 
             if (type.Type == "Func")
@@ -1590,7 +1593,7 @@ package ;");
                 if (type.GenericTypes.Count == 1)
                     return "(Void -> " + ConvertRawType(type.GenericTypes.Single()) + ")";
                 else
-                    return "(" + string.Join(" -> ", type.GenericTypes.Select(o => ConvertRawType(o)).ToArray()) + ")";
+                    return "(" + string.Join(" -> ", type.GenericTypes.Select(ConvertRawType).ToArray()) + ")";
             }
 
             //Handle generic types that we can convert
@@ -1944,9 +1947,7 @@ package ;");
                         }
                         else if (methodName == "As" && memberReferenceExpression.TypeArguments.Count == 1)
                         {
-                            var castTo = ConvertRawType(memberReferenceExpression.TypeArguments.Single());
-                            if (castTo == null)
-                                castTo = "Dynamic";
+                            var castTo = this.ConvertRawType(memberReferenceExpression.TypeArguments.Single()) ?? "Dynamic";
 
                             writer.Write("cast(");
                             WriteStatement(writer, memberReferenceExpression.TargetObject);
