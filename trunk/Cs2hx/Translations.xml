@@ -51,6 +51,11 @@
   <Method SourceObject="Math" Match="Max" ReplaceWith="max" />
   <Method SourceObject="Math" Match="Min" ReplaceWith="min" />
   <Method SourceObject="Math" Match="Abs" ReplaceWith="abs" />
+  <Method SourceObject="Math" Match="Sqrt" ReplaceWith="sqrt" />
+  <Method SourceObject="Math" Match="Atan" ReplaceWith="atan" />
+  <Method SourceObject="Math" Match="Atan2" ReplaceWith="atan2" />
+  <Method SourceObject="Math" Match="Cos" ReplaceWith="cos" />
+  <Method SourceObject="Math" Match="Sin" ReplaceWith="sin" />
 
   <Method SourceObject="*" ExtensionNamespace="Linq" Match="First" />
   <Method SourceObject="*" ExtensionNamespace="Linq" Match="FirstWhere" />

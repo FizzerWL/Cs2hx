@@ -53,6 +53,7 @@ import system.Exception;";
 "system.ThreadAbortException",
 "system.TimeoutException",
 "system.TimeSpan",
+"system.Environment",
 "haxe.io.Bytes"
         };
 
@@ -1721,6 +1722,8 @@ package ;");
                         writer.Write(((int)quote[0]).ToString());
 
                     }
+                    else if (primitiveExpression.StringValue.EndsWith("f"))
+                        writer.Write(primitiveExpression.StringValue.Substring(0, primitiveExpression.StringValue.Length - 1));
                     else
                         writer.Write(primitiveExpression.StringValue);
                     break;

@@ -450,7 +450,7 @@ namespace Blargh
             i = i % 3;
             i = i - 4;
             i = i * 100;
-            double f = i / 3;
+            double f = i / 3f;
             i = (int)f;
         }
     }
