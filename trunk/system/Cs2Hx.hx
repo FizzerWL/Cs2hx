@@ -59,6 +59,11 @@ class Cs2Hx
 		return str1.substr(0, str2.length) == str2;
 	}
 	
+	public static inline function EndsWith(str1:String, str2:String):Bool
+	{
+		return str1.substr(str1.length - str2.length) == str2;
+	}
+	
 	public static inline function ByteToHex(i:Int):String
 	{
 		return CharToHex(Std.int(i / 16)) + CharToHex(i % 16);

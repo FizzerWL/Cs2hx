@@ -1504,6 +1504,46 @@ class Utilities
         }
 
         [Test]
+        public void LambdaNoReturn()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction()
+        {
+            int i = 3;
+            Action a = () => i = 4;
+            Func<int> b = () => i = 5;
+        }
+    }
+}", @"
+package blargh;
+" + Program.StandardImports + @"
+
+class Utilities
+{
+    public static function SomeFunction():Void
+    {
+        var i:Int = 3;
+        var a:(Void -> Void) = function ():Void
+        { 
+            i = 4;
+        } ;
+        var b:(Void -> Int) = function ():Int
+        { 
+            return i = 5;
+        } ;
+    }
+    public function new()
+    {
+    }
+}");
+        }
+        [Test]
         public void Loops()
         {
             TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"

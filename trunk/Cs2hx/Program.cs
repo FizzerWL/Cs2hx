@@ -1186,7 +1186,7 @@ package ;");
             }
 
             writer.Write(")");
-            writer.Write(returnType);    
+            writer.Write(returnType);
             writer.Write("\r\n");
             writer.WriteOpenBrace();
 
@@ -1195,7 +1195,10 @@ package ;");
             if (!lambdaExpression.ExpressionBody.IsNull)
             {
                 writer.WriteIndent();
-                writer.Write("return ");
+
+                if (returnType != ":Void")
+                    writer.Write("return ");
+
                 WriteStatement(writer, lambdaExpression.ExpressionBody);
                 writer.Write(";\r\n");
             }

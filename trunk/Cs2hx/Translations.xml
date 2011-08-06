@@ -10,6 +10,7 @@
   <Method SourceObject="System.String" Match="ToLower" ReplaceWith="toLowerCase" />
   <Method SourceObject="System.String" Match="ToUpper" ReplaceWith="toUpperCase" />
   <Method SourceObject="System.String" Match="StartsWith" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="EndsWith" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="Trim" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="IsNullOrEmpty" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.Char" Match="IsLetterOrDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
