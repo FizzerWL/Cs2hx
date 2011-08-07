@@ -451,6 +451,7 @@ namespace Blargh
             i = i - 4;
             i = i * 100;
             double f = i / 3f;
+            int hex = 0x00ff;
             i = (int)f;
         }
     }
@@ -476,6 +477,7 @@ class Utilities
         i = i - 4;
         i = i * 100;
         var f:Float = i / 3;
+        var hex:Int = 0x00ff;
         i = Std.int(f);
     }
     public function new()
