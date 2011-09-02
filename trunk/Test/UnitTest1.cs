@@ -67,6 +67,7 @@ namespace Blargh
         public void Clear()
         {
             _list.Clear();
+            var castTest = (K)Foo();
         }
 
         public void RemoveAt(int index)
@@ -94,6 +95,7 @@ class KeyValueList<K, V> implements ISomeInterface<K>
     public function Clear():Void
     {
         _list.splice(0, _list.length);
+        var castTest:K = Foo();
     }
     public function RemoveAt(index:Int):Void
     {

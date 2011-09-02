@@ -1134,6 +1134,8 @@ package ;");
                     }
                     else if (castingFrom != null && castingFrom == "Dynamic")
                         WriteStatement(writer, castExpression.Expression); //ignore casts from dynamic as dynamic can be used as any type.  haXe throws errors when casting dynamic too, which is odd.
+                    else if (Utility.IsGenericType(castExpression.CastTo, castExpression))
+                        WriteStatement(writer, castExpression.Expression); //ignore casts to generic types
                     else
                     {
                         writer.Write("cast(");

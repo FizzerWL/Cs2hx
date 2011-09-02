@@ -396,5 +396,28 @@ namespace Cs2hx
         {
             return a.Where(o => o != null);
         }
+
+        public static bool IsGenericType(TypeReference type, INode foundInExpression)
+        {
+            var expression = foundInExpression;
+
+            while (expression != null)
+            {
+                if (expression is MethodDeclaration)
+                {
+                    if (expression.As<MethodDeclaration>().Templates.Any(o => o.Name == type.Type))
+                        return true;
+                }
+                else if (expression is TypeDeclaration)
+                {
+                    if (expression.As<TypeDeclaration>().Templates.Any(o => o.Name == type.Type))
+                        return true;
+                }
+
+                expression = expression.Parent;
+            }
+
+            return false;
+        }
     }
 }
