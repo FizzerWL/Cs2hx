@@ -54,6 +54,11 @@ import system.Exception;";
 "system.TimeoutException",
 "system.TimeSpan",
 "system.Environment",
+"system.xml.linq.XAttribute",
+"system.xml.linq.XElement",
+"system.xml.linq.XContainer",
+"system.xml.linq.XDocument",
+"system.xml.linq.XObject",
 "haxe.io.Bytes"
         };
 
@@ -1198,7 +1203,16 @@ package ;");
             {
                 writer.WriteIndent();
 
-                if (returnType != ":Void")
+                bool includeReturn;
+                    
+                if (returnType == ":Void")
+                    includeReturn = false;
+                else if (returnType == "" && lambdaExpression.ExpressionBody is AssignmentExpression)
+                    includeReturn = false; //Leave the return statement off on assignments where we don't know the return type.  Technically this is wrong either way, but false handles more cases.  Ideally we should try to determine the type, but this C# parser is limited.  Fix this with Roslyn.
+                else
+                    includeReturn = true;
+
+                if (includeReturn)
                     writer.Write("return ");
 
                 WriteStatement(writer, lambdaExpression.ExpressionBody);
@@ -1703,10 +1717,14 @@ package ;");
                 case LiteralFormat.VerbatimStringLiteral:
                     var raw = primitiveExpression.StringValue;
 
-                    if (!raw.StartsWith("@"))
+                    if (!raw.StartsWith("@\""))
                         throw new Exception("Expected Verbatim to start with @");
+                    if (!raw.EndsWith("\""))
+                        throw new Exception("Expected verbatim to be surrounded by quotes");
 
-                    writer.Write(raw.Substring(1).Replace("\\", "\\\\").Replace("\"\"", "\\\""));
+                    writer.Write("\"");
+                    writer.Write(raw.Substring(2, raw.Length - 3).Replace("\\", "\\\\").Replace("\"\"", "\\\""));
+                    writer.Write("\"");
                     break;
                 default:
                     if (primitiveExpression.StringValue.StartsWith("'") && primitiveExpression.StringValue.EndsWith("'"))
@@ -1898,6 +1916,9 @@ package ;");
                                 break;
                             case "IsInfinity":
                                 writer.Write("Cs2Hx.IsInfinity");
+                                break;
+                            case "Join":
+                                writer.Write("Cs2Hx.Join");
                                 break;
                             default:
                                 throw new Exception(methodName + " is not supported.  " + Utility.Descriptor(memberReferenceExpression));

@@ -3,6 +3,11 @@ import system.Exception;
 
 class Cs2Hx
 {
+	public static function Join(sep:String, a:Array<String>):String
+	{
+		return a.join(sep);
+	}
+	
 	private static function MakeMap(str:String):IntHash<Bool>
 	{
 		var hash:IntHash<Bool> = new IntHash<Bool>();

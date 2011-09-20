@@ -1160,6 +1160,8 @@ namespace Blargh
         public char[] Characters = new char[] { 'a', 'b' };
         public static StringBuilder StaticField = new StringBuilder();
         public const int ConstInt = 24;
+        public const string WithQuoteMiddle = @""before""""after"";
+        public const string WithQuoteStart = @""""""after"";
         public int MultipleOne, MultipleTwo;
 
         static Box()
@@ -1184,6 +1186,8 @@ class Box
     public var Characters:Array<Int>;
     public static var StaticField:StringBuilder;
     public static var ConstInt:Int;
+    public static var WithQuoteMiddle:String;
+    public static var WithQuoteStart:String;
     public var MultipleOne:Int;
     public var MultipleTwo:Int;
 
@@ -1213,6 +1217,8 @@ class Box
     {
         StaticField = new StringBuilder();
 		ConstInt = 24;
+        WithQuoteMiddle = ""before\""after"";
+        WithQuoteStart = ""\""after"";
         trace(""cctor"");
     }
 
@@ -1522,6 +1528,10 @@ namespace Blargh
             int i = 3;
             Action a = () => i = 4;
             Func<int> b = () => i = 5;
+            Foo(() => i = 6);
+        }
+        public static void Foo(Action a)
+        {
         }
     }
 }", @"
@@ -1541,6 +1551,13 @@ class Utilities
         { 
             return i = 5;
         } ;
+        Foo(function ()
+        {
+            i = 6;
+        } );
+    }
+    public static function Foo(a:(Void -> Void)):Void
+    {
     }
     public function new()
     {
@@ -1873,6 +1890,35 @@ class Utilities
     }
     public function new()
     {
+    }
+}");
+        }
+
+        [Test]
+        public void StringJoin()
+        {
+
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public class Foo
+    {
+        public Foo()
+        {
+            var s = string.Join(asdf, "";"");
+        }
+    }
+}", @"
+package blargh;
+" + Program.StandardImports + @"
+
+class Foo
+{
+    public function new()
+    {
+        var s = Cs2Hx.Join(asdf, "";"");
     }
 }");
         }

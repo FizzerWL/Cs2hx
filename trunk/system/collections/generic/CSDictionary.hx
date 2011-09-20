@@ -1,6 +1,5 @@
 package system.collections.generic;
 
-
 import system.collections.generic.KeyValuePair;
 import system.Cs2Hx;
 import system.Exception;
