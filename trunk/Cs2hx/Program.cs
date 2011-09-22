@@ -994,12 +994,17 @@ package ;");
                 string varName = catchClause.VariableName;
 
                 if (string.IsNullOrEmpty(varName))
-                    varName = "noVarName_" + Guid.NewGuid().ToString("N");
+                    varName = "__ex";
 
                 writer.WriteIndent();
                 writer.Write("catch (");
                 writer.Write(varName);
-                writer.Write(TryConvertType(catchClause.TypeReference));
+
+                if (catchClause.TypeReference.IsNull)
+                    writer.Write(":Dynamic");
+                else
+                    writer.Write(TryConvertType(catchClause.TypeReference));
+
                 writer.Write(")\r\n");
                 writer.WriteOpenBrace();
                 WriteStatement(writer, catchClause.StatementBlock);

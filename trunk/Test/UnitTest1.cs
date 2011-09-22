@@ -1309,6 +1309,15 @@ namespace Blargh
                 trace(""In second catch"");
             }
 
+            try
+            {
+                trace(""Try in parameterless catch"");
+            }
+            catch
+            {
+                trace(""In parameterless catch"");
+            }
+
             throw new InvalidOperationException(StringBuilder.MythicalField);
         }
     }
@@ -1339,6 +1348,14 @@ class Utilities
         catch (ex:IOException)
         {
             trace(""In second catch"");
+        }
+        try
+        {
+            trace(""Try in parameterless catch"");
+        }
+        catch (__ex:Dynamic)
+        {
+            trace(""In parameterless catch"");
         }
 
         throw new InvalidOperationException(StringBuilder.MythicalField);
