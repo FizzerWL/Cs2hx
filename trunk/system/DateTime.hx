@@ -22,6 +22,11 @@ class DateTime
 		return new DateTime(date.getTime() + span.TicksGetter());
 	}
 	
+	public function AddDays(days:Int):DateTime
+	{
+		return new DateTime(date.getTime() + TimeSpan.FromDays(days).TicksGetter());
+	}
+	
 	public inline function toString():String
 	{
 		return date.toString();
@@ -47,6 +52,7 @@ class DateTime
 	
 	public inline function Subtract(other:DateTime):TimeSpan
 	{
+		Assert.Fatal(other != null, "Subtract called with null date");
 		return new TimeSpan(date.getTime() - other.date.getTime());
 	}
 

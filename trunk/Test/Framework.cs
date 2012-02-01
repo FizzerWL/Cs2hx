@@ -41,8 +41,8 @@ namespace Test
 
                 var haxeFilesFromDisk = Directory.GetFiles(dir, "*.hx", SearchOption.AllDirectories)
                     .Where(o => Path.GetFileName(o) != "Main.hx" && Path.GetFileName(o) != "Constructors.hx")
-                    .Select(o => File.ReadAllText(o))
-                    .Select(o => strip(o))
+                    .Select(File.ReadAllText)
+                    .Select(strip)
                     .OrderBy(o => o)
                     .ToList();
 

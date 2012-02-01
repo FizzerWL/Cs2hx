@@ -82,7 +82,7 @@ import system.Exception;";
                 if (!File.Exists(sourceFile))
                     throw new FileNotFoundException(sourceFile + " does not exist");
 
-            var parsers = sourceFiles.ToDictionary(o => o, o => ParserFactory.CreateParser(o));
+            var parsers = sourceFiles.ToDictionary(o => o, ParserFactory.CreateParser);
 
             Console.WriteLine("Parsing...");
             foreach (var parser in parsers.Values)
@@ -1253,7 +1253,11 @@ package ;");
             writer.WriteIndent();
             writer.Write("while (");
 
-            WriteStatement(writer, forStatement.Condition);
+            if (forStatement.Condition.IsNull)
+                writer.Write("true");
+            else
+                WriteStatement(writer, forStatement.Condition);
+
             writer.Write(")\r\n");
             writer.WriteOpenBrace();
             WriteStatement(writer, forStatement.EmbeddedStatement);

@@ -14,6 +14,46 @@ namespace Test
     class UnitTest1
     {
         [Test]
+        public void ForStatementWithNoCondition()
+        {
+
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction()
+        {
+            for(;;)
+            {
+                trace(""Hello, World!"");
+            }
+        }
+    }
+}", @"
+package blargh;
+" + Program.StandardImports + @"
+
+class Utilities
+{
+    public static function SomeFunction():Void
+    {
+        { //for
+            while (true)
+            {
+                trace(""Hello, World!"");
+            }
+        } //end for
+    }
+    public function new()
+    {
+    }
+}");
+        }
+
+        [Test]
         public void AutomaticProperties()
         {
             TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"

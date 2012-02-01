@@ -235,8 +235,10 @@ namespace Cs2hx
             }
             else if (node is ConditionalExpression)
             {
-                ret.Add(node.As<ConditionalExpression>().TrueExpression);
-                ret.Add(node.As<ConditionalExpression>().FalseExpression);
+                var cond = node.As<ConditionalExpression>();
+                ret.Add(cond.Condition);
+                ret.Add(cond.TrueExpression);
+                ret.Add(cond.FalseExpression);
             }
             else if (node is ForStatement)
             {
