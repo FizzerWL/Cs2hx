@@ -190,8 +190,10 @@ This file serves two purposes:
 */
 package ;");
 
-                foreach (var type in allTypes)
-                    writer.WriteLine("import " + type.Parent.As<NamespaceDeclaration>().Name.ToLower() + "." + type.Name + ";");
+                foreach (var type in allTypes
+                    .Select(o => o.Parent.As<NamespaceDeclaration>().Name.ToLower() + "." + o.Name)
+                    .OrderBy(o => o))
+                    writer.WriteLine("import " + type + ";");
                 writer.WriteLine("import system.TimeSpan;");
 
                 writer.WriteLine("class Constructors");
@@ -201,7 +203,7 @@ package ;");
                 writer.WriteOpenBrace();
                 writer.WriteLine("//Haxe does not support static constructors, so you must call the methods below this comment manually, such as by calling this function.");
                 writer.WriteLine("TimeSpan.cctor();");
-                foreach (var cctor in StaticConstructors)
+                foreach (var cctor in StaticConstructors.OrderBy(o => o))
                     writer.WriteLine(cctor + ".cctor();");
                 writer.WriteCloseBrace();
                 writer.WriteCloseBrace();
