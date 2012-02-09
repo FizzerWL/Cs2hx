@@ -14,6 +14,47 @@ namespace Test
     class UnitTest1
     {
         [Test]
+        public void DefaultParameter()
+        {
+
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class SomeClass
+    {
+        public void Foo(int i1, int i2 = 4, string s1 = ""hi"")
+        {
+        }
+
+        public SomeClass(int i3 = 9)
+        {
+            Foo(4);
+            Foo(5, 6);
+            Foo(6, 7, ""eight"");
+        }
+    }
+}", @"
+package blargh;
+" + Program.StandardImports + @"
+
+class SomeClass
+{
+    public function Foo(i1:Int, i2:Int = 4, s1:String = ""hi""):Void
+    {
+    }
+
+    public function new(i3:Int = 9)
+    {
+        Foo(4);
+        Foo(5, 6);
+        Foo(6, 7, ""eight"");
+    }
+}");
+        }
+
+        [Test]
         public void ForStatementWithNoCondition()
         {
 
@@ -1538,7 +1579,7 @@ namespace Blargh
         {
             Func<int, int> f1 = x => x + 5;
             trace(f1(3));
-            Func<int, int> f2 = x => { return x + 5; };
+            Func<int, int> f2 = x => { return x + 6; };
             trace(f2(3));
 
             List<Action> actions = new List<Action>();
@@ -1559,7 +1600,7 @@ class Utilities
         trace(f1(3));
         var f2:(Int -> Int) = function (x:Int):Int 
         { 
-            return x + 5; 
+            return x + 6; 
         } ;
         trace(f2(3));
         var actions:Array<(Void -> Void)> = new Array<(Void -> Void)>();

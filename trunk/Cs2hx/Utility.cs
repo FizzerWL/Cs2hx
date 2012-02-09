@@ -223,8 +223,11 @@ namespace Cs2hx
             }
             else if (node is LambdaExpression)
             {
-                ret.Add(node.As<LambdaExpression>().ExpressionBody);
-                ret.Add(node.As<LambdaExpression>().StatementBody);
+                var lambda = node.As<LambdaExpression>();
+                if (!lambda.ExpressionBody.IsNull)
+                    ret.Add(lambda.ExpressionBody);
+                if (!lambda.StatementBody.IsNull)
+                    ret.Add(lambda.StatementBody);
             }
             else if (node is UnaryOperatorExpression)
                 ret.Add(node.As<UnaryOperatorExpression>().Expression);
@@ -333,6 +336,8 @@ namespace Cs2hx
                 ret.Add(node.As<ParameterDeclarationExpression>().DefaultValue);
             else if (node is PropertyGetSetRegion)
                 ret.Add(node.As<PropertyGetSetRegion>().Block);
+            else if (node is MemberInitializerExpression)
+                throw new Exception(Program.MemberInitializationText + Utility.Descriptor(node));
             else if (node is BlockStatement || node is IdentifierExpression || node is TypeDeclaration || node is PrimitiveExpression || node is ThisReferenceExpression || node is BaseReferenceExpression || node is ContinueStatement || node is BreakStatement || node is TypeReferenceExpression || node is EmptyStatement || node is NamedArgumentExpression) { }
             else if (node.GetType().Name == "NullExpression") { }
 

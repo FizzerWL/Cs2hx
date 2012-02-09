@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+
 using ICSharpCode.NRefactory;
 using ICSharpCode.NRefactory.Ast;
 using ICSharpCode.NRefactory.Parser;
@@ -20,6 +21,7 @@ namespace Cs2hx
         internal HashSet<string> StaticConstructors = new HashSet<string>();
         internal int InLambda = 0;
         internal int InForLoop = 0;
+        public const string MemberInitializationText = "C# 3.5 object initialization syntax is not supported. ";
 
         public static string StandardImports = @"import system.Cs2Hx;
 import system.Exception;";
@@ -491,6 +493,12 @@ package ;");
 
                     writer.Write(parameter.ParameterName);
                     writer.Write(TryConvertType(parameter.TypeReference));
+
+                    if (parameter.DefaultValue.IsNull == false)
+                    {
+                        writer.Write(" = ");
+                        WriteStatement(writer, parameter.DefaultValue);
+                    }
                 }
             }
 
@@ -780,6 +788,11 @@ package ;");
                     var def = defaultParameters[parameterNumber];
                     if (def != null)
                         writer.Write(" = " + def);
+                    else if (parameter.DefaultValue.IsNull == false)
+                    {
+                        writer.Write(" = ");
+                        WriteStatement(writer, parameter.DefaultValue);
+                    }
 
                     parameterNumber++;
                 }
@@ -1069,7 +1082,7 @@ package ;");
         private void WriteObjectCreateExpression(HaxeWriter writer, ObjectCreateExpression objectCreateExpression)
         {
             if (!objectCreateExpression.ObjectInitializer.IsNull)
-                throw new Exception("C# 3.5 object initialization syntax is not supported. " + Utility.Descriptor(objectCreateExpression));
+                throw new Exception(MemberInitializationText + Utility.Descriptor(objectCreateExpression));
 
             var translate = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Method, ".ctor", objectCreateExpression.CreateType) as Translations.Method;
 
