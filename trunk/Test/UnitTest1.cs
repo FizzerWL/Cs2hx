@@ -1266,9 +1266,9 @@ class Box
     public var IsRectangular:Bool;
     public var Characters:Array<Int>;
     public static var StaticField:StringBuilder;
-    public static var ConstInt:Int;
-    public static var WithQuoteMiddle:String;
-    public static var WithQuoteStart:String;
+    public static inline var ConstInt:Int = 24;
+    public static inline var WithQuoteMiddle:String = ""before\""after"";
+    public static inline var WithQuoteStart:String = ""\""after"";
     public var MultipleOne:Int;
     public var MultipleTwo:Int;
 
@@ -1297,9 +1297,6 @@ class Box
     public static function cctor():Void
     {
         StaticField = new StringBuilder();
-		ConstInt = 24;
-        WithQuoteMiddle = ""before\""after"";
-        WithQuoteStart = ""\""after"";
         trace(""cctor"");
     }
 

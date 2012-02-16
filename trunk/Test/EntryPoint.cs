@@ -9,7 +9,7 @@ namespace Test
     {
         public static void Main(string[] args)
         {
-            new UnitTest1().DefaultParameter();
+            new UnitTest1().FieldsAndProperties();
         }
     }
 }

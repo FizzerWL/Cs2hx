@@ -257,7 +257,11 @@ namespace Cs2hx
                 ret.Add(node.As<VariableDeclaration>().Initializer);
             }
             else if (node is MethodDeclaration)
-                ret.Add(node.As<MethodDeclaration>().Body);
+            {
+                var method = node.As<MethodDeclaration>();
+                ret.Add(method.Body);
+                ret.AddRange(method.Parameters);
+            }
             else if (node is InvocationExpression)
             {
                 ret.Add(node.As<InvocationExpression>().TargetObject);

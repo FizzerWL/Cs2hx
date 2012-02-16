@@ -339,8 +339,8 @@ package ;");
                 }
                 else
                 {
-                    var fields = allChildren.OfType<FieldDeclaration>();
-                    var staticFields = fields.Where(o => o.Modifier.Has(Modifiers.Static) || o.Modifier.Has(Modifiers.Const));
+                    var fields = allChildren.OfType<FieldDeclaration>().Where(o => !o.Modifier.Has(Modifiers.Const)); //exclude consts since haxe can construct them in-line. Everything else constructs in the constructor.
+                    var staticFields = fields.Where(o => o.Modifier.Has(Modifiers.Static));
                     var staticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Fields).Where(o => !o.Initializer.IsNull);
                     var instanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Fields).Where(o => !o.Initializer.IsNull);
                     
@@ -372,7 +372,7 @@ package ;");
         {
             var allNodes = partials.SelectMany(classType => classType.AllLogicalChildren()).Concat(partials.Cast<INode>());
             var typeObjects = allNodes.SelectMany(o => o.ReferencesTypes());
-            var typesReferenced = typeObjects.Select(o => ConvertRawType(o)).RemoveNull().SelectMany(this.SplitGenericTypes).Concat(typeObjects.Select(o => o.Type)).ToHashSet(false);
+            var typesReferenced = typeObjects.Select(ConvertRawType).RemoveNull().SelectMany(this.SplitGenericTypes).Concat(typeObjects.Select(o => o.Type)).ToHashSet(false);
 
             var ret = imports.Where(o => typesReferenced.Contains(o.Split('.').Last())).Distinct().ToList();
 
@@ -687,23 +687,32 @@ package ;");
         {
             foreach (var field in fields)
                 foreach (var declaration in field.Fields)
-                    WriteField(writer, field.Modifier, declaration.Name, field.TypeReference);
+                    WriteField(writer, field.Modifier, declaration.Name, field.TypeReference, declaration.Initializer);
         }
 
-        private void WriteField(HaxeWriter writer, Modifiers modifier, string name, TypeReference type)
+        private void WriteField(HaxeWriter writer, Modifiers modifier, string name, TypeReference type, Expression initializer = null)
         {
             writer.WriteIndent();
             if (modifier.Has(Modifiers.Public) || modifier.Has(Modifiers.Protected) || modifier.Has(Modifiers.Internal))
                 writer.Write("public ");
             if (modifier.Has(Modifiers.Private))
                 writer.Write("private ");
-            if (modifier.Has(Modifiers.Static) || modifier.Has(Modifiers.Const))
+            if (modifier.Has(Modifiers.Static))
                 writer.Write("static ");
+            if (modifier.Has(Modifiers.Const))
+                writer.Write("static inline ");
 
             writer.Write("var ");
 
             writer.Write(name);
             writer.Write(TryConvertType(type));
+
+            if (modifier.Has(Modifiers.Const))
+            {
+                writer.Write(" = ");
+                WriteStatement(writer, initializer);
+            }
+
             writer.Write(";");
             writer.WriteLine();
         }
