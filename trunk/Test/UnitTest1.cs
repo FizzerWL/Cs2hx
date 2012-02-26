@@ -14,6 +14,35 @@ namespace Test
     class UnitTest1
     {
         [Test]
+        public void GlobalKeyword()
+        {
+
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class SomeClass
+    {
+        public SomeClass()
+        {
+            global::Blargh.SomeClass c = null;
+        }
+    }
+}", @"
+package blargh;
+" + Program.StandardImports + @"
+
+class SomeClass
+{
+    public function new()
+    {
+        var c:Blargh.SomeClass = null;
+    }
+}");
+        }
+
+        [Test]
         public void DefaultParameter()
         {
 
@@ -1241,9 +1270,11 @@ namespace Blargh
         public char[] Characters = new char[] { 'a', 'b' };
         public static StringBuilder StaticField = new StringBuilder();
         public const int ConstInt = 24;
+        public static readonly int StaticReadonlyInt = 5;
         public const string WithQuoteMiddle = @""before""""after"";
         public const string WithQuoteStart = @""""""after"";
         public int MultipleOne, MultipleTwo;
+        public readonly int ReadonlyInt = 3;
 
         static Box()
         {
@@ -1267,10 +1298,12 @@ class Box
     public var Characters:Array<Int>;
     public static var StaticField:StringBuilder;
     public static inline var ConstInt:Int = 24;
+    public static inline var StaticReadonlyInt:Int = 5;
     public static inline var WithQuoteMiddle:String = ""before\""after"";
     public static inline var WithQuoteStart:String = ""\""after"";
     public var MultipleOne:Int;
     public var MultipleTwo:Int;
+    public var ReadonlyInt:Int;
 
     public var Width(get_Width, set_Width):Float;
     public function get_Width():Float
@@ -1304,6 +1337,7 @@ class Box
 	{
 		IsRectangular = true;
 		Characters = [ 97, 98 ];
+        ReadonlyInt = 3;
         trace(""ctor"");
 	}
 }");

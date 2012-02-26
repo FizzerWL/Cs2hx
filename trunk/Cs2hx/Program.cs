@@ -339,10 +339,6 @@ package ;");
                 }
                 else
                 {
-                    var fields = allChildren.OfType<FieldDeclaration>().Where(o => !o.Modifier.Has(Modifiers.Const)); //exclude consts since haxe can construct them in-line. Everything else constructs in the constructor.
-                    var staticFields = fields.Where(o => o.Modifier.Has(Modifiers.Static));
-                    var staticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Fields).Where(o => !o.Initializer.IsNull);
-                    var instanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Fields).Where(o => !o.Initializer.IsNull);
                     
                     GenerateFields(writer, allChildren.OfType<FieldDeclaration>());
                     writer.WriteLine();
@@ -350,8 +346,16 @@ package ;");
                     writer.WriteLine();
                     GenerateMethods(writer, allChildren.OfType<MethodDeclaration>(), derivesFromObject);
 
+                    
+
                     if (first.Type != ClassType.Interface)
                     {
+                        var fields = allChildren.OfType<FieldDeclaration>().Where(o => !IsWritableAsConst(o.Modifier, o.Fields.First().Initializer)); //exclude consts since haxe can construct them in-line. Everything else constructs in the constructor.
+                        var staticFields = fields.Where(o => o.Modifier.Has(Modifiers.Static));
+                        var staticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Fields).Where(o => !o.Initializer.IsNull);
+                        var instanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Fields).Where(o => !o.Initializer.IsNull);
+                    
+
                         writer.WriteLine();
                         GenerateConstructors(writer, allChildren.OfType<ConstructorDeclaration>(), derivesFromObject, instanceFieldsNeedingInitialization, staticFieldsNeedingInitialization, typeName);
                     }
@@ -359,6 +363,14 @@ package ;");
 
                 writer.WriteCloseBrace();
             }
+        }
+
+        private bool IsWritableAsConst(Modifiers mods, Expression initializer)
+        {
+            if (mods.Has(Modifiers.Const))
+                return true;
+
+            return mods.Has(Modifiers.ReadOnly) && mods.Has(Modifiers.Static) && initializer != null && initializer.IsNull == false;
         }
 
         /// <summary>
@@ -692,22 +704,25 @@ package ;");
 
         private void WriteField(HaxeWriter writer, Modifiers modifier, string name, TypeReference type, Expression initializer = null)
         {
+            bool isConst = IsWritableAsConst(modifier, initializer);
+
             writer.WriteIndent();
             if (modifier.Has(Modifiers.Public) || modifier.Has(Modifiers.Protected) || modifier.Has(Modifiers.Internal))
                 writer.Write("public ");
             if (modifier.Has(Modifiers.Private))
                 writer.Write("private ");
-            if (modifier.Has(Modifiers.Static))
-                writer.Write("static ");
-            if (modifier.Has(Modifiers.Const))
+
+            if (isConst)
                 writer.Write("static inline ");
+            else if (modifier.Has(Modifiers.Static))
+                writer.Write("static ");
 
             writer.Write("var ");
 
             writer.Write(name);
             writer.Write(TryConvertType(type));
 
-            if (modifier.Has(Modifiers.Const))
+            if (isConst)
             {
                 writer.Write(" = ");
                 WriteStatement(writer, initializer);
