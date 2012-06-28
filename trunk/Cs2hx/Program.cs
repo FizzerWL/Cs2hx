@@ -54,6 +54,7 @@ import system.Exception;";
 "system.ThreadAbortException",
 "system.TimeoutException",
 "system.TimeSpan",
+"system.web.HttpUtility",
 "system.Environment",
 "system.xml.linq.XAttribute",
 "system.xml.linq.XElement",
