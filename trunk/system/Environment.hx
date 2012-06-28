@@ -14,9 +14,9 @@ class Environment
 		
 	}
 	
-	public static var TickCount(GetTickCount, never):Float;
+	public static var TickCount(GetTickCount, never):Int;
 	
-	public static function GetTickCount():Float
+	public static function GetTickCount():Int
 	{
 		#if flash
 		return Lib.getTimer();

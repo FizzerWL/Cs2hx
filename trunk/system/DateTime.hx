@@ -6,7 +6,11 @@ class DateTime
 	public static var MaxValue(get_MaxValue,null):DateTime;
 	public static var MinValue(get_MinValue,null):DateTime;
 
-	public var Ticks(get_Ticks,null):Float;
+	public var Ticks(get_Ticks, null):Float;
+	public var Year(get_Year, null):Int;
+	public var Month(get_Month, null):Int;
+	public var Day(get_Day, null):Int;
+	
 	public var date:Date;
 	
 	public function new(ticks:Float = -5)
@@ -29,8 +33,18 @@ class DateTime
 	
 	public inline function toString():String
 	{
-		return date.toString();
+		return date.getFullYear() + "/" + FormatDatePiece(date.getMonth() + 1) + "/" + FormatDatePiece(date.getDate()) + 
+			" " + date.getHours() + ":" + FormatDatePiece(date.getMinutes()) + ":" + FormatDatePiece(date.getSeconds());
 	}
+	
+	static function FormatDatePiece(n:Float):String
+	{
+		if (n < 10)
+			return "0" + Std.string(n);
+		else
+			return Std.string(n);
+	}
+
 	
 	public static function Parse(str:String):DateTime
 	{
@@ -44,6 +58,22 @@ class DateTime
 	{
 		return date.getTime();
 	}
+	
+	public inline function get_Year():Int
+	{
+		return date.getFullYear();
+	}
+	
+	public inline function get_Month():Int
+	{
+		return date.getMonth();
+	}
+	
+	public inline function get_Day():Int
+	{
+		return date.getDay();
+	}
+
 	
 	public static inline function get_Now():DateTime 
 	{

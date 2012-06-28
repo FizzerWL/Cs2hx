@@ -19,7 +19,6 @@ namespace Cs2hx
         internal HashSet<string> EnumNames;
         internal Dictionary<string, IEnumerable<DelegateDeclaration>> Delegates;
         internal HashSet<string> StaticConstructors = new HashSet<string>();
-        internal int InLambda = 0;
         internal int InForLoop = 0;
         public const string MemberInitializationText = "C# 3.5 object initialization syntax is not supported. ";
 
@@ -950,8 +949,6 @@ package ;");
 
         private void WriteThisReferenceExpression(HaxeWriter writer, ThisReferenceExpression thisReferenceExpression)
         {
-            if (InLambda > 0)
-                throw new InvalidOperationException("Cannot use \"this\" in a lambda. You must create a reference to the \"this\" object outside the lambda for use inside. Found at " + Utility.Descriptor(thisReferenceExpression));
             writer.Write("this");
         }
 
@@ -1241,8 +1238,6 @@ package ;");
             writer.Write("\r\n");
             writer.WriteOpenBrace();
 
-            InLambda++;
-
             if (!lambdaExpression.ExpressionBody.IsNull)
             {
                 writer.WriteIndent();
@@ -1266,8 +1261,6 @@ package ;");
                 WriteStatement(writer, lambdaExpression.StatementBody);
             else
                 throw new Exception("No lambda body found");
-
-            InLambda--;
 
             writer.WriteCloseBrace();
             writer.WriteIndent();

@@ -430,25 +430,6 @@ class Box
         }
 
         [Test]
-        [ExpectedException(ExpectedMessage = "Cannot use \"this\" in a lambda", MatchType = MessageMatch.StartsWith)]
-        public void CannotUseThisInLambda()
-        {
-            TestFramework.TestCode("test", @"
-namespace Blargh
-{
-    class SomeClass
-    {
-        public int SomeField;
-        public void SomeFunction()
-        {
-            Action a = () => Console.WriteLine(this.SomeField);
-            a();
-        }
-    }
-}", "");
-        }
-
-        [Test]
         [ExpectedException(ExpectedMessage = "C# 3.5 object initialization syntax is not supported", MatchType = MessageMatch.StartsWith)]
         public void ObjectInitilization()
         {
