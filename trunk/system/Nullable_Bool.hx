@@ -9,9 +9,12 @@ class Nullable_Bool
 	public var HasValue(HasValueGetter,null):Bool;
 	public var Value(ValueGetter,null):Bool;
 
-	public function new(initial:Bool)
+	public function new(initial:Dynamic = null)
 	{
-		val = initial ? 1 : 0;
+		if (initial == null)
+			val = -1;
+		else
+			val = initial ? 1 : 0;
 	}
 	
 	public function ValueGetter():Bool

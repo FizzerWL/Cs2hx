@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using ICSharpCode.NRefactory;
 using ICSharpCode.NRefactory.Ast;
 using ICSharpCode.NRefactory.Parser;
+using System.Threading;
 
 namespace Cs2hx
 {
@@ -22,7 +23,8 @@ namespace Cs2hx
         internal int InForLoop = 0;
         public const string MemberInitializationText = "C# 3.5 object initialization syntax is not supported. ";
 
-        public static string StandardImports = @"import system.Cs2Hx;
+        public static string StandardImports = @"using StringTools;
+import system.Cs2Hx;
 import system.Exception;";
         
         public string[] SystemImports = new[] { 
@@ -217,8 +219,6 @@ package ;");
             var first = partials.First();
             var typeNamespace = first.Parent.As<NamespaceDeclaration>();
 
-            Func<Modifiers, bool> hasModifier = mod => partials.Any(o => o.Modifier.Has(mod));
-
             var dir = Path.Combine(OutDir, typeNamespace.Name.Replace(".", Path.DirectorySeparatorChar.ToString())).ToLower();
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
@@ -231,8 +231,7 @@ package ;");
                 var imports = SystemImports.ToList();
 
                 //Also allow users to specify extra import statements in the xml file
-                foreach (var extraImport in Translations.Translation.ExtraImports())
-                    imports.Add(extraImport);
+                imports.AddRange(Translations.Translation.ExtraImports());
 
                 //Add in imports from the C#'s using statements
                 foreach (var usingDeclaration in
@@ -246,8 +245,7 @@ package ;");
                     if (usingDeclaration.StartsWith("System.") || usingDeclaration == "System")
                         continue; //system usings are handled by our standard imports
 
-                    foreach (var t in getTypesInNamespace(usingDeclaration))
-                        imports.Add(usingDeclaration.ToLower() + "." + t.Name);
+                    imports.AddRange(getTypesInNamespace(usingDeclaration).Select(t => usingDeclaration.ToLower() + "." + t.Name));
                 }
 
                 //Filter out any ones that aren't being used by this file
@@ -466,7 +464,7 @@ package ;");
                         lastEnumValue = -lastEnumValue;
                 }
 
-                writer.WriteLine("public static var " + varDeclaration.Name + ":Int = " + lastEnumValue + ";");
+                writer.WriteLine("public static inline var " + varDeclaration.Name + ":Int = " + lastEnumValue + ";");
             }
         }
 
