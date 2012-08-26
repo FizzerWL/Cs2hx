@@ -302,10 +302,10 @@ class Linq
 		}
 		return ret;
 	}
-	public static function GroupBy<T, K>(a:Array<T>, func:T -> K):Array<Grouping<K, T>>
+	public static function GroupBy<T, K>(a:Array<T>, func:T -> K):Array<IGrouping<K, T>>
 	{
-		var dict = new Hash<Grouping<K,T>>();
-		var ret = new Array < Grouping < K, T >> ();
+		var dict = new Hash<IGrouping<K,T>>();
+		var ret = new Array < IGrouping < K, T >> ();
 		
 		for (i in a)
 		{
@@ -316,7 +316,7 @@ class Linq
 				dict.get(s).vals.push(i);
 			else
 			{
-				var g = new Grouping(key, i);
+				var g = new IGrouping(key, i);
 				dict.set(s, g);
 				ret.push(g);
 			}

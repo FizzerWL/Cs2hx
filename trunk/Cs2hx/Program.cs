@@ -43,6 +43,7 @@ import system.Exception;";
 "system.io.BinaryWriter",
 "system.KeyNotFoundException",
 "system.linq.Linq",
+"system.linq.IGrouping",
 "system.NotImplementedException",
 "system.Nullable_Float",
 "system.Nullable_Int",

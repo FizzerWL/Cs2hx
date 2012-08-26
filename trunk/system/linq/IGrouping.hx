@@ -1,6 +1,7 @@
 package system.linq;
 
-class Grouping<TKey, TElement>
+//Haxe doesn't support properties in interfaces properly, so we just cheat and make IGrouping a class.
+class IGrouping<TKey, TElement>
 {
 	public function new(key:TKey, initialItem:TElement)
 	{
