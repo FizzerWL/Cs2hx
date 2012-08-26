@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text.RegularExpressions;
 using System.Reflection;
-using NUnit.Framework;
 using Cs2hx;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test;
 
-namespace Test
+namespace UnitTestProject1
 {
-    [TestFixture]
-    class UnitTest1
-    {
-        [Test]
-        public void GlobalKeyword()
-        {
+	[TestClass]
+	public class UnitTest1
+	{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void GlobalKeyword()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -40,13 +36,14 @@ class SomeClass
         var c:Blargh.SomeClass = null;
     }
 }");
-        }
+		}
 
-        [Test]
-        public void DefaultParameter()
-        {
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void DefaultParameter()
+		{
+
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -81,13 +78,13 @@ class SomeClass
         Foo(6, 7, ""eight"");
     }
 }");
-        }
+		}
 
-        [Test]
-        public void ForStatementWithNoCondition()
-        {
+		[TestMethod]
+		public void ForStatementWithNoCondition()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -121,12 +118,12 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void AutomaticProperties()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void AutomaticProperties()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -150,12 +147,12 @@ class Box
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void GenericClass()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void GenericClass()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -216,9 +213,9 @@ class KeyValueList<K, V> implements ISomeInterface<K>
         _list = new Array<KeyValuePair<K, V>>();
     }
 }");
-        }
+		}
 
-		[Test]
+		[TestMethod]
 		public void ByteArrays()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
@@ -252,11 +249,11 @@ class Utilities
 }");
 		}
 
-        [Test]
-        [ExpectedException(ExpectedMessage = "Cannot use \"continue\" in a \"for\" loop", MatchType = MessageMatch.StartsWith)]
-        public void CannotUseContinueInForLoop()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		[ExpectedException(typeof(Exception), "Cannot use \"continue\" in a \"for\" loop")]
+		public void CannotUseContinueInForLoop()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -273,13 +270,13 @@ namespace Blargh
             }
         }
     }
-}", ""); 
-        }
+}", "");
+		}
 
-        [Test]
-        public void ConstructorCallsBaseConstructor()
-        {
-            var cs = @"
+		[TestMethod]
+		public void ConstructorCallsBaseConstructor()
+		{
+			var cs = @"
 using System;
 
 namespace Blargh
@@ -295,7 +292,7 @@ namespace Blargh
     }
 }";
 
-            var haxe1 = @" 
+			var haxe1 = @" 
 package blargh;
 " + Program.StandardImports + @"
 
@@ -306,7 +303,7 @@ class Top
     }
 }";
 
-            var haxe2 = @"
+			var haxe2 = @"
 package blargh;
 " + Program.StandardImports + @"
 
@@ -318,13 +315,13 @@ class Derived extends Top
     }
 }";
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, cs, new string[] { haxe1, haxe2 }); 
-        }
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, cs, new string[] { haxe1, haxe2 });
+		}
 
-        [Test]
-        public void ImportStatements()
-        {
-            var cSharp = @"
+		[TestMethod]
+		public void ImportStatements()
+		{
+			var cSharp = @"
 namespace SomeClassNamespace
 {
     using SomeInterfaceNamespace;
@@ -346,7 +343,7 @@ namespace SomeInterfaceNamespace
     }
 }";
 
-            var haxe1 = @"
+			var haxe1 = @"
 package someclassnamespace;
 " + Program.StandardImports + @"
 import someinterfacenamespace.ISomeInterface;
@@ -362,14 +359,14 @@ class SomeClass implements ISomeInterface
     }
 }";
 
-            var haxe2 = @"
+			var haxe2 = @"
 package someinterfacenamespace;
 " + Program.StandardImports + @"
 
 interface ISomeInterface
 {
 }";
-            var haxe3 = @"
+			var haxe3 = @"
 package someinterfacenamespace;
 " + Program.StandardImports + @"
 
@@ -380,13 +377,13 @@ class UnusedClass
     }
 }";
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, cSharp, new string[] { haxe1, haxe2, haxe3 });
-        }
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, cSharp, new string[] { haxe1, haxe2, haxe3 });
+		}
 
-        [Test]
-        public void TypeInference()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void TypeInference()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 namespace Blargh
 {
     public class Box
@@ -427,13 +424,13 @@ class Box
     }
 }
 ");
-        }
+		}
 
-        [Test]
-        [ExpectedException(ExpectedMessage = "C# 3.5 object initialization syntax is not supported", MatchType = MessageMatch.StartsWith)]
-        public void ObjectInitilization()
-        {
-            TestFramework.TestCode("test", @"
+		[TestMethod]
+		[ExpectedException(typeof(Exception), "C# 3.5 object initialization syntax is not supported")]
+		public void ObjectInitilization()
+		{
+			TestFramework.TestCode("test", @"
 namespace Blargh
 {
     public static class Utilities
@@ -447,13 +444,13 @@ namespace Blargh
         }
     }
 }", "");
-        }
+		}
 
-        [Test]
-        [ExpectedException(ExpectedMessage = "You cannot return from within a using block", MatchType = MessageMatch.StartsWith)]
-        public void CannotReturnFromUsing()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		[ExpectedException(typeof(Exception), "You cannot return from within a using block")]
+		public void CannotReturnFromUsing()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 namespace Blargh
 {
     public static class Utilities
@@ -468,13 +465,13 @@ namespace Blargh
         }
     }
 }", "");
-        }
+		}
 
-        [Test]
-        public void UsingStatement()
-        {
+		[TestMethod]
+		public void UsingStatement()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 namespace Blargh
 {
     public static class Utilities
@@ -517,11 +514,11 @@ class Utilities
     }
 }
 ");
-        }
-        [Test]
-        public void Math()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		}
+		[TestMethod]
+		public void Math()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -577,12 +574,12 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void Delegates()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void Delegates()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 namespace Blargh
 {
     public delegate int NamespaceDlg();
@@ -612,12 +609,12 @@ class Utilities
     {
     }
 }");
-        }
-     
-        [Test]
-        public void TypeStatics()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		}
+
+		[TestMethod]
+		public void TypeStatics()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -656,12 +653,12 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void DictionaryAndHashSet()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void DictionaryAndHashSet()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 using System.Collections.Generic;
 
@@ -728,13 +725,13 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void NullableTypes()
-        {
+		[TestMethod]
+		public void NullableTypes()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -767,13 +764,13 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void Enums()
-        {
+		[TestMethod]
+		public void Enums()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, new string[] { @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, new string[] { @"
 namespace Blargh
 {
     public enum MostlyNumbered
@@ -816,19 +813,19 @@ package blargh;
 " + Program.StandardImports + @"
 class MostlyNumbered
 {
-    public static var One:Int = 1;
-    public static var Two:Int = 2;
-    public static var Three:Int = 3;
-    public static var Unnumbered:Int = 4;
-    public static var SomethingElse:Int = 50;
+    public static inline var One:Int = 1;
+    public static inline var Two:Int = 2;
+    public static inline var Three:Int = 3;
+    public static inline var Unnumbered:Int = 4;
+    public static inline var SomethingElse:Int = 50;
 }", @"
 package blargh;
 " + Program.StandardImports + @"
 class UnNumbered
 {
-	public static var One:Int = 1; 
-    public static var Two:Int = 2;
-    public static var Three:Int = 3;
+	public static inline var One:Int = 1; 
+    public static inline var Two:Int = 2;
+    public static inline var Three:Int = 3;
 }", @"
 package blargh;
 " + Program.StandardImports + @"
@@ -859,12 +856,12 @@ class OtherClass
 }
 
 "});
-        }
-        [Test]
-        public void SwitchStatement()
-        {
+		}
+		[TestMethod]
+		public void SwitchStatement()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -909,12 +906,12 @@ class Utilities
     {
     }
 }");
-        }
-        [Test]
-        public void Linq()
-        {
+		}
+		[TestMethod]
+		public void Linq()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 using System.Linq;
 
@@ -978,12 +975,12 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void OverloadedMethods()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void OverloadedMethods()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1032,14 +1029,14 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
 
-        [Test]
-        public void IsAndAs()
-        {
+		[TestMethod]
+		public void IsAndAs()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1083,13 +1080,13 @@ class Utilities
     {
     }
 }");
-        }
-        
+		}
 
-        [Test]
-        public void AbstractAndOverrides()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+
+		[TestMethod]
+		public void AbstractAndOverrides()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1217,13 +1214,13 @@ class Derived extends TopLevel
 		super();
 	}
 }"  });
-        }
+		}
 
 
-        [Test]
-        public void FieldsAndProperties()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void FieldsAndProperties()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1322,14 +1319,14 @@ class Box
         trace(""ctor"");
 	}
 }");
-        }
+		}
 
-        
 
-        [Test]
-        public void Interfaces()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+
+		[TestMethod]
+		public void Interfaces()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1369,12 +1366,12 @@ class Pokable implements ITesting
     {
     }
 }"});
-        }
+		}
 
-        [Test]
-        public void TryCatchThrow()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void TryCatchThrow()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1457,14 +1454,14 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        
 
-        [Test]
-        public void Generics()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+
+		[TestMethod]
+		public void Generics()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1516,12 +1513,12 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void Objects()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void Objects()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1575,12 +1572,12 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void Lambda()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void Lambda()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1621,12 +1618,12 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void LambdaNoReturn()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void LambdaNoReturn()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1673,11 +1670,11 @@ class Utilities
     {
     }
 }");
-        }
-        [Test]
-        public void Loops()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		}
+		[TestMethod]
+		public void Loops()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1734,12 +1731,12 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void ReplaceTypeWithAttribute()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void ReplaceTypeWithAttribute()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1760,12 +1757,12 @@ class Foo
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void CastsWithAs()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void CastsWithAs()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1802,12 +1799,12 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void ArrayAndForEach()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+		[TestMethod]
+		public void ArrayAndForEach()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1845,12 +1842,12 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void PartialClasses()
-        {
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, 
+		[TestMethod]
+		public void PartialClasses()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name,
 
 new string[] { @"
 using System;
@@ -1900,13 +1897,13 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void StringMethods()
-        {
+		[TestMethod]
+		public void StringMethods()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -1948,13 +1945,13 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void ExtensionMethod()
-        {
+		[TestMethod]
+		public void ExtensionMethod()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -2002,13 +1999,13 @@ class Utilities
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void StringJoin()
-        {
+		[TestMethod]
+		public void StringJoin()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -2031,13 +2028,13 @@ class Foo
         var s = Cs2Hx.Join(asdf, "";"");
     }
 }");
-        }
+		}
 
-        [Test]
-        public void HelloWorld()
-        {
+		[TestMethod]
+		public void HelloWorld()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -2063,12 +2060,12 @@ class Utilities
     {
     }
 }");
-        }
-        [Test]
-        public void IfStatement()
-        {
+		}
+		[TestMethod]
+		public void IfStatement()
+		{
 
-            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
 namespace Blargh
@@ -2121,6 +2118,6 @@ class Utilities
     {
     }
 }");
-        }
-    }
+		}
+	}
 }
