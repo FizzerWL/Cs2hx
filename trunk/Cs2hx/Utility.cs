@@ -283,69 +283,73 @@ namespace Cs2hx
             }
             else if (node is MemberReferenceExpression)
                 ret.Add(node.As<MemberReferenceExpression>().TargetObject);
-            else if (node is ForeachStatement)
-                ret.AddRange(new INode[] { node.As<ForeachStatement>().Expression, node.As<ForeachStatement>().NextExpression });
-            else if (node is SwitchSection)
-                ret.AddRange(node.As<SwitchSection>().SwitchLabels.Cast<INode>());
-            else if (node is CaseLabel)
-            {
-                var lbl = node.As<CaseLabel>();
-                ret.Add(lbl.ToExpression);
-                ret.Add(lbl.Label);
-            }
-            else if (node is ObjectCreateExpression)
-            {
-                var create = node.As<ObjectCreateExpression>();
-                ret.AddRange(create.Parameters.Cast<INode>());
-                ret.Add(create.ObjectInitializer);
-            }
-            else if (node is SwitchStatement)
-            {
-                var s = node.As<SwitchStatement>();
-                ret.Add(s.SwitchExpression);
-                ret.AddRange(s.SwitchSections.Cast<INode>());
-            }
-            else if (node is IfElseStatement)
-            {
-                var n = node.As<IfElseStatement>();
-                ret.Add(n.Condition);
-                ret.AddRange(n.TrueStatement.Cast<INode>());
-                ret.AddRange(n.FalseStatement.Cast<INode>());
-                ret.AddRange(n.ElseIfSections.Cast<INode>());
-            }
-            else if (node is ReturnStatement)
-                ret.Add(node.As<ReturnStatement>().Expression);
-            else if (node is ThrowStatement)
-                ret.Add(node.As<ThrowStatement>().Expression);
-            else if (node is CollectionInitializerExpression)
-                ret.AddRange(node.As<CollectionInitializerExpression>().CreateExpressions.Cast<INode>());
-            else if (node is ConstructorDeclaration)
-                ret.Add(node.As<ConstructorDeclaration>().Body);
-            else if (node is TypeOfIsExpression)
-                ret.Add(node.As<TypeOfIsExpression>().Expression);
-            else if (node is DoLoopStatement)
-                ret.Add(node.As<DoLoopStatement>().Condition);
-            else if (node is CatchClause)
-            {
-                ret.Add(node.As<CatchClause>().Condition);
-                ret.Add(node.As<CatchClause>().StatementBlock);
-            }
-            else if (node is LockStatement)
-                ret.Add(node.As<LockStatement>().LockExpression);
-            else if (node is UsingStatement)
-                ret.Add(node.As<UsingStatement>().ResourceAcquisition);
-            else if (node is DelegateDeclaration)
-                ret.AddRange(node.As<DelegateDeclaration>().Parameters.Cast<INode>());
-            else if (node is ParameterDeclarationExpression)
-                ret.Add(node.As<ParameterDeclarationExpression>().DefaultValue);
-            else if (node is PropertyGetSetRegion)
-                ret.Add(node.As<PropertyGetSetRegion>().Block);
-            else if (node is MemberInitializerExpression)
-                throw new Exception(Program.MemberInitializationText + Utility.Descriptor(node));
-            else if (node is BlockStatement || node is IdentifierExpression || node is TypeDeclaration || node is PrimitiveExpression || node is ThisReferenceExpression || node is BaseReferenceExpression || node is ContinueStatement || node is BreakStatement || node is TypeReferenceExpression || node is EmptyStatement || node is NamedArgumentExpression) { }
-            else if (node.GetType().Name == "NullExpression") { }
+			else if (node is ForeachStatement)
+			{
+				var fe = node.As<ForeachStatement>();
+				ret.AddRange(new INode[] { fe.Expression, fe.NextExpression });
+			}
+			else if (node is SwitchSection)
+				ret.AddRange(node.As<SwitchSection>().SwitchLabels.Cast<INode>());
+			else if (node is CaseLabel)
+			{
+				var lbl = node.As<CaseLabel>();
+				ret.Add(lbl.ToExpression);
+				ret.Add(lbl.Label);
+			}
+			else if (node is ObjectCreateExpression)
+			{
+				var create = node.As<ObjectCreateExpression>();
+				ret.AddRange(create.Parameters.Cast<INode>());
+				ret.Add(create.ObjectInitializer);
+			}
+			else if (node is SwitchStatement)
+			{
+				var s = node.As<SwitchStatement>();
+				ret.Add(s.SwitchExpression);
+				ret.AddRange(s.SwitchSections.Cast<INode>());
+			}
+			else if (node is IfElseStatement)
+			{
+				var n = node.As<IfElseStatement>();
+				ret.Add(n.Condition);
+				ret.AddRange(n.TrueStatement.Cast<INode>());
+				ret.AddRange(n.FalseStatement.Cast<INode>());
+				ret.AddRange(n.ElseIfSections.Cast<INode>());
+			}
+			else if (node is ReturnStatement)
+				ret.Add(node.As<ReturnStatement>().Expression);
+			else if (node is ThrowStatement)
+				ret.Add(node.As<ThrowStatement>().Expression);
+			else if (node is CollectionInitializerExpression)
+				ret.AddRange(node.As<CollectionInitializerExpression>().CreateExpressions.Cast<INode>());
+			else if (node is ConstructorDeclaration)
+				ret.Add(node.As<ConstructorDeclaration>().Body);
+			else if (node is TypeOfIsExpression)
+				ret.Add(node.As<TypeOfIsExpression>().Expression);
+			else if (node is DoLoopStatement)
+				ret.Add(node.As<DoLoopStatement>().Condition);
+			else if (node is CatchClause)
+			{
+				ret.Add(node.As<CatchClause>().Condition);
+				ret.Add(node.As<CatchClause>().StatementBlock);
+			}
+			else if (node is LockStatement)
+				ret.Add(node.As<LockStatement>().LockExpression);
+			else if (node is UsingStatement)
+				ret.Add(node.As<UsingStatement>().ResourceAcquisition);
+			else if (node is DelegateDeclaration)
+				ret.AddRange(node.As<DelegateDeclaration>().Parameters.Cast<INode>());
+			else if (node is ParameterDeclarationExpression)
+				ret.Add(node.As<ParameterDeclarationExpression>().DefaultValue);
+			else if (node is PropertyGetSetRegion)
+				ret.Add(node.As<PropertyGetSetRegion>().Block);
+			else if (node is MemberInitializerExpression)
+				throw new Exception(Program.MemberInitializationText + Utility.Descriptor(node));
+			else if (node is BlockStatement || node is IdentifierExpression || node is TypeDeclaration || node is PrimitiveExpression || node is ThisReferenceExpression || node is BaseReferenceExpression || node is ContinueStatement || node is BreakStatement || node is TypeReferenceExpression || node is EmptyStatement || node is NamedArgumentExpression) { }
+			else if (node.GetType().Name == "NullExpression") { }
 
-            else throw new Exception("Need handler for " + node.GetType().Name);
+			else
+				throw new Exception("Need handler for " + node.GetType().Name);
 
             return ret;
         }

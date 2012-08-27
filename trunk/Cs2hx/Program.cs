@@ -113,7 +113,7 @@ import system.Exception;";
 
             var typesGroupedByNamespace = allNamespaces.Select(o => o.Namespaces.SelectMany(n => n.Children.OfType<TypeDeclaration>())
                 .GroupBy(t => t.Name)
-                .Select(t => new { TypeName = t.Key, Partials = t }));
+                .Select(t => new { TypeName = t.Key, Partials = t.ToList() }));
 
             var allTypes = typesGroupedByNamespace.SelectMany(o => o).SelectMany(o => o.Partials);
 
@@ -215,7 +215,7 @@ package ;");
             }
         }
 
-        private void GenerateType(string typeName, IEnumerable<TypeDeclaration> partials, Func<string, IEnumerable<TypeDeclaration>> getTypesInNamespace)
+        private void GenerateType(string typeName, List<TypeDeclaration> partials, Func<string, IEnumerable<TypeDeclaration>> getTypesInNamespace)
         {
             var first = partials.First();
             var typeNamespace = first.Parent.As<NamespaceDeclaration>();
@@ -382,12 +382,10 @@ package ;");
         private List<string> FilterUnusedImports(List<string> imports, IEnumerable<TypeDeclaration> partials)
         {
             var allNodes = partials.SelectMany(classType => classType.AllLogicalChildren()).Concat(partials.Cast<INode>());
-            var typeObjects = allNodes.SelectMany(o => o.ReferencesTypes());
+			var typeObjects = allNodes.SelectMany(o => o.ReferencesTypes()).ToList();
             var typesReferenced = typeObjects.Select(ConvertRawType).RemoveNull().SelectMany(this.SplitGenericTypes).Concat(typeObjects.Select(o => o.Type)).ToHashSet(false);
 
-            var ret = imports.Where(o => typesReferenced.Contains(o.Split('.').Last())).Distinct().ToList();
-
-            return ret;
+            return imports.Where(o => typesReferenced.Contains(o.Split('.').Last())).Distinct().ToList();
         }
 
         static string[] GenericTokens = new string[] { "->", "(", ")", "<", ">", " " };
