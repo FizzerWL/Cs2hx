@@ -95,6 +95,7 @@
   <Method SourceObject="*" ExtensionNamespace="Linq" Match="Sum" />
   <Method SourceObject="*" ExtensionNamespace="Linq" Match="Concat" />
   <Method SourceObject="*" ExtensionNamespace="Linq" Match="Except" />
+  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Union" />
   <Method SourceObject="*" ExtensionNamespace="Linq" Match="OfType">
     <Argument Location="0" Action="Insert {genericType}" />
   </Method>
