@@ -60,14 +60,18 @@ class Linq
 	public static function Union<T>(a:Array<T>, union:Array<T>):Array<T>
 	{
 		var keys:Hash<Int> = new Hash<Int>();
-		for (e in union)
-			keys.set(Cs2Hx.Hash(e), 1);
-			
 		var ret = new Array<T>();
 			
 		for (val in a)
-			if (keys.exists(Cs2Hx.Hash(val)))
+		{
+			ret.push(val);
+			keys.set(Cs2Hx.Hash(val), 1);
+		}
+		
+		for (val in union)
+			if (!keys.exists(Cs2Hx.Hash(val)))
 				ret.push(val);
+				
 		return ret;
 	}
 		

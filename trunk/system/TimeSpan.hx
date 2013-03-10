@@ -102,6 +102,10 @@ class TimeSpan
 		ms += TotalMilliseconds;
 		return Date.fromTime(ms);
 	}
+	public function AddSpan(span:TimeSpan):TimeSpan
+	{
+		return new TimeSpan(span.TotalMilliseconds + this.TotalMilliseconds);
+	}
 	public static function FromDates(start : Date, end : Date) : TimeSpan
 	{
 		return new TimeSpan(end.getTime() - start.getTime());
