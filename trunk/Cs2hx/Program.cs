@@ -42,7 +42,7 @@ import system.Exception;";
 "system.io.BinaryReader",
 "system.io.BinaryWriter",
 "system.KeyNotFoundException",
-"system.linq.Linq",
+"system.linq.Linq", //named Linq instead of Enumerable because haxe can't deal with having two classes named Enumerable
 "system.linq.IGrouping",
 "system.NotImplementedException",
 "system.Nullable_Float",
@@ -50,6 +50,7 @@ import system.Exception;";
 "system.Nullable_Bool",
 "system.Nullable_TimeSpan",
 "system.Nullable_DateTime",
+"system.Nullable_String",
 "system.OverflowException",
 "system.RandomAS",
 "system.text.StringBuilder",
@@ -1569,10 +1570,6 @@ package ;");
                 return ":" + ret;
         }
 
-        public string ConvertRawType(TypeReference type)
-        {
-            return ConvertRawType(type, false, false);
-        }
 
         private static IEnumerable<NamedArgumentExpression> GetAttributes(INode node)
         {
@@ -1583,6 +1580,10 @@ package ;");
             return attributedNode.Attributes.SelectMany(o => o.Attributes).Where(o => o.Name == "Cs2Hx").SelectMany(o => o.NamedArguments);
         }
 
+		public string ConvertRawType(TypeReference type)
+		{
+			return ConvertRawType(type, false, false);
+		}
         public string ConvertRawType(TypeReference type, bool ignoreArrayType, bool ignoreGenericArguments)
         {
             //Check for the Cs2Hx attribute which could have a directive that tells us what type to use
@@ -1595,14 +1596,13 @@ package ;");
             if (!ignoreArrayType && type.IsArrayType)
                 return "Array<" + ConvertRawType(type, true, false) + ">";
 
-            var translation = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Type, type.Type, type) as Translations.Type;
-
             string genericSuffix;
             if (type.GenericTypes.Count > 0 && !ignoreGenericArguments)
                 genericSuffix = "<" + string.Join(", ", type.GenericTypes.Select(o => ConvertRawType(o)).ToArray()) + ">";
             else
                 genericSuffix = string.Empty;
 
+			var translation = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Type, type.Type, type) as Translations.Type;
             if (translation != null)
                 return translation.ReplaceWith + genericSuffix;
 
@@ -1676,7 +1676,7 @@ package ;");
                     return "KeyValuePair" + genericSuffix;
                 case "System.Nullable":
                 case "Nullable":
-                    return "Nullable_" + ConvertRawType(type.GenericTypes.Single());
+					return "Nullable_" + ConvertRawType(type.GenericTypes.Single());
             }
 
             //All enums are represented as ints.

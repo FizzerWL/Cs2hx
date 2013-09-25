@@ -6,7 +6,7 @@ using Roslyn.Compilers.CSharp;
 
 namespace Cs2hx
 {
-    static class GenerateMethods
+    static class WriteMethods
     {
         public static void Go(HaxeWriter writer, IEnumerable<MethodDeclarationSyntax> methods, bool typeDerivesFromObject)
         {
@@ -21,12 +21,12 @@ namespace Cs2hx
                 {
                     Action err = () => { throw new Exception("Overloads must not do anything other than call the primary method: " + Utility.Descriptor(overload)); };
                     //Each overload must resolve to the primary method
-                    if (overload.BodyOpt.Statements.Count > 1)
+                    if (overload.Body.Statements.Count > 1)
                         err();
-                    SyntaxNode stmt = overload.BodyOpt.Statements.Single();
+                    SyntaxNode stmt = overload.Body.Statements.Single();
 
                     if (stmt is ReturnStatementSyntax)
-                        stmt = stmt.As<ReturnStatementSyntax>().ExpressionOpt;
+                        stmt = stmt.As<ReturnStatementSyntax>().Expression;
                     else
                     {
                         if (!(stmt is ExpressionStatementSyntax))
@@ -43,9 +43,9 @@ namespace Cs2hx
                     for (int i = 0; i < args.Count; i++)
                     {
                         if (args[i].Expression is LiteralExpressionSyntax)
-                            defaultParameters[i] = args[i].As<LiteralExpressionSyntax>().HaxeLiteral();
-                        //else if (!(args[i] is IdentifierExpression)) //TODO
-                        //    err();
+                            defaultParameters[i] = TypeProcessor.HaxeLiteral(args[i].As<LiteralExpressionSyntax>());
+                        else
+                            err();
                     }
                 }
 
@@ -63,10 +63,10 @@ namespace Cs2hx
                 writer.Write("function ");
                 writer.Write(method.Identifier.ValueText == "ToString" ? "toString" : method.Identifier.ValueText);
 
-                if (method.TypeParameterListOpt != null)
+                if (method.TypeParameterList != null)
                 {
                     writer.Write("<");
-                    writer.Write(string.Join(", ", method.TypeParameterListOpt.Parameters.Select(o => o.Identifier.ValueText)));
+                    writer.Write(string.Join(", ", method.TypeParameterList.Parameters.Select(o => o.Identifier.ValueText)));
                     writer.Write(">");
                 }
 
@@ -84,7 +84,7 @@ namespace Cs2hx
                         writer.Write(", ");
 
                     writer.Write(parameter.Identifier.ValueText);
-                    writer.Write(TypeProcessor.TryConvertType(parameter.TypeOpt));
+                    writer.Write(":" + TypeProcessor.ConvertType(parameter.Type));
 
                     var def = defaultParameters[parameterNumber];
                     if (def != null)
@@ -93,26 +93,26 @@ namespace Cs2hx
                     parameterNumber++;
                 }
 
-                writer.Write(")");
-                writer.Write(TypeProcessor.TryConvertType(method.ReturnType));
+                writer.Write("):");
+                writer.Write(TypeProcessor.ConvertType(method.ReturnType));
 
                 if (method.Modifiers.Any(SyntaxKind.AbstractKeyword))
                 {
                     writer.WriteLine();
                     writer.WriteOpenBrace();
                     writer.WriteLine("throw new Exception(\"Abstract item called\");");
-                    if (method.ReturnType.PlainName != "void")
+                    if (method.ReturnType.ToString() != "void")
                         writer.WriteLine("return " + TypeProcessor.DefaultValue(method.ReturnType) + ";");
                     writer.WriteCloseBrace();
                 }
-                else if (method.BodyOpt == null)
+                else if (method.Body == null)
                     writer.Write(";\r\n"); //interface methods wind up here
                 else
                 {
                     writer.WriteLine();
                     writer.WriteOpenBrace();
-                    foreach (var statement in method.BodyOpt.Statements)
-                        Core.WriteStatement(writer, statement);
+                    foreach (var statement in method.Body.Statements)
+						Core.Write(writer, statement);
                     writer.WriteCloseBrace();
                 }
             }

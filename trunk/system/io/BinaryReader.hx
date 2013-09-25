@@ -140,4 +140,8 @@ class BinaryReader
 		return reader.readByte();
 		#end
 	}
+	
+	public function Dispose():Void
+	{
+	}
 }

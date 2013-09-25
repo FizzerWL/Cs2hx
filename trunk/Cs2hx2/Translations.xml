@@ -35,9 +35,9 @@
   </Method>
   <Method SourceObject="*" Match="Sort" ReplaceWith="sort" />
   <Method SourceObject="List" Match="Insert" ReplaceWith="insert" />
-  <Method SourceObject="List" Match="Remove" ReplaceWith="remove" />
   <Method SourceObject="List" Match="IndexOf" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="List" Match="RemoveRange" ReplaceWith="splice" />
+  <Method SourceObject="List" Match="Remove" ReplaceWith="remove" />
   <Method SourceObject="*" Match="RemoveAt" ReplaceWith="splice">
     <Argument Location="1" Action="Insert 1" />
   </Method>
@@ -51,6 +51,10 @@
     <Argument Location="0" Action="DeleteIfPresent" />
   </Method>
 
+  <Method SourceObject="System.Linq.Enumerable" Match="OfType">
+    <Argument Location="0" Action="Insert {genericType}" />
+  </Method>
+  
   <Method SourceObject="Math" Match="Max" ReplaceWith="max" />
   <Method SourceObject="Math" Match="Min" ReplaceWith="min" />
   <Method SourceObject="Math" Match="Abs" ReplaceWith="abs" />
@@ -59,50 +63,8 @@
   <Method SourceObject="Math" Match="Atan2" ReplaceWith="atan2" />
   <Method SourceObject="Math" Match="Cos" ReplaceWith="cos" />
   <Method SourceObject="Math" Match="Sin" ReplaceWith="sin" />
-  <Method SourceObject="Math" Match="Exp" ReplaceWith="exp" />
   <Method SourceObject="Math" Match="Log" ReplaceWith="log" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="First" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="FirstWhere" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="FirstOrDefault" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Any" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="AnyWhere" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="All" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="AllWhere" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Single" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="SingleWhere" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="SingleOrDefault" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Select" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="SelectMany" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Last" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="LastWhere" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="LastOrDefault" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="ElementAt" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Count" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="CountWhere" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Intersect" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Where" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="ToDictionary" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="ToList" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="ToArray" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Distinct" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="GroupBy" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Min" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Max" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="MinInt" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="MaxInt" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="MaxDate" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="MinDate" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="CompareTo" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="OrderByDescending" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="OrderBy" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Sum" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Concat" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Except" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Take" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="Union" />
-  <Method SourceObject="*" ExtensionNamespace="Linq" Match="OfType">
-    <Argument Location="0" Action="Insert {genericType}" />
-  </Method>
+  <Method SourceObject="Math" Match="Exp" ReplaceWith="exp" />
 
   <Property SourceObject="*" Match="Length" ReplaceWith="length" />
   <Property SourceObject="*" Match="Count" ReplaceWith="length" />
@@ -110,4 +72,7 @@
   <Type Match="Random" SourceObject="*" ReplaceWith="RandomAS" />
   <Type Match="MulticastDelegate" SourceObject="*" ReplaceWith="Dynamic" />
   <Type Match="Guid" SourceObject="*" ReplaceWith="String" />
+  
+  <!--Haxe can't deal with multiple types having the same name, such as System.Enumerable and System.Linq.Enumerable. So let's rename the latter. -->
+  <ExtensionType Match="System.Linq.Enumerable" ReplaceWith="System.Linq.Linq" />
 </Translations>

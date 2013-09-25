@@ -7,7 +7,7 @@ using Roslyn.Compilers.CSharp;
 namespace Cs2hx
 {
 
-    internal static class GenerateFields
+    internal static class WriteFields
     {
         public static void Go(HaxeWriter writer, IEnumerable<FieldDeclarationSyntax> fields)
         {
@@ -32,7 +32,7 @@ namespace Cs2hx
             writer.Write("var ");
 
             writer.Write(name);
-            writer.Write(TypeProcessor.TryConvertType(type));
+            writer.Write(":" + TypeProcessor.ConvertType(type));
             writer.Write(";");
             writer.WriteLine();
         }

@@ -6,7 +6,7 @@ using Roslyn.Compilers.CSharp;
 
 namespace Cs2hx
 {
-    class GenerateProperties
+    class WriteProperties
     {
         public static void Go(HaxeWriter writer, IEnumerable<PropertyDeclarationSyntax> properties)
         {
@@ -29,12 +29,12 @@ namespace Cs2hx
                     writer.Write(get ? "get_" : "set_");
                     writer.Write(property.Identifier.ValueText);
 
-                    string type = TypeProcessor.TryConvertType(property.Type);
+                    string type = TypeProcessor.ConvertType(property.Type);
 
                     if (get)
-                        writer.Write("()" + type);
+                        writer.Write("():" + type);
                     else
-                        writer.Write("(value" + type + ")" + type);
+                        writer.Write("(value:" + type + "):" + type);
 
                     writer.WriteLine();
                     writer.WriteOpenBrace();
@@ -42,12 +42,12 @@ namespace Cs2hx
                     if (region.Modifiers.Any(SyntaxKind.AbstractKeyword))
                     {
                         writer.WriteLine("throw new Exception(\"Abstract item called\");");
-                        if (property.Type.PlainName != "void")
+                        if (property.Type.ToString() != "void")
                             writer.WriteLine("return " + TypeProcessor.DefaultValue(property.Type) + ";");
                     }
                     else
                     {
-                        Core.WriteStatement(writer, region.BodyOpt);
+						Core.Write(writer, region.Body);
 
                         if (!get)
                         {
@@ -60,21 +60,21 @@ namespace Cs2hx
                     writer.WriteLine();
                 };
 
-                var getter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.ContextualKind == SyntaxKind.GetKeyword);
-                var setter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.ContextualKind == SyntaxKind.SetKeyword);
+                var getter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind == SyntaxKind.GetKeyword);
+                var setter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind == SyntaxKind.SetKeyword);
 
                 if (getter == null && setter == null)
                     throw new Exception("Property must have either a get or a set");
 
-                if (getter != null && setter != null && setter.BodyOpt == null && getter.BodyOpt == null)
+                if (getter != null && setter != null && setter.Body == null && getter.Body == null)
                 {
                     //Both get and set are null, which means this is an automatic property.  This is the equivilant of a field in haxe.
-                    GenerateFields.WriteField(writer, property.Modifiers, property.Identifier.ValueText, property.Type);
+                    WriteFields.WriteField(writer, property.Modifiers, property.Identifier.ValueText, property.Type);
                 }
                 else
                 {
 
-                    Func<SyntaxKind, bool> oneRegionHas = mod => (getter != null && getter.Modifiers.Any(m => m.ContextualKind == mod)) || (setter != null && setter.Modifiers.Any(m => m.ContextualKind == mod));
+                    Func<SyntaxKind, bool> oneRegionHas = mod => (getter != null && getter.Modifiers.Any(m => m.Kind == mod)) || (setter != null && setter.Modifiers.Any(m => m.Kind == mod));
 
                     if (!oneRegionHas(SyntaxKind.OverrideKeyword))
                     {
@@ -101,8 +101,8 @@ namespace Cs2hx
                         else
                             writer.Write("never");
 
-                        writer.Write(")");
-                        writer.Write(TypeProcessor.TryConvertType(property.Type));
+                        writer.Write("):");
+                        writer.Write(TypeProcessor.ConvertType(property.Type));
                         writer.Write(";\r\n");
                     }
 

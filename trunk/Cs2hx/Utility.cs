@@ -201,8 +201,6 @@ namespace Cs2hx
             if (node is StatementWithEmbeddedStatement)
                 ret.Add(node.As<StatementWithEmbeddedStatement>().EmbeddedStatement);
 
-
-
             if (node is ExpressionStatement)
                 ret.Add(node.As<ExpressionStatement>().Expression);
             else if (node is CastExpression)
@@ -367,44 +365,50 @@ namespace Cs2hx
 
         public static IEnumerable<TypeReference> ReferencesTypes(this INode node)
         {
-            if (node is ObjectCreateExpression)
-                return new TypeReference[] { node.As<ObjectCreateExpression>().CreateType };
-            else if (node is LocalVariableDeclaration)
-                return new TypeReference[] { node.As<LocalVariableDeclaration>().TypeReference };
-            else if (node is PropertyDeclaration)
-                return new TypeReference[] { node.As<PropertyDeclaration>().TypeReference };
-            else if (node is FieldDeclaration)
-                return new TypeReference[] { node.As<FieldDeclaration>().TypeReference };
-            else if (node is CatchClause)
-                return new TypeReference[] { node.As<CatchClause>().TypeReference };
-            else if (node is ConstructorDeclaration)
-                return node.As<ConstructorDeclaration>().Parameters.Select(o => o.TypeReference);
-            else if (node is CastExpression)
-                return new TypeReference[] { node.As<CastExpression>().CastTo };
-            else if (node is MethodDeclaration)
-            {
-                var method = node.As<MethodDeclaration>();
-                return method.Parameters.Select(o => o.TypeReference).Concat(new TypeReference[] { method.TypeReference });
-            }
-            else if (node is TypeDeclaration)
-            {
-                var t = node.As<TypeDeclaration>();
-                return t.BaseTypes.Concat(t.Templates.SelectMany(o => o.Bases));
-            }
-            else if (node is MemberReferenceExpression)
-            {
-                var m = node.As<MemberReferenceExpression>();
-                var trans = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Method, m.MemberName, m.TargetObject) as Translations.Method;
+			if (node is ObjectCreateExpression)
+				return new TypeReference[] { node.As<ObjectCreateExpression>().CreateType };
+			else if (node is LocalVariableDeclaration)
+				return new TypeReference[] { node.As<LocalVariableDeclaration>().TypeReference };
+			else if (node is PropertyDeclaration)
+				return new TypeReference[] { node.As<PropertyDeclaration>().TypeReference };
+			else if (node is FieldDeclaration)
+				return new TypeReference[] { node.As<FieldDeclaration>().TypeReference };
+			else if (node is CatchClause)
+				return new TypeReference[] { node.As<CatchClause>().TypeReference };
+			else if (node is ConstructorDeclaration)
+				return node.As<ConstructorDeclaration>().Parameters.Select(o => o.TypeReference);
+			else if (node is TypeOfIsExpression)
+				return new TypeReference[] { node.As<TypeOfIsExpression>().TypeReference };
+			else if (node is CastExpression)
+				return new TypeReference[] { node.As<CastExpression>().CastTo };
+			else if (node is MethodDeclaration)
+			{
+				var method = node.As<MethodDeclaration>();
+				return method.Parameters.Select(o => o.TypeReference).Concat(new TypeReference[] { method.TypeReference });
+			}
+			else if (node is TypeDeclaration)
+			{
+				var t = node.As<TypeDeclaration>();
+				return t.BaseTypes.Concat(t.Templates.SelectMany(o => o.Bases));
+			}
+			else if (node is MemberReferenceExpression)
+			{
+				var m = node.As<MemberReferenceExpression>();
+				var trans = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Method, m.MemberName, m.TargetObject) as Translations.Method;
 
-                if (trans != null && trans.IsExtensionMethod)
-                    return new TypeReference[] { new TypeReference(trans.ExtensionNamespace) };
-                else if (m.TargetObject is IdentifierExpression)
-                    return new TypeReference[] { new TypeReference(m.TargetObject.As<IdentifierExpression>().Identifier) }; //warning: this will pick up false positives
-                else
-                    return new TypeReference[] { };
-            }
-            else
-                return new TypeReference[] { };
+				var ret = new List<TypeReference>();
+
+				ret.AddRange(m.TypeArguments);
+
+				if (trans != null && trans.IsExtensionMethod)
+					ret.Add(new TypeReference(trans.ExtensionNamespace));
+				else if (m.TargetObject is IdentifierExpression)
+					ret.Add(new TypeReference(m.TargetObject.As<IdentifierExpression>().Identifier)); //warning: this will pick up false positives
+
+				return ret;
+			}
+			else
+				return new TypeReference[] { };
         }
 
         public static IEnumerable<T> RemoveNull<T>(this IEnumerable<T> a) where T : class

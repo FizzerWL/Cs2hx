@@ -10,6 +10,39 @@ namespace UnitTestProject1
 	public class UnitTest1
 	{
 		[TestMethod]
+		public void OfType()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System.Text;
+using System.Linq;
+
+namespace Blargh
+{
+    public class SomeClass
+    {
+        public SomeClass()
+        {
+            var a = new[] { 1,2,3 };
+			var b = a.OfType<StringBuilder>().ToList();
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+import system.linq.Linq;
+import system.text.StringBuilder;
+
+class SomeClass
+{
+    public function new()
+    {
+        var a:Array<Int> = [ 1, 2, 3 ];
+		var b:List<StringBuilder> = Linq.ToList(Linq.OfType(a, StringBuilder));
+    }
+}");
+		}
+
+		[TestMethod]
 		public void GlobalKeyword()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
@@ -26,7 +59,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class SomeClass
 {
@@ -62,7 +95,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class SomeClass
 {
@@ -94,13 +127,13 @@ namespace Blargh
         {
             for(;;)
             {
-                trace(""Hello, World!"");
+                Console.WriteLine(""Hello, World!"");
             }
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
@@ -109,7 +142,7 @@ class Utilities
         { //for
             while (true)
             {
-                trace(""Hello, World!"");
+                Console.WriteLine(""Hello, World!"");
             }
         } //end for
     }
@@ -137,7 +170,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Box
 {
@@ -183,7 +216,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import system.collections.generic.KeyValuePair;
 
 class KeyValueList<K, V> implements ISomeInterface<K>
@@ -232,7 +265,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import haxe.io.Bytes;
 
 class Utilities
@@ -265,7 +298,7 @@ namespace Blargh
             {
                 if (i % 3 == 0)
                     continue;
-                trace(i);
+                Console.WriteLine(i);
             }
         }
     }
@@ -293,7 +326,7 @@ namespace Blargh
 
 			var haxe1 = @" 
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Top
 {
@@ -304,7 +337,7 @@ class Top
 
 			var haxe2 = @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Derived extends Top
 {
@@ -344,7 +377,7 @@ namespace SomeInterfaceNamespace
 
 			var haxe1 = @"
 package someclassnamespace;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import someinterfacenamespace.ISomeInterface;
 
 class SomeClass implements ISomeInterface
@@ -360,14 +393,14 @@ class SomeClass implements ISomeInterface
 
 			var haxe2 = @"
 package someinterfacenamespace;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 interface ISomeInterface
 {
 }";
 			var haxe3 = @"
 package someinterfacenamespace;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class UnusedClass
 {
@@ -383,18 +416,22 @@ class UnusedClass
 		public void TypeInference()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Text;
+
 namespace Blargh
 {
     public class Box
     {
         public static void Main()
         {
-            SomeFunction(o => o + 1);
+            SomeFunction((_, o) => o + 1);
         }
 
-        public static int SomeFunction(Func<StringBuilder, int> doWork)
+        public static int SomeFunction(Func<StringBuilder, int, int> doWork)
         {
-            var value = SomeOtherClass.SomeOtherMethod(doWork(3));
+            var value = doWork(null, 3);
+			return value;
         }
 
         public Box(Action<DateTime> doWork)
@@ -403,7 +440,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import system.DateTime;
 import system.text.StringBuilder;
 
@@ -411,12 +448,13 @@ class Box
 {
     public static function Main():Void
     {
-        SomeFunction(function (o) { return o + 1; } );
+        SomeFunction(function (_:StringBuilder, o:Int) { return o + 1; } );
     }
 
-    public static function SomeFunction(doWork:(StringBuilder -> Int)):Int
+    public static function SomeFunction(doWork:(StringBuilder -> Int -> Int)):Int
     {
-        var value = SomeOtherClass.SomeOtherMethod(doWork(3));
+        var value:Int = doWork(null, 3);
+		return value;
     }
     public function new(doWork:(DateTime -> Void))
     {
@@ -480,13 +518,13 @@ namespace Blargh
             var usingMe = new SomeUsingType();
             using (usingMe)
             {
-                trace(""In using"");
+                Console.WriteLine(""In using"");
             }
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
@@ -496,7 +534,7 @@ class Utilities
         var __disposed_usingMe:Bool = false;
         try
         {
-            trace(""In using"");
+            Console.WriteLine(""In using"");
 
             __disposed_usingMe = true;
             usingMe.Dispose();
@@ -546,7 +584,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
@@ -590,19 +628,19 @@ namespace Blargh
 
         public static void SomeFunction(GetMahNumber getit, NamespaceDlg getitnow, TemplatedDelegate<Float> unused)
         {
-            trace(getit(getitnow()));
+            Console.WriteLine(getit(getitnow()));
             
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
     public static function SomeFunction(getit:(Int -> Int), getitnow:(Void -> Int), unused:(Float -> Int -> Float)):Void
     {
-        trace(getit(getitnow()));
+        Console.WriteLine(getit(getitnow()));
     }
     public function new()
     {
@@ -623,17 +661,17 @@ namespace Blargh
         public static void SomeFunction()
         {
             StringBuilder.DateTime.MythicalField = 4;
-            trace(int.MaxValue);
-            trace(int.MinValue);
+            Console.WriteLine(int.MaxValue);
+            Console.WriteLine(int.MinValue);
             string s = ""123"";
-            trace(int.Parse(s) + 1);
+            Console.WriteLine(int.Parse(s) + 1);
             float.Parse(s);
             double.Parse(s);
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import system.text.StringBuilder;
 
 class Utilities
@@ -641,10 +679,10 @@ class Utilities
     public static function SomeFunction():Void
     {
         StringBuilder.DateTime.MythicalField = 4;
-        trace(2147483647);
-        trace(-2147483648);
+        Console.WriteLine(2147483647);
+        Console.WriteLine(-2147483648);
         var s:String = ""123"";
-        trace(Std.parseInt(s) + 1);
+        Console.WriteLine(Std.parseInt(s) + 1);
         Std.parseFloat(s);
         Std.parseFloat(s);
     }
@@ -669,26 +707,26 @@ namespace Blargh
         {
             Dictionary<int, int> dict = new Dictionary<int, int>();
             dict.Add(4, 3);
-            trace(dict[4]);
-            trace(dict.ContainsKey(8));
+            Console.WriteLine(dict[4]);
+            Console.WriteLine(dict.ContainsKey(8));
             dict.Remove(4);
             foreach(int key in dict.Keys)
-                trace(key);
+                Console.WriteLine(key);
             foreach(int val in dict.Values)
-                trace(val);
+                Console.WriteLine(val);
             
             HashSet<int> hash = new HashSet<int>();
             hash.Add(999);
-            trace(hash.Contains(999));
+            Console.WriteLine(hash.Contains(999));
             hash.Remove(999);
-            trace(hash.Contains(999));
+            Console.WriteLine(hash.Contains(999));
             foreach(int hashItem in hash)
-                trace(hashItem);
+                Console.WriteLine(hashItem);
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import system.collections.generic.CSDictionary;
 import system.collections.generic.HashSet;
 
@@ -698,26 +736,26 @@ class Utilities
     {
         var dict:CSDictionary<Int, Int> = new CSDictionary<Int, Int>();
         dict.Add(4, 3);
-        trace(dict.GetValue(4));
-        trace(dict.ContainsKey(8));
+        Console.WriteLine(dict.GetValue(4));
+        Console.WriteLine(dict.ContainsKey(8));
         dict.Remove(4);
         for (key in dict.Keys)
         {
-            trace(key);
+            Console.WriteLine(key);
         }
         for (val in dict.Values)
         {
-            trace(val);
+            Console.WriteLine(val);
         }
         
         var hash:HashSet<Int> = new HashSet<Int>();
         hash.Add(999);
-        trace(hash.Contains(999));
+        Console.WriteLine(hash.Contains(999));
         hash.Remove(999);
-        trace(hash.Contains(999));
+        Console.WriteLine(hash.Contains(999));
         for (hashItem in hash.Values())
         {
-            trace(hashItem);
+            Console.WriteLine(hashItem);
         }
     }
     public function new()
@@ -740,14 +778,14 @@ namespace Blargh
         public static void SomeFunction()
         {
             int? nullableInt = new Nullable<int>();
-            trace(nullableInt.HasValue);
+            Console.WriteLine(nullableInt.HasValue);
             int? withValue = new Nullable<int>(8);
-            trace(withValue.Value);
+            Console.WriteLine(withValue.Value);
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import system.Nullable_Int;
 
 class Utilities
@@ -755,9 +793,9 @@ class Utilities
     public static function SomeFunction():Void
     {
         var nullableInt:Nullable_Int = new Nullable_Int();
-        trace(nullableInt.HasValue);
+        Console.WriteLine(nullableInt.HasValue);
         var withValue:Nullable_Int = new Nullable_Int(8);
-        trace(withValue.Value);
+        Console.WriteLine(withValue.Value);
     }
     public function new()
     {
@@ -809,7 +847,7 @@ namespace OtherNamespace
     }
 }" }, new string[] { @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 class MostlyNumbered
 {
     public static inline var One:Int = 1;
@@ -819,7 +857,7 @@ class MostlyNumbered
     public static inline var SomethingElse:Int = 50;
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 class UnNumbered
 {
 	public static inline var One:Int = 1; 
@@ -827,7 +865,7 @@ class UnNumbered
     public static inline var Three:Int = 3;
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 class Clazz
 {
     public static function Methodz():Void
@@ -841,7 +879,7 @@ class Clazz
     }
 }", @"
 package othernamespace;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import blargh.MostlyNumbered;
 
 class OtherClass
@@ -872,16 +910,16 @@ namespace Blargh
             string s = ""Blah"";
             switch (s)
             {
-                case ""NotMe"": trace(4); break;
-                case ""Box"": trace(4); break;
-                case ""Blah"": trace(3); break;
+                case ""NotMe"": Console.WriteLine(4); break;
+                case ""Box"": Console.WriteLine(4); break;
+                case ""Blah"": Console.WriteLine(3); break;
                 default: throw new InvalidOperationException();
             }
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import system.InvalidOperationException;
 
 class Utilities
@@ -892,11 +930,11 @@ class Utilities
         switch (s)
         {
             case ""NotMe"":
-                trace(4);
+                Console.WriteLine(4);
             case ""Box"": 
-                trace(4); 
+                Console.WriteLine(4); 
             case ""Blah"": 
-                trace(3); 
+                Console.WriteLine(3); 
             default: 
                 throw new InvalidOperationException();
         }
@@ -921,13 +959,13 @@ namespace Blargh
         public static void SomeFunction()
         {
             int[] e = new int[] { 0, 1, 2, 3 };
-            trace(e.First());
-            trace(e.FirstWhere(o => o == 1));
-            trace(e.ElementAt(2));
-            trace(e.Last());
-            trace(e.Count());
-            trace(e.Where(o => o > 0).Count() + 2);
-            trace(e.CountWhere(o => true) + 2);
+            Console.WriteLine(e.First());
+            Console.WriteLine(e.FirstWhere(o => o == 1));
+            Console.WriteLine(e.ElementAt(2));
+            Console.WriteLine(e.Last());
+            Console.WriteLine(e.Count());
+            Console.WriteLine(e.Where(o => o > 0).Count() + 2);
+            Console.WriteLine(e.CountWhere(o => true) + 2);
 
             Dictionary<int, int> dict = e.ToDictionary(o => o, o => 555);
             e.OfType<int>();
@@ -935,7 +973,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import system.collections.generic.CSDictionary;
 import system.linq.Linq;
 
@@ -944,20 +982,20 @@ class Utilities
     public static function SomeFunction():Void
     {
         var e:Array<Int> = [ 0, 1, 2, 3 ];
-        trace(Linq.First(e));
+        Console.WriteLine(Linq.First(e));
 		
-        trace(Linq.FirstWhere(e, function (o)
+        Console.WriteLine(Linq.FirstWhere(e, function (o)
         {
             return o == 1;
         } ));
-        trace(Linq.ElementAt(e, 2));
-        trace(Linq.Last(e));
-        trace(Linq.Count(e));
-        trace(Linq.Count(Linq.Where(e, function (o)
+        Console.WriteLine(Linq.ElementAt(e, 2));
+        Console.WriteLine(Linq.Last(e));
+        Console.WriteLine(Linq.Count(e));
+        Console.WriteLine(Linq.Count(Linq.Where(e, function (o)
         {
             return o > 0;
         } )) + 2);
-        trace(Linq.CountWhere(e, function (o)
+        Console.WriteLine(Linq.CountWhere(e, function (o)
         {
             return true;
         } ) + 2);
@@ -998,7 +1036,7 @@ namespace Blargh
 
         public static void OverOne(int param, string prm)
         {
-            trace(param + prm);
+            Console.WriteLine(param + prm);
         }
 
         public static int OverTwo(int prm)
@@ -1012,13 +1050,13 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
     public static function OverOne(param:Int = 3, prm:String = ""Blah""):Void
     {
-        trace(param + prm);
+        Console.WriteLine(param + prm);
     }
     public static function OverTwo(prm:Int = 18):Int
     {
@@ -1047,18 +1085,18 @@ namespace Blargh
             string s = ""Blah"";
             var list = new List<int>();
             if (s is string)
-                trace(""Yes"");
+                Console.WriteLine(""Yes"");
             if (list is List<int>)
-                trace(""Yes"");
+                Console.WriteLine(""Yes"");
 
 //            object o = s;
 //            string sss = o as string;
-//            trace(sss);
+//            Console.WriteLine(sss);
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
@@ -1068,11 +1106,11 @@ class Utilities
         var list:Array<Int> = new Array<Int>();
         if (Std.is(s, String))
         {
-            trace(""Yes"");
+            Console.WriteLine(""Yes"");
         }
         if (Std.is(list, Array))
         {
-            trace(""Yes"");
+            Console.WriteLine(""Yes"");
         }
     }
     public function new()
@@ -1097,7 +1135,7 @@ namespace Blargh
 
         public virtual void VirtualMethod()
         {
-            trace(""TopLevel::VirtualMethod"");
+            Console.WriteLine(""TopLevel::VirtualMethod"");
         }
         public virtual string VirtualProperty
         {
@@ -1117,7 +1155,7 @@ namespace Blargh
     {
         public override void AbstractMethod()
         {
-            trace(""Derived::AbstractMethod"");
+            Console.WriteLine(""Derived::AbstractMethod"");
         }
 
         public override string AbstractProperty
@@ -1128,7 +1166,7 @@ namespace Blargh
         public override void VirtualMethod()
         {
             base.VirtualMethod();
-            trace(""Derived::VirtualMethod"");
+            Console.WriteLine(""Derived::VirtualMethod"");
         }
 
         public override string VirtualProperty
@@ -1146,7 +1184,7 @@ namespace Blargh
 }", new string[] {
       @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 class TopLevel
 {
 	public var AbstractProperty(get_AbstractProperty, never):String;
@@ -1169,7 +1207,7 @@ class TopLevel
     }
     public function VirtualMethod():Void
     {
-        trace(""TopLevel::VirtualMethod"");
+        Console.WriteLine(""TopLevel::VirtualMethod"");
     }
     public function toString():String
     {
@@ -1182,7 +1220,7 @@ class TopLevel
 }",
     @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 class Derived extends TopLevel
 {
     override public function get_AbstractProperty():String
@@ -1196,12 +1234,12 @@ class Derived extends TopLevel
 
     override public function AbstractMethod():Void
     {
-        trace(""Derived::AbstractMethod"");
+        Console.WriteLine(""Derived::AbstractMethod"");
     }
     override public function VirtualMethod():Void
     {
         super.VirtualMethod();
-        trace(""Derived::VirtualMethod"");
+        Console.WriteLine(""Derived::VirtualMethod"");
     }
     override public function toString():String
     {
@@ -1235,7 +1273,7 @@ namespace Blargh
 
         public float SetOnly
         {
-            set { trace(value); }
+            set { Console.WriteLine(value); }
         }
 
         public Int GetOnly
@@ -1255,17 +1293,17 @@ namespace Blargh
 
         static Box()
         {
-            trace(""cctor"");
+            Console.WriteLine(""cctor"");
         }
 
         public Box()
         {
-            trace(""ctor"");
+            Console.WriteLine(""ctor"");
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import system.text.StringBuilder;
 
 class Box
@@ -1295,7 +1333,7 @@ class Box
     public var SetOnly(never, set_SetOnly):Float;
     public function set_SetOnly(value:Float):Float
     {
-        trace(value);
+        Console.WriteLine(value);
 		return 0;
     }
     public var GetOnly(get_GetOnly, never):Int;
@@ -1307,7 +1345,7 @@ class Box
     public static function cctor():Void
     {
         StaticField = new StringBuilder();
-        trace(""cctor"");
+        Console.WriteLine(""cctor"");
     }
 
 	public function new()
@@ -1315,7 +1353,7 @@ class Box
 		IsRectangular = true;
 		Characters = [ 97, 98 ];
         ReadonlyInt = 3;
-        trace(""ctor"");
+        Console.WriteLine(""ctor"");
 	}
 }");
 		}
@@ -1339,13 +1377,13 @@ namespace Blargh
     {
         public void Poke()
         {
-            trace(""Implementation"");
+            Console.WriteLine(""Implementation"");
         }
     }
 }",
   new string[] { @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 interface ITesting
 {
@@ -1353,13 +1391,13 @@ interface ITesting
 }",
   @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Pokable implements ITesting
 {
     public function Poke():Void
     {
-        trace(""Implementation"");
+        Console.WriteLine(""Implementation"");
     }
     public function new()
     {
@@ -1379,32 +1417,32 @@ namespace Blargh
     {
         public static void SomeFunction()
         {
-            trace(""Before try"");
+            Console.WriteLine(""Before try"");
             try
             {
-                trace(""In try"");
+                Console.WriteLine(""In try"");
             }
             catch (Exception ex)
             {
-                trace(""In catch"");
+                Console.WriteLine(""In catch"");
             }
 
             try
             {
-                trace(""Try without finally"");
+                Console.WriteLine(""Try without finally"");
             }
             catch (IOException ex)
             {
-                trace(""In second catch"");
+                Console.WriteLine(""In second catch"");
             }
 
             try
             {
-                trace(""Try in parameterless catch"");
+                Console.WriteLine(""Try in parameterless catch"");
             }
             catch
             {
-                trace(""In parameterless catch"");
+                Console.WriteLine(""In parameterless catch"");
             }
 
             throw new InvalidOperationException(StringBuilder.MythicalField);
@@ -1412,7 +1450,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import system.Exception;
 import system.InvalidOperationException;
 import system.text.StringBuilder;
@@ -1421,30 +1459,30 @@ class Utilities
 {
     public static function SomeFunction():Void
     {
-        trace(""Before try"");
+        Console.WriteLine(""Before try"");
         try
         {
-            trace(""In try"");
+            Console.WriteLine(""In try"");
         }
         catch (ex:Exception)
         {
-            trace(""In catch"");
+            Console.WriteLine(""In catch"");
         }
         try
         {
-            trace(""Try without finally"");
+            Console.WriteLine(""Try without finally"");
         }
         catch (ex:IOException)
         {
-            trace(""In second catch"");
+            Console.WriteLine(""In second catch"");
         }
         try
         {
-            trace(""Try in parameterless catch"");
+            Console.WriteLine(""Try in parameterless catch"");
         }
         catch (__ex:Dynamic)
         {
-            trace(""In parameterless catch"");
+            Console.WriteLine(""In parameterless catch"");
         }
 
         throw new InvalidOperationException(StringBuilder.MythicalField);
@@ -1486,7 +1524,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
@@ -1529,7 +1567,7 @@ namespace Blargh
             var queue = new Queue<int>(10);
             queue.Enqueue(4);
             queue.Enqueue(2);
-            trace(queue.Dequeue());
+            Console.WriteLine(queue.Dequeue());
             queue.Clear();
     
             var list = new List<string>(3);
@@ -1545,7 +1583,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
@@ -1554,7 +1592,7 @@ class Utilities
         var queue:Array<Int> = new Array<Int>();
         queue.push(4);
         queue.push(2);
-        trace(queue.shift());
+        Console.WriteLine(queue.shift());
         queue.splice(0, queue.length);
 
         var list:Array<String> = new Array<String>();
@@ -1586,16 +1624,16 @@ namespace Blargh
         public static void SomeFunction()
         {
             Func<int, int> f1 = x => x + 5;
-            trace(f1(3));
+            Console.WriteLine(f1(3));
             Func<int, int> f2 = x => { return x + 6; };
-            trace(f2(3));
+            Console.WriteLine(f2(3));
 
             List<Action> actions = new List<Action>();
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
@@ -1605,12 +1643,12 @@ class Utilities
         { 
             return x + 5; 
         } ;
-        trace(f1(3));
+        Console.WriteLine(f1(3));
         var f2:(Int -> Int) = function (x:Int):Int 
         { 
             return x + 6; 
         } ;
-        trace(f2(3));
+        Console.WriteLine(f2(3));
         var actions:Array<(Void -> Void)> = new Array<(Void -> Void)>();
     }
     public function new()
@@ -1642,7 +1680,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
@@ -1684,23 +1722,23 @@ namespace Blargh
         {
             while (true)
             {
-                trace(""hi"");
+                Console.WriteLine(""hi"");
                 break;
             }
 
             for (int i=0;i<50;i++)
-                trace(i);
+                Console.WriteLine(i);
 
             do
             {
-                trace(""Dowhile"");
+                Console.WriteLine(""Dowhile"");
             }
             while (false);
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
@@ -1708,7 +1746,7 @@ class Utilities
     {
         while (true)
         {
-            trace(""hi"");
+            Console.WriteLine(""hi"");
             break;
         }
 
@@ -1716,13 +1754,13 @@ class Utilities
             var i:Int = 0;
             while (i < 50)
             {
-                trace(i);
+                Console.WriteLine(i);
                 i++;
             }
         } //end for
         do
         {
-            trace(""Dowhile"");
+            Console.WriteLine(""Dowhile"");
         }
         while (false);
     }
@@ -1747,7 +1785,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Foo
 {
@@ -1780,7 +1818,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 import system.DateTime;
 
 class Utilities
@@ -1815,15 +1853,15 @@ namespace Blargh
             string[] ar = new string[] { 1, 2, 3 };
 
             foreach(int i in ar)
-                trace(i);
+                Console.WriteLine(i);
 
-            trace(ar[1]);
-            trace(ar.Length);
+            Console.WriteLine(ar[1]);
+            Console.WriteLine(ar.Length);
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
@@ -1832,10 +1870,10 @@ class Utilities
         var ar:Array<String> = [ 1, 2, 3 ];
         for (i in ar)
         {
-        	trace(i);
+        	Console.WriteLine(i);
         }
-        trace(ar[1]);
-        trace(ar.length);
+        Console.WriteLine(ar[1]);
+        Console.WriteLine(ar.length);
     }
     public function new()
     {
@@ -1857,7 +1895,7 @@ namespace Blargh
     {
         public void FunFromOne()
         {
-            trace(""I'm in one!"");
+            Console.WriteLine(""I'm in one!"");
         }
     }
 }",
@@ -1871,26 +1909,23 @@ namespace Blargh
     {
         public void FunFromTwo()
         {
-            trace(""I'm in Two!"");
+            Console.WriteLine(""I'm in Two!"");
         }
-    }
-    public function new()
-    {
     }
 }"
 }, @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
     public function FunFromOne():Void
     {
-        trace(""I'm in one!"");
+        Console.WriteLine(""I'm in one!"");
     }
     public function FunFromTwo():Void
     {
-        trace(""I'm in Two!"");
+        Console.WriteLine(""I'm in Two!"");
     }
     public function new()
     {
@@ -1912,8 +1947,8 @@ namespace Blargh
         public static void SomeFunction(string s2)
         {
             string s = @""500"";
-            trace(s.IndexOf(""0""));
-            trace(s2.IndexOf(""0""));
+            Console.WriteLine(s.IndexOf(""0""));
+            Console.WriteLine(s2.IndexOf(""0""));
 
             foreach(string s3 in new string[] { ""Hello"" })
                 s3.Substring(4, 5);
@@ -1924,14 +1959,14 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 class Utilities
 {
     public static function SomeFunction(s2:String):Void
     {
         var s:String = ""500"";
-        trace(s.indexOf(""0""));
-        trace(s2.indexOf(""0""));
+        Console.WriteLine(s.indexOf(""0""));
+        Console.WriteLine(s2.indexOf(""0""));
 
         for (s3 in [ ""Hello"" ])
         {
@@ -1960,11 +1995,11 @@ namespace Blargh
         public static void SomeFunction()
         {
             int i = -3;
-            trace(""false "" + i.IsFour());
+            Console.WriteLine(""false "" + i.IsFour());
             i++;
             i += 6;
             bool b = i.IsFour();
-            trace(""true "" + b);
+            Console.WriteLine(""true "" + b);
             Blargh.Utilities.IsFour(5);
         }
 
@@ -1975,18 +2010,18 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
     public static function SomeFunction():Void
     {
         var i:Int = -3;
-        trace(""false "" + blargh.Utilities.IsFour(i));
+        Console.WriteLine(""false "" + blargh.Utilities.IsFour(i));
         i++;
         i += 6;
         var b:Bool = blargh.Utilities.IsFour(i);
-        trace(""true "" + b);
+        Console.WriteLine(""true "" + b);
         blargh.Utilities.IsFour(5);
     }
 
@@ -2018,7 +2053,7 @@ namespace Blargh
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Foo
 {
@@ -2042,18 +2077,18 @@ namespace Blargh
     {
         public static void SomeFunction()
         {
-            trace(""Hello, World!"");
+            Console.WriteLine(""Hello, World!"");
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 
 class Utilities
 {
     public static function SomeFunction():Void
     {
-        trace(""Hello, World!"");
+        Console.WriteLine(""Hello, World!"");
     }
     public function new()
     {
@@ -2084,12 +2119,12 @@ namespace Blargh
             else
                 myNum = 999;
 
-            trace(myNum == 999 ? ""One"" : ""Two"");
+            Console.WriteLine(myNum == 999 ? ""One"" : ""Two"");
         }
     }
 }", @"
 package blargh;
-" + Program.StandardImports + @"
+" + WriteImports.StandardImports + @"
 class Utilities
 {
     public static function SomeFunction():Void
@@ -2111,7 +2146,7 @@ class Utilities
             myNum = 999;
         }
 
-        trace(myNum == 999 ? ""One"" : ""Two"");
+        Console.WriteLine(myNum == 999 ? ""One"" : ""Two"");
     }
     public function new()
     {

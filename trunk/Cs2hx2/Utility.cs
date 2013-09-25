@@ -14,6 +14,22 @@ namespace Cs2hx
             return (T)o;
         }
 
+		public static string SubstringAfterLast(this string s, char c)
+		{
+			int i = s.LastIndexOf(c);
+			if (i == -1)
+				throw new Exception("char not found");
+			return s.Substring(i + 1);
+		}
+
+		public static MethodSymbol UnReduce(this MethodSymbol methodSymbol)
+		{
+			while (methodSymbol.ReducedFrom != null)
+				methodSymbol = methodSymbol.ReducedFrom;
+
+			return methodSymbol;
+		}
+
         //public static MethodDeclaration GetMethod(INode statement)
         //{
         //    while (!(statement is MethodDeclaration))
@@ -378,11 +394,6 @@ namespace Cs2hx
         //        return new TypeReference[] { };
         //}
 
-        //public static IEnumerable<T> RemoveNull<T>(this IEnumerable<T> a) where T : class
-        //{
-        //    return a.Where(o => o != null);
-        //}
-
         //public static bool IsGenericType(TypeReference type, INode foundInExpression)
         //{
         //    var expression = foundInExpression;
@@ -411,24 +422,25 @@ namespace Cs2hx
             AttributeSyntax attr = null;
 
             if (node is BaseMethodDeclarationSyntax)
-                attr = node.As<BaseMethodDeclarationSyntax>().Attributes.SelectMany(o => o.Attributes).SingleOrDefault(o => o.Name.PlainName == "CS2HX");
+                attr = node.As<BaseMethodDeclarationSyntax>().AttributeLists.SelectMany(o => o.Attributes).SingleOrDefault(o => o.Name.ToString() == "CS2HX");
             else if (node is BaseTypeDeclarationSyntax)
-                attr = node.As<BaseTypeDeclarationSyntax>().Attributes.SelectMany(o => o.Attributes).SingleOrDefault(o => o.Name.PlainName == "CS2HX");
+				attr = node.As<BaseTypeDeclarationSyntax>().AttributeLists.SelectMany(o => o.Attributes).SingleOrDefault(o => o.Name.ToString() == "CS2HX");
 
-            if (attr == null || attr.ArgumentListOpt == null)
+            if (attr == null || attr.ArgumentList == null)
                 return new Dictionary<string, string>();
 
-            return attr.ArgumentListOpt.Arguments.ToDictionary(GetAttributeName, o => o.Expression.As<LiteralExpressionSyntax>().Token.ValueText);
+            return attr.ArgumentList.Arguments.ToDictionary(GetAttributeName, o => o.Expression.As<LiteralExpressionSyntax>().Token.ValueText);
         }
 
         private static string GetAttributeName(AttributeArgumentSyntax attr)
         {
-            if (attr.NameEqualsOpt != null)
-                return attr.NameEqualsOpt.Identifier.ValueText;
-            else if (attr.NameColonOpt != null)
-                return attr.NameColonOpt.Identifier.ValueText;
-            else
-                throw new Exception("Both NameEquals and NameColon null"); //TODO: Is this possible?
+			throw new NotImplementedException();
+			//if (attr.NameEquals != null)
+			//	return attr.NameEquals.Identifier.ValueText;
+			//else if (attr.NameColon != null)
+			//	return attr.NameColon.Identifier.ValueText;
+			//else
+			//	throw new Exception("Both NameEquals and NameColon null"); //TODO: Is this possible?
         }
     }
 }

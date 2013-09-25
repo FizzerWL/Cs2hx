@@ -19,7 +19,7 @@ class Cs2Hx
 	}
 	
 	static var charOrDigitMap:IntHash<Bool>;
-	public static function IsLetterOrDigit(ch:Int):Bool
+	public static function IsLetterOrDigit(ch:Int):Bool  //TODO: This differs from char.IsLetterOrDigit since it only recognizes ascii characters.
 	{
 		if (charOrDigitMap == null)
 			charOrDigitMap = MakeMap("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");

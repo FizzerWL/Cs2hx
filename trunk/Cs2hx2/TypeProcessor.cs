@@ -13,35 +13,111 @@ namespace Cs2hx
             throw new NotImplementedException();
         }
 
-        
-        /// <summary>
-        /// Attempts to convert the passed type to a haXe type. If the type is not known, an empty string will be returned and type inferance will be used.  If the type is known, the type will be returned preceeded by a colon
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static string TryConvertType(TypeSyntax type)
-        {
-             if (type.IsVar)
-                return ""; //TODO: Look up the type
+		public static string TryConvertType(SyntaxNode node)
+		{
+			if (node == null)
+				return null;
 
-            var ret = ConvertRawType(type);
-            if (ret == null)
-                return string.Empty;
-            else
-                return ":" + ret;
+			var attrs = Utility.GetCS2HXAttribute(node);
+			if (attrs.ContainsKey("ReplaceWithType"))
+				return attrs["ReplaceWithType"];
+
+			var typeInfo = TypeState.Instance.GetModel(node).GetTypeInfo(node).ConvertedType;
+
+			if (typeInfo == null || typeInfo is ErrorTypeSymbol)
+				return null;
+
+			return ConvertType((TypeSymbol)typeInfo);
+		}
+
+        
+        public static string ConvertType(SyntaxNode node)
+        {
+			var ret = TryConvertType(node);
+
+			if (ret == null)
+				throw new Exception("Type could not be determined for " + node);
+
+			return ret;
+		}
+
+		public static string ConvertType(TypeSymbol typeInfo, bool ignoreGenericArguments = false)
+		{
+			var array = typeInfo as ArrayTypeSymbol;
+
+			if (array != null)
+			{
+				if (array.ElementType.ToString() == "byte") //TODO
+					return "Bytes"; //byte array becomes the Bytes type
+				else
+					return "Array<" + ConvertType(array.ElementType) + ">";
+			}
+
+			var typeInfoStr = typeInfo.ToString();
+
+			var named = typeInfo as NamedTypeSymbol;
+
+			if (typeInfo.TypeKind == TypeKind.Delegate)
+			{
+				var dlg = named.DelegateInvokeMethod.As<MethodSymbol>();
+				if (dlg.Parameters.Count == 0)
+					return "(Void -> " + ConvertType(dlg.ReturnType) + ")";
+				else
+					return "(" + string.Join("", dlg.Parameters.ToList().Select(o => ConvertType(o.Type) + " -> ")) + ConvertType(dlg.ReturnType) + ")";
+			}
+
+			if (!ignoreGenericArguments && named != null && named.TypeArguments.Count > 0)
+			{
+				return ConvertType(named, true) + "<" + string.Join(", ", named.TypeArguments.ToList().Select(o => ConvertType(o))) + ">";
+			}
+
+
+			switch (typeInfo.Name)
+			{
+				case "void":
+					return "Void";
+
+				case "bool":
+				case "Boolean":
+					return "Bool";
+
+				case "object":
+				case "Object":
+					return "Dynamic";
+
+				case "Int64":
+				case "UInt64":
+				case "Single":
+				case "Double":
+				case "float":
+				case "double":
+					return "Float";
+
+				case "String":
+				case "string":
+					return "String";
+
+				case "int":
+				case "Int32":
+				case "Byte":
+				case "Int16":
+				case "UInt16":
+				case "Char":
+					return "Int";
+
+				default:
+
+					
+					//This type does not get translated and gets used as-is
+					return typeInfo.Name;
+			}
+
         }
 
-        public static string ConvertRawType(TypeSyntax type, bool ignoreArrayType = false, bool ignoreGenericArguments = false)
-        {
+		//public static string ConvertRawType(TypeSyntax type, bool ignoreGenericArguments = false)
+		//{
             //Check for the Cs2Hx attribute which could have a directive that tells us what type to use
-            var attrs = Utility.GetCS2HXAttribute(type.Parent);
-            if (attrs.ContainsKey("ReplaceWithType"))
-                return attrs["ReplaceWithType"];
-
-            //if (type.IsArrayType && type.Type == "System.Byte")
-            //    return "Bytes";
-            //if (!ignoreArrayType && type.IsArrayType)
-            //    return "Array<" + ConvertRawType(type, true, false) + ">";
+            
 
             //var translation = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Type, type.Type, type) as Translations.Type;
 
@@ -132,58 +208,13 @@ namespace Cs2hx
             //    return "Int";
 
             //Handle non-generic types
-            switch (type.PlainName)
-            {
-                case "System.Void":
-                case "void": return "Void";
-                case "bool":
-                case "Boolean":
-                case "System.Boolean": return "Bool";
-                    
-                case "object":
-                case "Object":
-                case "System.Object": return "Dynamic";
-
-                case "System.Single":
-                case "System.Double":
-                case "System.UInt64":
-                case "System.Int64":
-                case "Int64":
-                case "UInt64":
-                case "Single":
-                case "Double":
-                case "float":
-                case "double":
-                    return "Float";
-
-                case "System.String":
-                case "String":
-                case "string":
-                    return "String";
-
-                case "System.Char":
-                case "System.UInt32":
-                case "System.UInt16":
-                case "System.Int16":
-                case "System.Byte":
-                case "System.Int32":
-                case "Int32":
-                case "Byte":
-                case "Int16":
-                case "UInt16":
-                case "Char":
-                    return "Int";
-
-                default:
-
-                    //This type does not get translated and gets used as-is
-                    return type.PlainName;// + genericSuffix;
-            }
-        }
+            
+        //}
 
         public static string HaxeLiteral(this LiteralExpressionSyntax literal)
         {
-            throw new NotImplementedException();
+			return literal.ToString();
         }
-    }
+
+	}
 }

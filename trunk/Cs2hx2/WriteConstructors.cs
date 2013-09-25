@@ -6,13 +6,13 @@ using Roslyn.Compilers.CSharp;
 
 namespace Cs2hx
 {
-    static class GenerateConstructors
+    static class WriteConstructors
     {
-        public static void Go(HaxeWriter writer, IEnumerable<ConstructorDeclarationSyntax> constructors, bool derivesFromObject, IEnumerable<VariableDeclaratorSyntax> instanceFieldsNeedingInitialization, IEnumerable<VariableDeclaratorSyntax> staticFieldsNeedingInitialization, string typeName)
+        public static void Go(HaxeWriter writer, IEnumerable<ConstructorDeclarationSyntax> constructors, bool derivesFromObject, IEnumerable<VariableDeclaratorSyntax> instanceFieldsNeedingInitialization, IEnumerable<VariableDeclaratorSyntax> staticFieldsNeedingInitialization)
         {
             var staticConstructor = constructors.SingleOrDefault(o => o.Modifiers.Any(SyntaxKind.StaticKeyword));
 
-            WriteStaticConstructor(writer, staticConstructor, staticFieldsNeedingInitialization, typeName);
+            WriteStaticConstructor(writer, staticConstructor, staticFieldsNeedingInitialization);
 
             var normalctors = constructors.Except(staticConstructor);
 
@@ -42,7 +42,7 @@ namespace Cs2hx
                         writer.Write(", ");
 
                     writer.Write(parameter.Identifier.ValueText);
-                    writer.Write(TypeProcessor.TryConvertType(parameter.TypeOpt));
+					writer.Write(":" + TypeProcessor.ConvertType(parameter.Type));
                 }
             }
 
@@ -89,19 +89,20 @@ namespace Cs2hx
                 writer.WriteIndent();
                 writer.Write(field.Identifier.ValueText);
                 writer.Write(" = ");
-                Core.WriteStatement(writer, field.InitializerOpt.Value);
+                Core.Write(writer, field.Initializer.Value);
                 writer.Write(";\r\n");
             }
 
-            if (ctor != null && ctor.BodyOpt != null)
-                Core.WriteStatement(writer, ctor.BodyOpt);
+            if (ctor != null && ctor.Body != null)
+				foreach(var statement in ctor.Body.As<BlockSyntax>().Statements)
+					Core.Write(writer, statement);
 
             writer.WriteCloseBrace();
         }
 
 
 
-        private static void WriteStaticConstructor(HaxeWriter writer, ConstructorDeclarationSyntax staticConstructor, IEnumerable<VariableDeclaratorSyntax> staticInitializationNeeded, string typeName)
+        private static void WriteStaticConstructor(HaxeWriter writer, ConstructorDeclarationSyntax staticConstructor, IEnumerable<VariableDeclaratorSyntax> staticInitializationNeeded)
         {
             if (staticConstructor == null && staticInitializationNeeded.Count() == 0)
                 return; //No static constructor needed
@@ -114,16 +115,16 @@ namespace Cs2hx
                 writer.WriteIndent();
                 writer.Write(field.Identifier.ValueText);
                 writer.Write(" = ");
-                Core.WriteStatement(writer, field.InitializerOpt);
+				Core.Write(writer, field.Initializer);
                 writer.Write(";\r\n");
             }
 
-            if (staticConstructor != null && staticConstructor.BodyOpt != null)
-                Core.WriteStatement(writer, staticConstructor.BodyOpt);
+            if (staticConstructor != null && staticConstructor.Body != null)
+				Core.Write(writer, staticConstructor.Body);
 
             writer.WriteCloseBrace();
 
-            Program.StaticConstructors.Add(typeName);
+            Program.StaticConstructors.Add(TypeState.Instance.TypeName);
         }
 
     }
