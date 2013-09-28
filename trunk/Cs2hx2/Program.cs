@@ -40,7 +40,7 @@ namespace Cs2hx
 				.ToList();
 
 			var typesGroupedByNamespace = allNamespaces.Select(o =>
-				o.Namespaces.SelectMany(n => n.Members.OfType<TypeDeclarationSyntax>())
+				o.Namespaces.SelectMany(n => n.Members.OfType<BaseTypeDeclarationSyntax>())
 					.GroupBy(t => t.Identifier.ValueText)
 					.Select(t => new { TypeName = t.Key, Partials = t }))
 					.ToList();

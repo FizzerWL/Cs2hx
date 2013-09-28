@@ -43,6 +43,12 @@ namespace Cs2hx
 
                     writer.Write(parameter.Identifier.ValueText);
 					writer.Write(":" + TypeProcessor.ConvertType(parameter.Type));
+
+					if (parameter.Default != null)
+					{
+						writer.Write(" = ");
+						Core.Write(writer, parameter.Default.Value);
+					}
                 }
             }
 
@@ -51,37 +57,30 @@ namespace Cs2hx
 
             if (!derivesFromObject)
             {
-                //TODO
-                //if (ctor != null && ctor.Constructor != null)
-                //{
-                //    switch (ctor.ConstructorInitializer.ConstructorInitializerType)
-                //    {
-                //        case ConstructorInitializerType.Base:
-                //            writer.WriteIndent();
-                //            writer.Write("super(");
+				if (ctor == null || ctor.Initializer == null)
+					writer.WriteLine("super();");
+				else
+				{
+					if (ctor.Initializer.ThisOrBaseKeyword.ToString() != "base")
+						throw new Exception("Constructor overloading not supported " + Utility.Descriptor(ctor));
 
-                //            bool firstArgument = true;
-                //            foreach (var arg in ctor.ConstructorInitializer.Arguments)
-                //            {
-                //                if (firstArgument)
-                //                    firstArgument = false;
-                //                else
-                //                    writer.Write(", ");
+					writer.WriteIndent();
+					writer.Write("super(");
 
-                //                WriteStatement(writer, arg);
-                //            }
+					bool first = true;
+					foreach (var init in ctor.Initializer.ArgumentList.Arguments)
+					{
+						if (first)
+							first = false;
+						else
+							writer.Write(", ");
 
-                //            writer.Write(");\r\n");
-                //            break;
-                //        case ConstructorInitializerType.None:
-                //            writer.WriteLine("super();");
-                //            break;
-                //        case ConstructorInitializerType.This:
-                //            throw new Exception(ctor.ConstructorInitializer.ConstructorInitializerType + " not supported.  " + Utility.Descriptor(ctor));
-                //    }
-                //}
-                //else
-                    writer.WriteLine("super();");
+						Core.Write(writer, init.Expression);
+					}
+
+					writer.Write(");\r\n");
+				}
+
             }
 
             foreach (var field in instanceFieldsNeedingInitialization)

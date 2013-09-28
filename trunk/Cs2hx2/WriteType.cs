@@ -59,10 +59,11 @@ namespace Cs2hx
 
 
 
-				if (first.Kind != SyntaxKind.EnumDeclaration)
+				if (first is TypeDeclarationSyntax)
 				{
 					//Look for generic arguments 
 					var genericArgs = partials
+						.Cast<TypeDeclarationSyntax>()
 						.Where(o => o.TypeParameterList != null)
 						.SelectMany(o => o.TypeParameterList.Parameters)
 						.ToList();
@@ -88,13 +89,6 @@ namespace Cs2hx
 						{
 							writer.Write("implements ");
 							writer.Write(TypeProcessor.ConvertType(baseType));
-
-							//if (baseType.GenericTypes.Count > 0)
-							//{
-							//	writer.Write("<");
-							//	writer.Write(string.Join(", ", baseType.GenericTypes.Select(o => o.Type).ToArray()));
-							//	writer.Write(">");
-							//}
 						}
 						else
 						{
@@ -108,23 +102,31 @@ namespace Cs2hx
 
 				writer.WriteOpenBrace();
 
-				var allChildren = TypeState.Instance.Partials.SelectMany(o => o.Members).ToList();
-
-				var fields = allChildren.OfType<FieldDeclarationSyntax>().Where(o => !TypeState.Instance.DoNotWrite.Contains(o));
-				var staticFields = fields.Where(o => o.Modifiers.Any(m => m.ValueText == "static"));
-				var staticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null);
-				var instanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null);
-
-				WriteFields.Go(writer, allChildren.OfType<FieldDeclarationSyntax>().Where(o => !TypeState.Instance.DoNotWrite.Contains(o)));
-				writer.WriteLine();
-				WriteProperties.Go(writer, allChildren.OfType<PropertyDeclarationSyntax>().Where(o => !TypeState.Instance.DoNotWrite.Contains(o)));
-				writer.WriteLine();
-				WriteMethods.Go(writer, allChildren.OfType<MethodDeclarationSyntax>().Where(o => !TypeState.Instance.DoNotWrite.Contains(o)), derivesFromObject);
-
-				if (first.Kind != SyntaxKind.InterfaceDeclaration)
+				if (first is TypeDeclarationSyntax)
 				{
+
+					var allChildren = TypeState.Instance.Partials.Cast<TypeDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !TypeState.Instance.DoNotWrite.Contains(o)).ToList();
+
+					var fields = allChildren.OfType<FieldDeclarationSyntax>().Where(o => !TypeState.Instance.DoNotWrite.Contains(o));
+					var staticFields = fields.Where(o => o.Modifiers.Any(m => m.ValueText == "static"));
+					var staticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null);
+					var instanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null);
+
+					WriteFields.Go(writer, allChildren.OfType<FieldDeclarationSyntax>());
 					writer.WriteLine();
-					WriteConstructors.Go(writer, allChildren.OfType<ConstructorDeclarationSyntax>(), derivesFromObject, instanceFieldsNeedingInitialization, staticFieldsNeedingInitialization);
+					WriteProperties.Go(writer, allChildren.OfType<PropertyDeclarationSyntax>());
+					writer.WriteLine();
+					WriteMethods.Go(writer, allChildren.OfType<MethodDeclarationSyntax>(), derivesFromObject);
+
+					if (first.Kind != SyntaxKind.InterfaceDeclaration)
+					{
+						writer.WriteLine();
+						WriteConstructors.Go(writer, allChildren.OfType<ConstructorDeclarationSyntax>(), derivesFromObject, instanceFieldsNeedingInitialization, staticFieldsNeedingInitialization);
+					}
+				}
+				else
+				{
+					WriteEnumBody.Go(writer, TypeState.Instance.Partials.Cast<EnumDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !TypeState.Instance.DoNotWrite.Contains(o)));
 				}
 
 				writer.WriteCloseBrace();

@@ -80,7 +80,7 @@ using System;
 
 namespace Blargh
 {
-    public static class SomeClass
+    public class SomeClass
     {
         public void Foo(int i1, int i2 = 4, string s1 = ""hi"")
         {
@@ -329,12 +329,12 @@ using System;
 
 namespace Blargh
 {
-    public static class Top
+    public class Top
     {
         public Top(int i) { }
     }
 
-    public static class Derived : Top
+    public class Derived : Top
     {
         public Derived() : base(4) { }
     }
@@ -633,16 +633,18 @@ class Utilities
 		public void Delegates()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
 namespace Blargh
 {
     public delegate int NamespaceDlg();
-    public delegate T TemplatedDelegate<T>(T arg, Int arg2);
+    public delegate T TemplatedDelegate<T>(T arg, int arg2);
 
     public static class Utilities
     {
         public delegate int GetMahNumber(int arg);
 
-        public static void SomeFunction(GetMahNumber getit, NamespaceDlg getitnow, TemplatedDelegate<Float> unused)
+        public static void SomeFunction(GetMahNumber getit, NamespaceDlg getitnow, TemplatedDelegate<float> unused)
         {
             Console.WriteLine(getit(getitnow()));
             
@@ -842,23 +844,9 @@ namespace Blargh
     {
         public static void Methodz()
         {
-            MostlyNumbered f = MostlyNumbered.One;
-            UnNumbered[] arr = new UnNumbered[] { UnNumbered.One, UnNumbered.Two, UnNumbered.Three };
-            int i = (int)f;
-        }
-    }
-}", @"
-using Blargh;
-
-namespace OtherNamespace
-{
-    class OtherClass
-    {
-        public OtherClass()
-        {
-            if (SomethingElse.Foo() == MostlyNumbered.One)
-            {
-            }
+            var f = MostlyNumbered.One;
+            var arr = new UnNumbered[] { UnNumbered.One, UnNumbered.Two, UnNumbered.Three };
+            var i = (int)f;
         }
     }
 }" }, new string[] { @"
@@ -893,22 +881,7 @@ class Clazz
     public function new()
     {
     }
-}", @"
-package othernamespace;
-" + WriteImports.StandardImports + @"
-import blargh.MostlyNumbered;
-
-class OtherClass
-{
-    public function new()
-    {
-        if (SomethingElse.Foo() == MostlyNumbered.One)
-        {
-        }
-    }
-}
-
-"});
+}"});
 		}
 		[TestMethod]
 		public void SwitchStatement()

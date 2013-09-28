@@ -74,6 +74,7 @@
     <Compile Include="WriteConditionalExpression.cs" />
     <Compile Include="WriteConstructors.cs" />
     <Compile Include="WriteElementAccessExpression.cs" />
+    <Compile Include="WriteEnumBody.cs" />
     <Compile Include="WriteFields.cs" />
     <Compile Include="WriteForEachStatement.cs" />
     <Compile Include="WriteIfStatement.cs" />

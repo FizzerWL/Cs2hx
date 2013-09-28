@@ -74,6 +74,9 @@ namespace Cs2hx
 					return "(" + string.Join("", dlg.Parameters.ToList().Select(o => ConvertType(o.Type) + " -> ")) + ConvertType(dlg.ReturnType) + ")";
 			}
 
+			if (typeInfo.TypeKind == TypeKind.Enum)
+				return "Int"; //enums are always ints
+
 			if (named != null && named.IsGenericType && !named.IsUnboundGenericType)
 				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", named.TypeArguments.ToList().Select(o => ConvertType(o))) + ">";
 
@@ -106,13 +109,18 @@ namespace Cs2hx
 				case "System.Char":
 					return "Int";
 
+					
 				case "System.Collections.Generic.Dictionary<,>":
 					return "CSDictionary"; //change the name to avoid conflicting with Haxe's dictionary type
 				case "System.Collections.Generic.List<>":
+				case "System.Collections.Generic.IList<>":
 				case "System.Collections.Generic.Queue<>":
 				case "System.Collections.Generic.Stack<>":
 				case "System.Collections.Generic.IEnumerable<>":
+				
 					return "Array";
+				case "System.Collections.Generic.LinkedList<>":
+					return "List";
 
 				default:
 
@@ -139,72 +147,12 @@ namespace Cs2hx
             //if (translation != null)
             //    return translation.ReplaceWith + genericSuffix;
 
-            //if (Delegates.ContainsKey(type.Type))
-            //{
-            //    var dlgs = Delegates[type.Type];
-            //    DelegateDeclaration dlg;
-
-            //    if (dlgs.Count() == 1)
-            //        dlg = dlgs.Single();
-            //    else
-            //    {
-            //        dlg = dlgs.FirstOrDefault(o => o.Templates.Count == type.GenericTypes.Count);
-            //        if (dlg == null)
-            //            throw new Exception("Delegate type could not be uniquely identified: " + type.ToString());
-            //    }
-
-            //    Func<TypeReference, string> convertDelegateParameter = t =>
-            //    {
-            //        var template = dlg.Templates.SingleOrDefault(o => o.Name == t.Type);
-
-            //        if (template == null)
-            //            return ConvertRawType(t);
-            //        else
-            //        {
-            //            int templatePosition = dlg.Templates.IndexOf(template);
-            //            return ConvertRawType(type.GenericTypes[templatePosition]);
-            //        }
-            //    };
-
-            //    if (dlg.Parameters.Count == 0)
-            //        return "(Void -> " + convertDelegateParameter(dlg.ReturnType) + ")";
-            //    else
-            //        return "(" + string.Join(" -> ", dlg.Parameters.Select(o => convertDelegateParameter(o.TypeReference)).Concat(convertDelegateParameter(dlg.ReturnType)).ToArray()) + ")";
-            //}
-
-            //if (type.Type == "Action")
-            //{
-            //    if (type.GenericTypes.Count == 0)
-            //        return "(Void -> Void)";
-            //    else
-            //        return "(" + string.Join(" -> ", type.GenericTypes.Select(ConvertRawType).ToArray()) + " -> Void)";
-            //}
-
-            //if (type.Type == "Func")
-            //{
-            //    if (type.GenericTypes.Count == 1)
-            //        return "(Void -> " + ConvertRawType(type.GenericTypes.Single()) + ")";
-            //    else
-            //        return "(" + string.Join(" -> ", type.GenericTypes.Select(ConvertRawType).ToArray()) + ")";
-            //}
-
             ////Handle generic types that we can convert
             //switch (type.Type)
             //{
             //    case "IEnumerable":
             //        //return "Iterable" + genericSuffix; I'd love to use Iterable here, but ActionScript can't enumerate on an iterable when using haxe with -as3.    Array also gives a lot more perf since Iterable gets converted to * when using -as3.
             //        return "Array" + genericSuffix;
-            //    case "LinkedList":
-            //        return "List" + genericSuffix;
-            //    case "Queue":
-            //    case "List":
-            //    case "IList":
-            //    case "Stack":
-            //        return "Array" + genericSuffix;
-            //    case "HashSet":
-            //        return "HashSet" + genericSuffix;
-            //    case "Dictionary":
-            //        return "CSDictionary" + genericSuffix;
             //    case "KeyValuePair":
             //        return "KeyValuePair" + genericSuffix;
             //    case "System.Nullable":
@@ -212,12 +160,7 @@ namespace Cs2hx
             //        return "Nullable_" + ConvertRawType(type.GenericTypes.Single());
             //}
 
-            ////All enums are represented as ints.
-            //if (EnumNames.Contains(type.Type))
-            //    return "Int";
 
-            //Handle non-generic types
-            
         //}
 
         public static string HaxeLiteral(this LiteralExpressionSyntax literal)

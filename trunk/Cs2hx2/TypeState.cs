@@ -13,7 +13,7 @@ namespace Cs2hx
 		[ThreadStatic]
 		public static TypeState Instance;
 
-		public List<TypeDeclarationSyntax> Partials;
+		public List<BaseTypeDeclarationSyntax> Partials;
 		public Func<string, IEnumerable<TypeDeclarationSyntax>> GetTypesInNamespace;
 		public string TypeName;
 		public CommonCompilation Compilation;

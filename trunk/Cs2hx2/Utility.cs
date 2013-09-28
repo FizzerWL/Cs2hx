@@ -178,9 +178,12 @@ namespace Cs2hx
         public static string Descriptor(SyntaxNode node)
         {
             var sb = new StringBuilder();
+			sb.Append(node.Span.ToString() + " ");
 
             while (node != null)
             {
+				
+
                 if (node is BaseTypeDeclarationSyntax)
                     sb.Append("Type: " + node.As<BaseTypeDeclarationSyntax>().Identifier.ValueText + ", ");
                 else if (node is MethodDeclarationSyntax)

@@ -99,7 +99,7 @@ import system.Exception;";
 		/// Filters out import statements that we know aren't needed.
 		/// This algorithm isn't perfect, and in some edge cases will leave extra import statements that aren't needed.  These don't cause any problems, though, they just look ugly.
 		/// </summary>
-		private static List<string> FilterUnusedImports(List<string> imports, IEnumerable<TypeDeclarationSyntax> partials)
+		private static List<string> FilterUnusedImports(List<string> imports, IEnumerable<BaseTypeDeclarationSyntax> partials)
 		{
 			var allNodes = partials.SelectMany(classType => classType.DescendantNodesAndSelf());
 			var typesReferenced = allNodes.OfType<TypeSyntax>()

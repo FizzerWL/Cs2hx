@@ -87,8 +87,13 @@ namespace Cs2hx
                     writer.Write(":" + TypeProcessor.ConvertType(parameter.Type));
 
                     var def = defaultParameters[parameterNumber];
-                    if (def != null)
-                        writer.Write(" = " + def);
+					if (def != null)
+						writer.Write(" = " + def);
+					else if (parameter.Default != null)
+					{
+						writer.Write(" = ");
+						Core.Write(writer, parameter.Default.Value);
+					}
 
                     parameterNumber++;
                 }
