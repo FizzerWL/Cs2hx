@@ -17,6 +17,7 @@ namespace Cs2hx
 		public Func<string, IEnumerable<TypeDeclarationSyntax>> GetTypesInNamespace;
 		public string TypeName;
 		public CommonCompilation Compilation;
+		public HashSet<SyntaxNode> DoNotWrite; //these nodes should not be written. They're excluded by being wrapped by !CS2HX
 
 		private Dictionary<SyntaxTree, ISemanticModel> _models = new Dictionary<SyntaxTree, ISemanticModel>();
 

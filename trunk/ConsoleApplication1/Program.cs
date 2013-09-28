@@ -10,7 +10,7 @@ namespace ConsoleApplication1
 	{
 		static void Main(string[] args)
 		{
-			new UnitTestProject1.UnitTest1().OfType();
+			new UnitTestProject1.UnitTest1().CastsWithAs();
 		}
 	}
 }

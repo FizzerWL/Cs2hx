@@ -15,33 +15,49 @@ namespace Cs2hx
 			var symbolInfo = TypeState.Instance.GetModel(invocationExpression).GetSymbolInfo(invocationExpression);
 			var methodSymbol = symbolInfo.Symbol.As<MethodSymbol>().UnReduce();
 
-			
 
 			var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, methodSymbol.Name, methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name) as Method;
 
-			var isExtensionMethod = methodSymbol.IsExtensionMethod;
+			var extensionNamespace = methodSymbol.IsExtensionMethod ? Translation.ExtensionName(methodSymbol.ContainingType) : null; //null means it's not an extension method, non-null means it is
 
 			if (!(invocationExpression.Expression is MemberAccessExpressionSyntax))
 			{
-				isExtensionMethod = false;
+				extensionNamespace = null;
 				Core.Write(writer, invocationExpression.Expression);
 			}
 			else
 			{
 				var memberReferenceExpression = invocationExpression.Expression.As<MemberAccessExpressionSyntax>();
+				var expressionTypeOpt = TypeState.Instance.GetModel(invocationExpression).GetTypeInfo(memberReferenceExpression.Expression).ConvertedType;
 
-				if (isExtensionMethod)
+
+				string methodName;
+				if (translateOpt == null || translateOpt.ReplaceWith == null)
+					methodName = methodSymbol.Name;
+				else
+					methodName = translateOpt.ReplaceWith;
+
+				if (translateOpt != null && translateOpt.ExtensionNamespace != null)
+					extensionNamespace = translateOpt.ExtensionNamespace.SubstringAfterLast('.');
+
+				if (translateOpt != null && translateOpt.HasComplexReplaceWith)
 				{
-					writer.Write(Translation.ExtensionName(methodSymbol.ContainingType));
+					translateOpt.DoComplexReplaceWith(writer, memberReferenceExpression);
+					return;
+				}
+				else if (extensionNamespace != null)
+				{
+					writer.Write(extensionNamespace);
 					writer.Write(".");
-					writer.Write(methodSymbol.Name);
+					writer.Write(methodName);
 					writer.Write("(");
 					Core.Write(writer, memberReferenceExpression.Expression);
 				}
 				else
 				{
+					
 					//TODO
-					//if (memberReferenceExpression.TargetObject is TypeReferenceExpression)
+					//else if (memberReferenceExpression.TargetObject is TypeReferenceExpression)
 					//{
 					//	switch (methodName)
 					//	{
@@ -76,25 +92,24 @@ namespace Cs2hx
 					//}
 					//else
 					{
-						//string varType;
-						//TypeReference type;
-						//if (memberReferenceExpression.TargetObject is IdentifierExpression && Utility.TryFindType(memberReferenceExpression.TargetObject.As<IdentifierExpression>(), out type))
-						//	varType = ConvertRawType(type);
-						//else
-						//	varType = null;
+						if (expressionTypeOpt != null)
+						{
+							var varType = TypeProcessor.ConvertType((TypeSymbol)expressionTypeOpt);
 
-						//if (methodName.Equals("ToString", StringComparison.OrdinalIgnoreCase) && (varType == "Int" || varType == "Float"))
-						//{
-						//	//ToString()'s on primitive types get replaced with Std.string
-						//	writer.Write("Std.string(");
-						//	WriteStatement(writer, memberReferenceExpression.TargetObject);
-						//	writer.Write(")");
+							//Check against lowercase toString since it gets replaced with the haxe name before we get here
+							if (methodName == "toString" && (varType == "Int" || varType == "Float"))
+							{
+								//ToString()'s on primitive types get replaced with Std.string
+								writer.Write("Std.string(");
+								Core.Write(writer, memberReferenceExpression.Expression);
+								writer.Write(")");
 
-						//	if (invocationExpression.Arguments.Count > 0)
-						//		throw new Exception("Primitive type's ToString detected with parameters.  These are not supported in haXe. " + Utility.Descriptor(invocationExpression));
+								if (invocationExpression.ArgumentList.Arguments.Count > 0)
+									throw new Exception("Primitive type's ToString detected with parameters.  These are not supported in haXe. " + Utility.Descriptor(invocationExpression));
 
-						//	return; //Skip any parameters
-						//}
+								return; //Skip any parameters
+							}
+						}
 						//else if (methodName == "sort" && invocationExpression.ArgumentList.Arguments.Count == 0)
 						//{
 						//	//Sorts without parameters need to get the default sort function added
@@ -137,16 +152,18 @@ namespace Cs2hx
 						//}
 						//else
 						{
-							Core.Write(writer, invocationExpression.Expression);
+							Core.Write(writer, memberReferenceExpression.Expression);
+							writer.Write(".");
+							writer.Write(methodName);
 						}
 					}
 				}
 			}
 
-            if (!isExtensionMethod)
+            if (extensionNamespace == null)
                 writer.Write("(");
 
-            var firstArg = !isExtensionMethod;
+            var firstArg = extensionNamespace == null;
             foreach (var arg in TranslateParameters(translateOpt, invocationExpression.ArgumentList.Arguments, invocationExpression))
             {
                 if (firstArg)
@@ -154,19 +171,19 @@ namespace Cs2hx
                 else
                     writer.Write(", ");
 
-				Core.Write(writer, arg);
+				arg.Write(writer);
             }
 
 
             writer.Write(")");
 		}
 
-		private static IEnumerable<ExpressionSyntax> TranslateParameters(Translations.Translation translateOpt, SeparatedSyntaxList<ArgumentSyntax> list, InvocationExpressionSyntax invoke)
+		private static IEnumerable<ExpressionOrString> TranslateParameters(Translations.Translation translateOpt, SeparatedSyntaxList<ArgumentSyntax> list, InvocationExpressionSyntax invoke)
 		{
 			if (translateOpt == null)
-				return list.Select(o => o.Expression);
+				return list.Select(o => new ExpressionOrString { Expression = o.Expression });
 			else if (translateOpt is Translations.Method)
-				return translateOpt.As<Translations.Method>().TranslateParameters(list.Select(o => o.Expression), invoke);
+				return translateOpt.As<Translations.Method>().TranslateParameters(list.Select(o => o.Expression), invoke.Expression);
 			else
 				throw new Exception("Need handler for " + translateOpt.GetType().Name);
 		}

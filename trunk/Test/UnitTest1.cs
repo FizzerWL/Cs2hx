@@ -37,7 +37,7 @@ class SomeClass
     public function new()
     {
         var a:Array<Int> = [ 1, 2, 3 ];
-		var b:List<StringBuilder> = Linq.ToList(Linq.OfType(a, StringBuilder));
+		var b:Array<StringBuilder> = Linq.ToList(Linq.OfType(a, StringBuilder));
     }
 }");
 		}
@@ -186,40 +186,47 @@ class Box
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
+using System.Collections.Generic;
 
 namespace Blargh
 {
-    public class KeyValueList<K,V> : ISomeInterface<K>
-    {
-        private List<KeyValuePair<K, V>> _list = new List<KeyValuePair<K, V>>();
-        
-        public void Add(K key, V value)
-        {
-            this._list.Add(new KeyValuePair<K, V>(key, value));
-        }
+	public class KeyValueList<K, V> : IEquatable<K>
+	{
+		private List<KeyValuePair<K, V>> _list = new List<KeyValuePair<K, V>>();
 
-        public void Insert(int index, K key, V value)
-        {
-            _list.Insert(index, new KeyValuePair<K, V>(key, value));
-        }
+		public void Add(K key, V value)
+		{
+			this._list.Add(new KeyValuePair<K, V>(key, value));
+		}
 
-        public void Clear()
-        {
-            _list.Clear();
-            var castTest = (K)Foo();
-        }
+		public void Insert(int index, K key, V value)
+		{
+			_list.Insert(index, new KeyValuePair<K, V>(key, value));
+		}
 
-        public void RemoveAt(int index)
-        {
-            _list.RemoveAt(index);
-        }
-    }
+		public void Clear()
+		{
+			_list.Clear();
+			var castTest = (K)MemberwiseClone();
+		}
+
+		public void RemoveAt(int index)
+		{
+			_list.RemoveAt(index);
+		}
+
+		public bool Equals(K other)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
 import system.collections.generic.KeyValuePair;
+import system.NotImplementedException;
 
-class KeyValueList<K, V> implements ISomeInterface<K>
+class KeyValueList<K, V> implements IEquatable<K>
 {
     private var _list:Array<KeyValuePair<K, V>>;
 
@@ -234,7 +241,7 @@ class KeyValueList<K, V> implements ISomeInterface<K>
     public function Clear():Void
     {
         _list.splice(0, _list.length);
-        var castTest:K = Foo();
+        var castTest:K = cast(MemberwiseClone(), K);
     }
     public function RemoveAt(index:Int):Void
     {
@@ -244,6 +251,10 @@ class KeyValueList<K, V> implements ISomeInterface<K>
     {
         _list = new Array<KeyValuePair<K, V>>();
     }
+	public function Equals(other:K):Bool
+	{
+		throw new NotImplementedException();
+	}
 }");
 		}
 
@@ -260,8 +271,9 @@ namespace Blargh
         public static void SomeFunction()
         {
             byte[] b1 = new byte[4];
-			byte[] b2 = new byte[SomeFunction()];
+			byte[] b2 = new byte[Foo()];
         }
+		static int Foo() { return 4; }
     }
 }", @"
 package blargh;
@@ -273,8 +285,12 @@ class Utilities
     public static function SomeFunction():Void
     {
         var b1:Bytes = Bytes.alloc(4);
-		var b2:Bytes = Bytes.alloc(SomeFunction());
+		var b2:Bytes = Bytes.alloc(Foo());
     }
+	static function Foo():Int
+	{
+		return 4;
+	}
     public function new()
     {
     }
@@ -448,7 +464,7 @@ class Box
 {
     public static function Main():Void
     {
-        SomeFunction(function (_:StringBuilder, o:Int) { return o + 1; } );
+        SomeFunction(function (_:StringBuilder, o:Int):Int { return o + 1; } );
     }
 
     public static function SomeFunction(doWork:(StringBuilder -> Int -> Int)):Int
@@ -960,14 +976,14 @@ namespace Blargh
         {
             int[] e = new int[] { 0, 1, 2, 3 };
             Console.WriteLine(e.First());
-            Console.WriteLine(e.FirstWhere(o => o == 1));
+            Console.WriteLine(e.First(o => o == 1));
             Console.WriteLine(e.ElementAt(2));
             Console.WriteLine(e.Last());
             Console.WriteLine(e.Count());
             Console.WriteLine(e.Where(o => o > 0).Count() + 2);
-            Console.WriteLine(e.CountWhere(o => true) + 2);
+            Console.WriteLine(e.Count(o => true) + 2);
 
-            Dictionary<int, int> dict = e.ToDictionary(o => o, o => 555);
+            var dict = e.ToDictionary(o => o, o => 555);
             e.OfType<int>();
         }
     }
@@ -984,25 +1000,25 @@ class Utilities
         var e:Array<Int> = [ 0, 1, 2, 3 ];
         Console.WriteLine(Linq.First(e));
 		
-        Console.WriteLine(Linq.FirstWhere(e, function (o)
+        Console.WriteLine(Linq.First(e, function (o:Int):Bool
         {
             return o == 1;
         } ));
         Console.WriteLine(Linq.ElementAt(e, 2));
         Console.WriteLine(Linq.Last(e));
         Console.WriteLine(Linq.Count(e));
-        Console.WriteLine(Linq.Count(Linq.Where(e, function (o)
+        Console.WriteLine(Linq.Count(Linq.Where(e, function (o:Int):Bool
         {
             return o > 0;
         } )) + 2);
-        Console.WriteLine(Linq.CountWhere(e, function (o)
+        Console.WriteLine(Linq.Count(e, function (o:Int):Bool
         {
             return true;
         } ) + 2);
-        var dict:CSDictionary<Int, Int> = Linq.ToDictionary(e, function (o)
+        var dict:CSDictionary<Int, Int> = Linq.ToDictionary(e, function (o:Int):Int
         {
             return o;
-        } , function (o)
+        } , function (o:Int):Int
         {
             return 555;
         } );
@@ -1173,7 +1189,7 @@ namespace Blargh
         {
             get
             {
-                return base.get_VirtualProperty() + ""Derived:VirtualProperty"";
+                return base.VirtualProperty + ""Derived:VirtualProperty"";
             }
         }
         public override string ToString()
@@ -1229,7 +1245,7 @@ class Derived extends TopLevel
     }
     override public function get_VirtualProperty():String
     {
-        return super.get_VirtualProperty() + ""Derived:VirtualProperty"";
+        return super.VirtualProperty + ""Derived:VirtualProperty"";
     }
 
     override public function AbstractMethod():Void
@@ -1500,6 +1516,7 @@ class Utilities
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
+using System.Collections.Generic;
 
 namespace Blargh
 {
@@ -1518,7 +1535,7 @@ namespace Blargh
         public static IEnumerable<T> SideEffect<T>(this IEnumerable<T> array, Action<T> effect)
         {
             foreach(var i in array)
-                effect(o);
+                effect(i);
             return array;
         }
     }
@@ -1542,7 +1559,7 @@ class Utilities
     {
         for (i in array)
         {
-            effect(o);
+            effect(i);
         }
         return array;
     }
@@ -1557,6 +1574,7 @@ class Utilities
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
+using System.Collections.Generic;
 
 namespace Blargh
 {
@@ -1575,10 +1593,10 @@ namespace Blargh
             list.RemoveAt(0);
             list.Insert(4, ""Seven"");
 
-            var stack = new Stack<bool>();
-            stack.Push(true);
-            stack.Push(false);
-            Math.Max(stack.Pop(), stack.Pop();
+            var stack = new Stack<int>();
+            stack.Push(9);
+            stack.Push(3);
+            Math.Max(stack.Pop(), stack.Pop());
         }
     }
 }", @"
@@ -1600,9 +1618,9 @@ class Utilities
         list.splice(0, 1);
         list.insert(4, ""Seven"");
 
-        var stack:Array<Bool> = new Array<Bool>();
-        stack.push(true);
-        stack.push(false);
+        var stack:Array<Int> = new Array<Int>();
+        stack.push(9);
+        stack.push(3);
         Math.max(stack.pop(), stack.pop());
     }
     public function new()
@@ -1616,6 +1634,7 @@ class Utilities
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
+using System.Collections.Generic;
 
 namespace Blargh
 {
@@ -1695,7 +1714,7 @@ class Utilities
         { 
             return i = 5;
         } ;
-        Foo(function ()
+        Foo(function ():Void
         {
             i = 6;
         } );
@@ -1799,50 +1818,67 @@ class Foo
 		[TestMethod]
 		public void CastsWithAs()
 		{
-			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+			var cs = @"
 using System;
 
 namespace Blargh
 {
-    public static class Utilities
+#if !CS2HX
+	public static class Utilities
+	{
+		public static T As<T>(this object o)
+		{
+			return (T)o;
+		}
+	}
+#endif
+
+    public static class Test
     {
         public static void SomeFunction()
         {
-            var z = one.As<Two>();
-            one.two.three.As<Four>().five;
-            one.two().As<Three>().four;
-            var a = (DateTime)z;
-            object o = new object();
-            var b = (DateTime)o;
+			var z = DateTime.Now.As<String>();
         }
     }
-}", @"
+}";
+  
+			var haxe = @"
 package blargh;
 " + WriteImports.StandardImports + @"
 import system.DateTime;
 
-class Utilities
+class Test
 {
     public static function SomeFunction():Void
     {
-        var z = cast(one, Two);
-        cast(one.two.three, Four).five;
-        cast(one.two(), Three).four;
-        var a:DateTime = cast(z, DateTime);
-        var o:Dynamic = new Dynamic();
-        var b:DateTime = o;
+        var z:String = cast(DateTime.Now, String);
     }
     public function new()
     {
     }
-}");
+}";
+
+			var transform = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Translations>
+  <Method SourceObject=""*"" Match=""As"">
+    <ReplaceWith>
+      <String>cast(</String>
+      <Expression />
+      <String>, {genericType})</String>
+    </ReplaceWith>
+  </Method>
+</Translations>";
+
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, new[] { cs }, new[] { haxe }, transform);
 		}
+
 
 		[TestMethod]
 		public void ArrayAndForEach()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
+using System.Collections.Generic;
 
 namespace Blargh
 {
@@ -1850,13 +1886,14 @@ namespace Blargh
     {
         public static void SomeFunction()
         {
-            string[] ar = new string[] { 1, 2, 3 };
+            var ar = new int[] { 1, 2, 3 };
 
-            foreach(int i in ar)
+            foreach(var i in ar)
                 Console.WriteLine(i);
 
             Console.WriteLine(ar[1]);
             Console.WriteLine(ar.Length);
+			Console.WriteLine(new List<string>().Count);
         }
     }
 }", @"
@@ -1867,13 +1904,14 @@ class Utilities
 {
     public static function SomeFunction():Void
     {
-        var ar:Array<String> = [ 1, 2, 3 ];
+        var ar:Array<Int> = [ 1, 2, 3 ];
         for (i in ar)
         {
         	Console.WriteLine(i);
         }
         Console.WriteLine(ar[1]);
         Console.WriteLine(ar.length);
+		Console.WriteLine(new Array<String>().length);
     }
     public function new()
     {
@@ -1946,7 +1984,7 @@ namespace Blargh
     {
         public static void SomeFunction(string s2)
         {
-            string s = @""500"";
+            string s = @""50\0"";
             Console.WriteLine(s.IndexOf(""0""));
             Console.WriteLine(s2.IndexOf(""0""));
 
@@ -1955,6 +1993,8 @@ namespace Blargh
 
             int i = 4;
             string si = i.ToString();
+			if (si.StartsWith(""asdf""))
+				Console.WriteLine(4);
         }
     }
 }", @"
@@ -1964,7 +2004,7 @@ class Utilities
 {
     public static function SomeFunction(s2:String):Void
     {
-        var s:String = ""500"";
+        var s:String = ""50\\0"";
         Console.WriteLine(s.indexOf(""0""));
         Console.WriteLine(s2.indexOf(""0""));
 
@@ -1974,6 +2014,10 @@ class Utilities
         }
         var i:Int = 4;
         var si:String = Std.string(i);
+		if (Cs2Hx.StartsWith(si, ""asdf""))
+		{
+			Console.WriteLine(4);
+		}
     }
     public function new()
     {

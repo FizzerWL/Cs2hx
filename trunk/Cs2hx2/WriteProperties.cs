@@ -15,14 +15,14 @@ namespace Cs2hx
                 Action<AccessorDeclarationSyntax, bool> writeRegion = (region, get) =>
                 {
                     writer.WriteIndent();
-
-                    if (region.Modifiers.Any(SyntaxKind.OverrideKeyword))
+					
+                    if (property.Modifiers.Any(SyntaxKind.OverrideKeyword))
                         writer.Write("override ");
-                    if (region.Modifiers.Any(SyntaxKind.PublicKeyword) || region.Modifiers.Any(SyntaxKind.ProtectedKeyword) || region.Modifiers.Any(SyntaxKind.InternalKeyword))
+                    if (property.Modifiers.Any(SyntaxKind.PublicKeyword) || property.Modifiers.Any(SyntaxKind.ProtectedKeyword) || property.Modifiers.Any(SyntaxKind.InternalKeyword))
                         writer.Write("public ");
-                    if (region.Modifiers.Any(SyntaxKind.PrivateKeyword))
+                    if (property.Modifiers.Any(SyntaxKind.PrivateKeyword))
                         writer.Write("private ");
-                    if (region.Modifiers.Any(SyntaxKind.StaticKeyword))
+                    if (property.Modifiers.Any(SyntaxKind.StaticKeyword))
                         writer.Write("static ");
 
                     writer.Write("function ");
@@ -37,13 +37,14 @@ namespace Cs2hx
                         writer.Write("(value:" + type + "):" + type);
 
                     writer.WriteLine();
-                    writer.WriteOpenBrace();
 
-                    if (region.Modifiers.Any(SyntaxKind.AbstractKeyword))
+                    if (property.Modifiers.Any(SyntaxKind.AbstractKeyword))
                     {
+						writer.WriteOpenBrace();
                         writer.WriteLine("throw new Exception(\"Abstract item called\");");
                         if (property.Type.ToString() != "void")
                             writer.WriteLine("return " + TypeProcessor.DefaultValue(property.Type) + ";");
+						writer.WriteCloseBrace();
                     }
                     else
                     {
@@ -56,7 +57,6 @@ namespace Cs2hx
                         }
                     }
 
-                    writer.WriteCloseBrace();
                     writer.WriteLine();
                 };
 
@@ -74,15 +74,14 @@ namespace Cs2hx
                 else
                 {
 
-                    Func<SyntaxKind, bool> oneRegionHas = mod => (getter != null && getter.Modifiers.Any(m => m.Kind == mod)) || (setter != null && setter.Modifiers.Any(m => m.Kind == mod));
 
-                    if (!oneRegionHas(SyntaxKind.OverrideKeyword))
+					if (!property.Modifiers.Any(SyntaxKind.OverrideKeyword))
                     {
                         //Write the property declaration.  Overridden properties don't need this.
                         writer.WriteIndent();
-                        if (oneRegionHas(SyntaxKind.PublicKeyword) || oneRegionHas(SyntaxKind.InternalKeyword))
+						if (property.Modifiers.Any(SyntaxKind.PublicKeyword) || property.Modifiers.Any(SyntaxKind.InternalKeyword))
                             writer.Write("public ");
-                        if (oneRegionHas(SyntaxKind.StaticKeyword))
+						if (property.Modifiers.Any(SyntaxKind.StaticKeyword))
                             writer.Write("static ");
 
                         writer.Write("var ");

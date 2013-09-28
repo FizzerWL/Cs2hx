@@ -27,8 +27,8 @@ namespace Cs2hx.Translations
                 builtInPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Translations.xml");
 
             var ret = new List<XDocument>();
-            foreach (var path in extra.Concat(builtInPath))
-                ret.Add(XDocument.Load(path));
+            foreach (var xml in extra.Concat(File.ReadAllText(builtInPath)))
+                ret.Add(XDocument.Parse(xml));
 
             return ret;
         }

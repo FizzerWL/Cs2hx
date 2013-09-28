@@ -11,28 +11,44 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, ImplicitArrayCreationExpressionSyntax array)
 		{
-			Go(writer, array.Initializer);
+			Go(writer, array, array.Initializer);
 		}
 
 		public static void Go(HaxeWriter writer, ArrayCreationExpressionSyntax array)
 		{
-			Go(writer, array.Initializer);
+			if (array.Type.RankSpecifiers.Count > 1)
+				throw new Exception("Multi-dimensional arrays are not supported");
+
+			if (array.Type.ElementType.ToString() == "byte")
+			{
+				if (array.Initializer != null)
+					throw new Exception("Cannot use array initialization syntax for byte arrays");
+
+				writer.Write("Bytes.alloc(");
+				writer.Write(array.Type.RankSpecifiers[0].Sizes[0].ToString());
+				writer.Write(")");
+			}
+			else
+			{
+				Go(writer, array, array.Initializer);
+			}
 		}
 
-		private static void Go(HaxeWriter writer, InitializerExpressionSyntax array)
+		private static void Go(HaxeWriter writer, ExpressionSyntax array, InitializerExpressionSyntax initializer)
 		{
 			writer.Write("[ ");
 
 			bool first = true;
-			foreach (var expression in array.Expressions)
-			{
-				if (first)
-					first = false;
-				else
-					writer.Write(", ");
+			if (initializer != null)
+				foreach (var expression in initializer.Expressions)
+				{
+					if (first)
+						first = false;
+					else
+						writer.Write(", ");
 
-				Core.Write(writer, expression);
-			}
+					Core.Write(writer, expression);
+				}
 
 			writer.Write(" ]");
 		}

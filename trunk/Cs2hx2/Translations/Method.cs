@@ -15,6 +15,12 @@ namespace Cs2hx.Translations
         public string ExtensionNamespace { get; set; }
         public bool SkipExtensionParameter { get; set; }
 
+		public bool HasComplexReplaceWith
+		{
+			get { return DoComplexReplaceWith != null; }
+		}
+		public Action<HaxeWriter, MemberAccessExpressionSyntax> DoComplexReplaceWith;
+
         public bool IsExtensionMethod
         {
             get
@@ -33,22 +39,43 @@ namespace Cs2hx.Translations
                     Action = o.Attribute("Action").Value,
                     Location = int.Parse(o.Attribute("Location").Value)
                 }).ToList();
+
+			if (data.Element("ReplaceWith") != null)
+			{
+				DoComplexReplaceWith = (writer, expression) =>
+					{
+						foreach (var element in data.Element("ReplaceWith").Elements())
+						{
+							switch (element.Name.LocalName)
+							{
+								case "String":
+									writer.Write(ReplaceSpecialIndicators(element.Value, expression));
+									break;
+								case "Expression":
+									Core.Write(writer, expression.Expression);
+									break;
+								default:
+									throw new Exception("Unexpected element name " + element.Name);
+							}
+						}
+					};
+			}
         }
 
-		private string ReplaceSpecialIndicators(string rawString, InvocationExpressionSyntax invoke)
+		private string ReplaceSpecialIndicators(string rawString, ExpressionSyntax expression)
 		{
 			if (rawString.Contains("{genericType}"))
-				rawString = ReplaceGenericVar(rawString, invoke);
+				rawString = ReplaceGenericVar(rawString, expression);
 
 			if (rawString.Contains("{varName}"))
-				rawString = ReplaceVarName(rawString, invoke);
+				rawString = ReplaceVarName(rawString, expression);
 
 			return rawString;
 		}
 
-		private string ReplaceVarName(string rawString, InvocationExpressionSyntax invoke)
+		private string ReplaceVarName(string rawString, ExpressionSyntax expression)
 		{
-			var memberReference = invoke.Expression.As<MemberAccessExpressionSyntax>();
+			var memberReference = expression.As<MemberAccessExpressionSyntax>();
 
 			var identifier = memberReference.Expression as IdentifierNameSyntax;
 
@@ -60,9 +87,9 @@ namespace Cs2hx.Translations
 			return rawString.Replace("{varName}", varName);
 		}
 
-		private string ReplaceGenericVar(string rawString, InvocationExpressionSyntax invoke)
+		private string ReplaceGenericVar(string rawString, ExpressionSyntax expression)
 		{
-			var name = invoke.Expression.As<MemberAccessExpressionSyntax>().Name.As<GenericNameSyntax>();
+			var name = expression.As<MemberAccessExpressionSyntax>().Name.As<GenericNameSyntax>();
 
 			var genericVar = TypeProcessor.ConvertType(name.TypeArgumentList.Arguments.Single());
 
@@ -70,10 +97,10 @@ namespace Cs2hx.Translations
 		}
 
 
-		internal IEnumerable<ExpressionSyntax> TranslateParameters(IEnumerable<ExpressionSyntax> args, InvocationExpressionSyntax invoke)
+		internal IEnumerable<ExpressionOrString> TranslateParameters(IEnumerable<ExpressionSyntax> args, ExpressionSyntax expression)
 		{
 			//Copy it
-			var list = args.ToList();
+			var list = args.Select(o => new ExpressionOrString { Expression = o }).ToList();
 
 			foreach (var arg in Arguments)
 			{
@@ -91,7 +118,7 @@ namespace Cs2hx.Translations
 					list.Insert(int.Parse(arg.Action.Substring(7)), item);
 				}
 				else if (arg.Action.StartsWith("Insert "))
-					list.Insert(arg.Location, SyntaxTree.ParseText(ReplaceSpecialIndicators(arg.Action.Substring(7), invoke)).GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>().Single());
+					list.Insert(arg.Location, new ExpressionOrString { String = ReplaceSpecialIndicators(arg.Action.Substring(7), expression)});
 				else
 					throw new Exception("Need handler for " + arg.Action);
 			}

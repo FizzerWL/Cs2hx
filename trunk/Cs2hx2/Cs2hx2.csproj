@@ -65,11 +65,22 @@
   <ItemGroup>
     <Compile Include="Core.cs" />
     <Compile Include="EntryPoint.cs" />
+    <Compile Include="ExpressionOrString.cs" />
+    <Compile Include="TriviaProcessor.cs" />
     <Compile Include="WriteArrayCreationExpression.cs" />
+    <Compile Include="WriteBaseExpression.cs" />
+    <Compile Include="WriteBinaryExpression.cs" />
+    <Compile Include="WriteCastExpression.cs" />
+    <Compile Include="WriteConditionalExpression.cs" />
     <Compile Include="WriteConstructors.cs" />
+    <Compile Include="WriteElementAccessExpression.cs" />
     <Compile Include="WriteFields.cs" />
+    <Compile Include="WriteForEachStatement.cs" />
+    <Compile Include="WriteIfStatement.cs" />
     <Compile Include="WriteLambdaExpression.cs" />
+    <Compile Include="WriteLiteralExpression.cs" />
     <Compile Include="WriteMethods.cs" />
+    <Compile Include="WriteObjectCreationExpression.cs" />
     <Compile Include="WriteOperatorExpression.cs" />
     <Compile Include="WriteProperties.cs" />
     <Compile Include="HaxeWriter.cs" />
@@ -87,6 +98,9 @@
     <Compile Include="WriteMemberAccessExpression.cs" />
     <Compile Include="TypeState.cs" />
     <Compile Include="WriteReturnStatement.cs" />
+    <Compile Include="WriteThisExpression.cs" />
+    <Compile Include="WriteThrowStatement.cs" />
+    <Compile Include="WriteType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

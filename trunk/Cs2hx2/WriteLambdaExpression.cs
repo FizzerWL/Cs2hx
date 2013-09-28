@@ -39,18 +39,22 @@ namespace Cs2hx
 					writer.Write(":" + TypeProcessor.ConvertType(methodSymbol.Parameters[pi].Type));
 			}
 
-			writer.Write(")");
-			
-			writer.Write(" { ");
+			writer.Write("):");
+			writer.Write(TypeProcessor.ConvertType(methodSymbol.ReturnType));
 
-			if (methodSymbol.ReturnsVoid == false)
-				writer.WriteLine("return ");
+			if (body is BlockSyntax)
+				Core.Write(writer, body);
+			else
+			{
+				writer.Write(" { ");
 
-			Core.Write(writer, body);
+				if (methodSymbol.ReturnsVoid == false)
+					writer.WriteLine("return ");
 
-			
+				Core.Write(writer, body);
 
-			writer.Write("; } ");
+				writer.Write("; } ");
+			}
 		}
 	}
 }

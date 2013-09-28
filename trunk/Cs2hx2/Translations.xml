@@ -16,38 +16,42 @@
   <Method SourceObject="System.Char" Match="IsLetterOrDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.Char" Match="IsDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
 
-  <Method SourceObject="Queue" Match="Enqueue" ReplaceWith="push" />
-  <Method SourceObject="Queue" Match="Dequeue" ReplaceWith="shift" />
-  <Method SourceObject="Queue" Match="Peek" ReplaceWith="First" ExtensionNamespace="Linq" />
-  <Method SourceObject="Queue" Match=".ctor">
+  <Method SourceObject="System.Collections.Generic.Queue" Match="Enqueue" ReplaceWith="push" />
+  <Method SourceObject="System.Collections.Generic.Queue" Match="Dequeue" ReplaceWith="shift" />
+  <Method SourceObject="System.Collections.Generic.Queue" Match="Peek" ReplaceWith="First" ExtensionNamespace="Linq" />
+  <Method SourceObject="System.Collections.Generic.Queue" Match=".ctor">
     <Argument Location="0" Action="DeleteIfPresent" />
   </Method>
-  <Method SourceObject="Queue" Match="Clear" ReplaceWith="splice">
+  <Method SourceObject="System.Collections.Generic.Queue" Match="Clear" ReplaceWith="splice">
     <Argument Location="0" Action="Insert 0" />
     <Argument Location="1" Action="Insert {varName}.length" />
   </Method>
 
-  <Method SourceObject="*" Match="Reverse" ReplaceWith="reverse" />
-  <Method SourceObject="List" Match="Add" ReplaceWith="push" />
-  <Method SourceObject="List" Match="Clear" ReplaceWith="splice">
+  <Method SourceObject="System.Array" Match="Sort" ReplaceWith="sort" />
+  <Property SourceObject="System.Array" Match="Length" ReplaceWith="length" />
+
+  <Property SourceObject="System.Collections.Generic.List" Match="Count" ReplaceWith="length" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Reverse" ReplaceWith="reverse" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Add" ReplaceWith="push" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Clear" ReplaceWith="splice">
     <Argument Location="0" Action="Insert 0" />
     <Argument Location="1" Action="Insert {varName}.length" />
   </Method>
-  <Method SourceObject="*" Match="Sort" ReplaceWith="sort" />
-  <Method SourceObject="List" Match="Insert" ReplaceWith="insert" />
-  <Method SourceObject="List" Match="IndexOf" ExtensionNamespace="system.Cs2Hx" />
-  <Method SourceObject="List" Match="RemoveRange" ReplaceWith="splice" />
-  <Method SourceObject="List" Match="Remove" ReplaceWith="remove" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Sort" ReplaceWith="sort" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Insert" ReplaceWith="insert" />
+  <Method SourceObject="System.Collections.Generic.List" Match="IndexOf" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="RemoveRange" ReplaceWith="splice" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Remove" ReplaceWith="remove" />
   <Method SourceObject="*" Match="RemoveAt" ReplaceWith="splice">
     <Argument Location="1" Action="Insert 1" />
   </Method>
-  <Method SourceObject="List" Match=".ctor">
+  <Method SourceObject="System.Collections.Generic.List" Match=".ctor">
     <Argument Location="0" Action="DeleteIfPresent" />
   </Method>
 
-  <Method SourceObject="Stack" Match="Push" ReplaceWith="push" />
-  <Method SourceObject="Stack" Match="Pop" ReplaceWith="pop" />
-  <Method SourceObject="Stack" Match=".ctor">
+  <Method SourceObject="System.Collections.Generic.Stack" Match="Push" ReplaceWith="push" />
+  <Method SourceObject="System.Collections.Generic.Stack" Match="Pop" ReplaceWith="pop" />
+  <Method SourceObject="System.Collections.Generic.Stack" Match=".ctor">
     <Argument Location="0" Action="DeleteIfPresent" />
   </Method>
 
@@ -55,23 +59,20 @@
     <Argument Location="0" Action="Insert {genericType}" />
   </Method>
   
-  <Method SourceObject="Math" Match="Max" ReplaceWith="max" />
-  <Method SourceObject="Math" Match="Min" ReplaceWith="min" />
-  <Method SourceObject="Math" Match="Abs" ReplaceWith="abs" />
-  <Method SourceObject="Math" Match="Sqrt" ReplaceWith="sqrt" />
-  <Method SourceObject="Math" Match="Atan" ReplaceWith="atan" />
-  <Method SourceObject="Math" Match="Atan2" ReplaceWith="atan2" />
-  <Method SourceObject="Math" Match="Cos" ReplaceWith="cos" />
-  <Method SourceObject="Math" Match="Sin" ReplaceWith="sin" />
-  <Method SourceObject="Math" Match="Log" ReplaceWith="log" />
-  <Method SourceObject="Math" Match="Exp" ReplaceWith="exp" />
+  <Method SourceObject="System.Math" Match="Max" ReplaceWith="max" />
+  <Method SourceObject="System.Math" Match="Min" ReplaceWith="min" />
+  <Method SourceObject="System.Math" Match="Abs" ReplaceWith="abs" />
+  <Method SourceObject="System.Math" Match="Sqrt" ReplaceWith="sqrt" />
+  <Method SourceObject="System.Math" Match="Atan" ReplaceWith="atan" />
+  <Method SourceObject="System.Math" Match="Atan2" ReplaceWith="atan2" />
+  <Method SourceObject="System.Math" Match="Cos" ReplaceWith="cos" />
+  <Method SourceObject="System.Math" Match="Sin" ReplaceWith="sin" />
+  <Method SourceObject="System.Math" Match="Log" ReplaceWith="log" />
+  <Method SourceObject="System.Math" Match="Exp" ReplaceWith="exp" />
 
-  <Property SourceObject="*" Match="Length" ReplaceWith="length" />
-  <Property SourceObject="*" Match="Count" ReplaceWith="length" />
-
-  <Type Match="Random" SourceObject="*" ReplaceWith="RandomAS" />
-  <Type Match="MulticastDelegate" SourceObject="*" ReplaceWith="Dynamic" />
-  <Type Match="Guid" SourceObject="*" ReplaceWith="String" />
+  <Type Match="System.Random" SourceObject="*" ReplaceWith="RandomAS" />
+  <Type Match="System.MulticastDelegate" SourceObject="*" ReplaceWith="Dynamic" />
+  <Type Match="System.Guid" SourceObject="*" ReplaceWith="String" />
   
   <!--Haxe can't deal with multiple types having the same name, such as System.Enumerable and System.Linq.Enumerable. So let's rename the latter. -->
   <ExtensionType Match="System.Linq.Enumerable" ReplaceWith="System.Linq.Linq" />

@@ -16,17 +16,17 @@ namespace Test
 
         public static void TestCode(string testName, string cSharp, string expectedOutput)
         {
-            TestCode(testName, new string[] { cSharp }, new string[] { expectedOutput });
+            TestCode(testName, new[] { cSharp }, new[] { expectedOutput });
         }
         public static void TestCode(string testName, string cSharp, IEnumerable<string> expectedOutput)
         {
-            TestCode(testName, new string[] { cSharp }, expectedOutput);
+            TestCode(testName, new[] { cSharp }, expectedOutput);
         }
         public static void TestCode(string testName, IEnumerable<string> cSharp, string expectedOutput)
         {
-            TestCode(testName, cSharp, new string[] { expectedOutput });
+            TestCode(testName, cSharp, new[] { expectedOutput });
         }
-        public static void TestCode(string testName, IEnumerable<string> cSharp, IEnumerable<string> expectedOutput)
+        public static void TestCode(string testName, IEnumerable<string> cSharp, IEnumerable<string> expectedOutput, params string[] extraTranslation)
         {
             var dir = Path.Combine(@"D:\temp\CS2HX\", testName + @"\src");
 
@@ -34,10 +34,11 @@ namespace Test
 
 			var compilation = Compilation.Create(testName, new CompilationOptions(OutputKind.DynamicallyLinkedLibrary)) //dll so we don't require a main method
 				.AddReferences(MetadataReference.CreateAssemblyReference("mscorlib"))
+				.AddReferences(MetadataReference.CreateAssemblyReference("System"))
 				.AddReferences(MetadataReference.CreateAssemblyReference("System.Core"))
 				.AddSyntaxTrees(cSharp.Select(o => SyntaxTree.ParseText(o)));
 
-            Cs2hx.Program.Go(compilation, dir, new string[] { });
+            Cs2hx.Program.Go(compilation, dir, extraTranslation);
 
             Func<string, string> strip = i => Regex.Replace(i, "[\r\n \t]+", " ").Trim();
 

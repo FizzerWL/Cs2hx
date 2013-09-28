@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Roslyn.Compilers;
+using Roslyn.Compilers.Common;
 using Roslyn.Compilers.CSharp;
 
 namespace Cs2hx
@@ -10,7 +12,13 @@ namespace Cs2hx
     {
         public static string DefaultValue(TypeSyntax type)
         {
-            throw new NotImplementedException();
+			var t = TypeState.Instance.GetModel(type).GetTypeInfo(type).Type;
+			if (t.IsValueType == false)
+				return "null";
+			else if (t.SpecialType == SpecialType.System_Boolean)
+				return "false";
+			else
+				return "0";
         }
 
 		public static string TryConvertType(SyntaxNode node)
@@ -41,7 +49,7 @@ namespace Cs2hx
 			return ret;
 		}
 
-		public static string ConvertType(TypeSymbol typeInfo, bool ignoreGenericArguments = false)
+		public static string ConvertType(TypeSymbol typeInfo)
 		{
 			var array = typeInfo as ArrayTypeSymbol;
 
@@ -66,44 +74,45 @@ namespace Cs2hx
 					return "(" + string.Join("", dlg.Parameters.ToList().Select(o => ConvertType(o.Type) + " -> ")) + ConvertType(dlg.ReturnType) + ")";
 			}
 
-			if (!ignoreGenericArguments && named != null && named.TypeArguments.Count > 0)
-			{
-				return ConvertType(named, true) + "<" + string.Join(", ", named.TypeArguments.ToList().Select(o => ConvertType(o))) + ">";
-			}
+			if (named != null && named.IsGenericType && !named.IsUnboundGenericType)
+				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", named.TypeArguments.ToList().Select(o => ConvertType(o))) + ">";
 
+			var typeStr = GenericTypeName(typeInfo);
 
-			switch (typeInfo.Name)
+			switch (typeStr)
 			{
-				case "void":
+				case "System.Void":
 					return "Void";
 
-				case "bool":
-				case "Boolean":
+				case "System.Boolean":
 					return "Bool";
 
-				case "object":
-				case "Object":
+				case "System.Object":
 					return "Dynamic";
 
-				case "Int64":
-				case "UInt64":
-				case "Single":
-				case "Double":
-				case "float":
-				case "double":
+				case "System.Int64":
+				case "System.UInt64":
+				case "System.Single":
+				case "System.Double":
 					return "Float";
 
-				case "String":
-				case "string":
+				case "System.String":
 					return "String";
 
-				case "int":
-				case "Int32":
-				case "Byte":
-				case "Int16":
-				case "UInt16":
-				case "Char":
+				case "System.Int32":
+				case "System.Byte":
+				case "System.Int16":
+				case "System.UInt16":
+				case "System.Char":
 					return "Int";
+
+				case "System.Collections.Generic.Dictionary<,>":
+					return "CSDictionary"; //change the name to avoid conflicting with Haxe's dictionary type
+				case "System.Collections.Generic.List<>":
+				case "System.Collections.Generic.Queue<>":
+				case "System.Collections.Generic.Stack<>":
+				case "System.Collections.Generic.IEnumerable<>":
+					return "Array";
 
 				default:
 
@@ -216,5 +225,31 @@ namespace Cs2hx
 			return literal.ToString();
         }
 
+
+		public static string GenericTypeName(ITypeSymbol typeSymbol)
+		{
+			var named = typeSymbol as NamedTypeSymbol;
+			var array = typeSymbol as ArrayTypeSymbol;
+
+			if (array != null)
+				return GenericTypeName(array.ElementType) + "[]";
+			else if (named != null && named.IsGenericType && !named.IsUnboundGenericType)
+				return GenericTypeName(named.ConstructUnboundGenericType());
+			else if (named != null && named.SpecialType != SpecialType.None)
+				return named.ContainingNamespace + "." + named.Name; //this forces C# shortcuts like "int" to never be used, and instead returns System.Int32 etc.
+			else
+				return typeSymbol.ToString();
+		}
+
+		/// <summary>
+		/// Convert a type string into a string for matching Translations.xml.  We exclude generic suffixes just because xml requires encoding < and >
+		/// </summary>
+		public static string MatchString(string typeStr)
+		{
+			if (typeStr.EndsWith("[]"))
+				return "System.Array";
+			else 
+				return typeStr.TrimEnd(new[] { '>', '<', ',' });
+		}
 	}
 }

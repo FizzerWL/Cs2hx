@@ -22,6 +22,14 @@ namespace Cs2hx
 			return s.Substring(i + 1);
 		}
 
+		public static string SubstringBeforeLast(this string s, char c)
+		{
+			int i = s.LastIndexOf(c);
+			if (i == -1)
+				throw new Exception("char not found");
+			return s.Substring(0, i);
+		}
+
 		public static MethodSymbol UnReduce(this MethodSymbol methodSymbol)
 		{
 			while (methodSymbol.ReducedFrom != null)
@@ -442,5 +450,18 @@ namespace Cs2hx
 			//else
 			//	throw new Exception("Both NameEquals and NameColon null"); //TODO: Is this possible?
         }
-    }
+		public static string RemoveFromStartOfString(this string s, string toRemove)
+		{
+			if (!s.StartsWith(toRemove))
+				throw new Exception("Does not start string: " + s);
+			return s.Substring(toRemove.Length);
+		}
+
+		public static string RemoveFromEndOfString(this string s, string toRemove)
+		{
+			if (!s.EndsWith(toRemove))
+				throw new Exception("Does not end string: " + s);
+			return s.Substring(0, s.Length - toRemove.Length);
+		}
+	}
 }
