@@ -14,7 +14,7 @@ namespace Cs2hx
 
 			if (TypeState.Instance.DoNotWrite.Contains(node))
 				return;
-			
+
 			if (node is ExpressionStatementSyntax)
 				WriteStatement(writer, node.As<ExpressionStatementSyntax>());
 			else if (node is LocalDeclarationStatementSyntax)
@@ -61,6 +61,20 @@ namespace Cs2hx
 				WriteCastExpression.Go(writer, node.As<CastExpressionSyntax>());
 			else if (node is ThrowStatementSyntax)
 				WriteThrowStatement.Go(writer, node.As<ThrowStatementSyntax>());
+			else if (node is PrefixUnaryExpressionSyntax)
+				WriteUnaryExpression.Go(writer, node.As<PrefixUnaryExpressionSyntax>());
+			else if (node is PostfixUnaryExpressionSyntax)
+				WriteUnaryExpression.Go(writer, node.As<PostfixUnaryExpressionSyntax>());
+			else if (node is EqualsValueClauseSyntax)
+				WriteEqualsValueClause.Go(writer, node.As<EqualsValueClauseSyntax>());
+			else if (node is ForStatementSyntax)
+				WriteForStatement.Go(writer, node.As<ForStatementSyntax>());
+			else if (node is WhileStatementSyntax)
+				WriteWhileStatement.Go(writer, node.As<WhileStatementSyntax>());
+			else if (node is BreakStatementSyntax)
+				WriteBreakStatement.Go(writer, node.As<BreakStatementSyntax>());
+			else if (node is DoStatementSyntax)
+				WriteDoStatement.Go(writer, node.As<DoStatementSyntax>());
 			else
 				throw new NotImplementedException(node.GetType().Name);
         }

@@ -37,18 +37,18 @@ namespace Cs2hx
                         writer.Write("(value:" + type + "):" + type);
 
                     writer.WriteLine();
+					writer.WriteOpenBrace();
 
                     if (property.Modifiers.Any(SyntaxKind.AbstractKeyword))
                     {
-						writer.WriteOpenBrace();
                         writer.WriteLine("throw new Exception(\"Abstract item called\");");
                         if (property.Type.ToString() != "void")
                             writer.WriteLine("return " + TypeProcessor.DefaultValue(property.Type) + ";");
-						writer.WriteCloseBrace();
                     }
                     else
                     {
-						Core.Write(writer, region.Body);
+						foreach(var statement in region.Body.As<BlockSyntax>().Statements)
+							Core.Write(writer, statement);
 
                         if (!get)
                         {
@@ -57,7 +57,8 @@ namespace Cs2hx
                         }
                     }
 
-                    writer.WriteLine();
+					writer.WriteCloseBrace();
+					writer.WriteLine();
                 };
 
                 var getter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind == SyntaxKind.GetKeyword);

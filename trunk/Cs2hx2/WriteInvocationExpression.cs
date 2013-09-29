@@ -30,7 +30,12 @@ namespace Cs2hx
 				var memberReferenceExpression = invocationExpression.Expression.As<MemberAccessExpressionSyntax>();
 				var expressionTypeOpt = TypeState.Instance.GetModel(invocationExpression).GetTypeInfo(memberReferenceExpression.Expression).ConvertedType;
 
+				//Determine if it's an extension method called in a non-extension way.  In this case, just pretend it's not an extension method
+				if (extensionNamespace != null && expressionTypeOpt != null && expressionTypeOpt.ToString() == methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name)
+					extensionNamespace = null;
 
+
+				//Determine if we need to transform the method name
 				string methodName;
 				if (translateOpt == null || translateOpt.ReplaceWith == null)
 					methodName = methodSymbol.Name;
@@ -160,10 +165,11 @@ namespace Cs2hx
 				}
 			}
 
+			//extension methods already had the first argument written above, so skip the open paren and always render the first comma
             if (extensionNamespace == null)
                 writer.Write("(");
+            var firstArg = extensionNamespace == null; 
 
-            var firstArg = extensionNamespace == null;
             foreach (var arg in TranslateParameters(translateOpt, invocationExpression.ArgumentList.Arguments, invocationExpression))
             {
                 if (firstArg)

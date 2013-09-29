@@ -1248,6 +1248,7 @@ class Derived extends TopLevel
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
+using System.Text;
 
 namespace Blargh
 {
@@ -1265,7 +1266,7 @@ namespace Blargh
             set { Console.WriteLine(value); }
         }
 
-        public Int GetOnly
+        public int GetOnly
         {
             get { return 4; }
         }
@@ -1717,6 +1718,9 @@ namespace Blargh
                 Console.WriteLine(""hi"");
                 break;
             }
+			
+			while (true)
+				Console.WriteLine(""nobreak"");
 
             for (int i=0;i<50;i++)
                 Console.WriteLine(i);
@@ -1741,6 +1745,9 @@ class Utilities
             Console.WriteLine(""hi"");
             break;
         }
+
+		while (true)
+			Console.WriteLine(""nobreak"");
 
         { //for
             var i:Int = 0;
@@ -2015,9 +2022,9 @@ namespace Blargh
             Console.WriteLine(""false "" + i.IsFour());
             i++;
             i += 6;
-            bool b = i.IsFour();
+            var b = i.IsFour();
             Console.WriteLine(""true "" + b);
-            Blargh.Utilities.IsFour(5);
+            Utilities.IsFour(5);
         }
 
         public static bool IsFour(this int i)
@@ -2034,12 +2041,12 @@ class Utilities
     public static function SomeFunction():Void
     {
         var i:Int = -3;
-        Console.WriteLine(""false "" + blargh.Utilities.IsFour(i));
+        Console.WriteLine(""false "" + Utilities.IsFour(i));
         i++;
         i += 6;
-        var b:Bool = blargh.Utilities.IsFour(i);
+        var b:Bool = Utilities.IsFour(i);
         Console.WriteLine(""true "" + b);
-        blargh.Utilities.IsFour(5);
+        Utilities.IsFour(5);
     }
 
     public static function IsFour(i:Int):Bool

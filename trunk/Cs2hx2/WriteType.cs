@@ -109,8 +109,8 @@ namespace Cs2hx
 
 					var fields = allChildren.OfType<FieldDeclarationSyntax>().Where(o => !TypeState.Instance.DoNotWrite.Contains(o));
 					var staticFields = fields.Where(o => o.Modifiers.Any(m => m.ValueText == "static"));
-					var staticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null);
-					var instanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null);
+					var staticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Declaration.Variables).Where(o => !WriteFields.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer));
+					var instanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null && !WriteFields.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer));
 
 					WriteFields.Go(writer, allChildren.OfType<FieldDeclarationSyntax>());
 					writer.WriteLine();

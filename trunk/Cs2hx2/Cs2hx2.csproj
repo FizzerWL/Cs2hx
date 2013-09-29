@@ -70,19 +70,24 @@
     <Compile Include="WriteArrayCreationExpression.cs" />
     <Compile Include="WriteBaseExpression.cs" />
     <Compile Include="WriteBinaryExpression.cs" />
+    <Compile Include="WriteBreakStatement.cs" />
     <Compile Include="WriteCastExpression.cs" />
     <Compile Include="WriteConditionalExpression.cs" />
     <Compile Include="WriteConstructors.cs" />
+    <Compile Include="WriteDoStatement.cs" />
     <Compile Include="WriteElementAccessExpression.cs" />
     <Compile Include="WriteEnumBody.cs" />
+    <Compile Include="WriteEqualsValueClause.cs" />
     <Compile Include="WriteFields.cs" />
     <Compile Include="WriteForEachStatement.cs" />
+    <Compile Include="WriteForStatement.cs" />
     <Compile Include="WriteIfStatement.cs" />
     <Compile Include="WriteLambdaExpression.cs" />
     <Compile Include="WriteLiteralExpression.cs" />
     <Compile Include="WriteMethods.cs" />
     <Compile Include="WriteObjectCreationExpression.cs" />
     <Compile Include="WriteOperatorExpression.cs" />
+    <Compile Include="WriteUnaryExpression.cs" />
     <Compile Include="WriteProperties.cs" />
     <Compile Include="HaxeWriter.cs" />
     <Compile Include="Program.cs" />
@@ -102,6 +107,7 @@
     <Compile Include="WriteThisExpression.cs" />
     <Compile Include="WriteThrowStatement.cs" />
     <Compile Include="WriteType.cs" />
+    <Compile Include="WriteWhileStatement.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

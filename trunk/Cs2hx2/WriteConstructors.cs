@@ -114,12 +114,13 @@ namespace Cs2hx
                 writer.WriteIndent();
                 writer.Write(field.Identifier.ValueText);
                 writer.Write(" = ");
-				Core.Write(writer, field.Initializer);
+				Core.Write(writer, field.Initializer.As<EqualsValueClauseSyntax>().Value);
                 writer.Write(";\r\n");
             }
 
             if (staticConstructor != null && staticConstructor.Body != null)
-				Core.Write(writer, staticConstructor.Body);
+				foreach(var statement in staticConstructor.Body.As<BlockSyntax>().Statements)
+					Core.Write(writer, statement);
 
             writer.WriteCloseBrace();
 

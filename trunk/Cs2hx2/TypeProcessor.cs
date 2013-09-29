@@ -171,6 +171,9 @@ namespace Cs2hx
 
 		public static string GenericTypeName(ITypeSymbol typeSymbol)
 		{
+			if (typeSymbol == null)
+				return null;
+
 			var named = typeSymbol as NamedTypeSymbol;
 			var array = typeSymbol as ArrayTypeSymbol;
 
@@ -189,7 +192,9 @@ namespace Cs2hx
 		/// </summary>
 		public static string MatchString(string typeStr)
 		{
-			if (typeStr.EndsWith("[]"))
+			if (typeStr == null)
+				return null;
+			else if (typeStr.EndsWith("[]"))
 				return "System.Array";
 			else 
 				return typeStr.TrimEnd(new[] { '>', '<', ',' });
