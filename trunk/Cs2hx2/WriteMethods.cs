@@ -43,7 +43,7 @@ namespace Cs2hx
                     for (int i = 0; i < args.Count; i++)
                     {
                         if (args[i].Expression is LiteralExpressionSyntax)
-                            defaultParameters[i] = TypeProcessor.HaxeLiteral(args[i].As<LiteralExpressionSyntax>());
+                            defaultParameters[i] = TypeProcessor.HaxeLiteral(args[i]);
                         else
                             err();
                     }

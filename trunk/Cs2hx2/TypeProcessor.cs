@@ -77,6 +77,12 @@ namespace Cs2hx
 			if (typeInfo.TypeKind == TypeKind.Enum)
 				return "Int"; //enums are always ints
 
+			if (named != null && named.Name == "Nullable" && named.ContainingNamespace.ToString() == "System")
+			{
+				//Nullable types get replaced by our Nullable_ alternatives
+				return "Nullable_" + ConvertType(named.TypeArguments.Single());
+			}
+
 			if (named != null && named.IsGenericType && !named.IsUnboundGenericType)
 				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", named.TypeArguments.ToList().Select(o => ConvertType(o))) + ">";
 
@@ -163,9 +169,14 @@ namespace Cs2hx
 
         //}
 
-        public static string HaxeLiteral(this LiteralExpressionSyntax literal)
+        public static string HaxeLiteral(this SyntaxNode literal)
         {
-			return literal.ToString();
+			if (literal is ArgumentSyntax)
+				return HaxeLiteral(literal.As<ArgumentSyntax>().Expression);
+			else if (literal is LiteralExpressionSyntax)
+				return literal.ToString();
+			else
+				throw new Exception("Need handler for " + literal.GetType().Name);
         }
 
 
@@ -198,6 +209,15 @@ namespace Cs2hx
 				return "System.Array";
 			else 
 				return typeStr.TrimEnd(new[] { '>', '<', ',' });
+		}
+
+		public static string RemoveGenericArguments(string haxeType)
+		{
+			var i = haxeType.IndexOf('<');
+			if (i == -1)
+				return haxeType;
+			else
+				return haxeType.Substring(0, i);
 		}
 	}
 }

@@ -50,7 +50,7 @@ using System;
 
 namespace Blargh
 {
-    public static class SomeClass
+    public class SomeClass
     {
         public SomeClass()
         {
@@ -65,7 +65,7 @@ class SomeClass
 {
     public function new()
     {
-        var c:Blargh.SomeClass = null;
+        var c:SomeClass = null;
     }
 }");
 		}
@@ -241,20 +241,20 @@ class KeyValueList<K, V> implements IEquatable<K>
     public function Clear():Void
     {
         _list.splice(0, _list.length);
-        var castTest:K = cast(MemberwiseClone(), K);
+        var castTest:K = MemberwiseClone();
     }
     public function RemoveAt(index:Int):Void
     {
         _list.splice(index, 1);
     }
-    public function new()
-    {
-        _list = new Array<KeyValuePair<K, V>>();
-    }
 	public function Equals(other:K):Bool
 	{
 		throw new NotImplementedException();
 	}
+    public function new()
+    {
+        _list = new Array<KeyValuePair<K, V>>();
+    }
 }");
 		}
 
@@ -525,13 +525,16 @@ namespace Blargh
 		{
 
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.IO;
+
 namespace Blargh
 {
     public static class Utilities
     {
         public static void SomeFunction()
         {
-            var usingMe = new SomeUsingType();
+            var usingMe = new MemoryStream();
             using (usingMe)
             {
                 Console.WriteLine(""In using"");
@@ -546,7 +549,7 @@ class Utilities
 {
     public static function SomeFunction():Void
     {
-        var usingMe:SomeUsingType = new SomeUsingType();
+        var usingMe:MemoryStream = new MemoryStream();
         var __disposed_usingMe:Bool = false;
         try
         {
@@ -676,9 +679,10 @@ namespace Blargh
 {
     public static class Utilities
     {
+		static int Foo;
         public static void SomeFunction()
         {
-            StringBuilder.DateTime.MythicalField = 4;
+            Blargh.Utilities.Foo = 4;
             Console.WriteLine(int.MaxValue);
             Console.WriteLine(int.MinValue);
             string s = ""123"";
@@ -690,13 +694,13 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.text.StringBuilder;
 
 class Utilities
 {
+	static var Foo:Int;
     public static function SomeFunction():Void
     {
-        StringBuilder.DateTime.MythicalField = 4;
+        Utilities.Foo = 4;
         Console.WriteLine(2147483647);
         Console.WriteLine(-2147483648);
         var s:String = ""123"";
@@ -1064,6 +1068,7 @@ class Utilities
 
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
+using System.Collections.Generic;
 
 namespace Blargh
 {
@@ -1400,6 +1405,7 @@ class Pokable implements ITesting
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
+using System.IO;
 
 namespace Blargh
 {
@@ -1435,7 +1441,7 @@ namespace Blargh
                 Console.WriteLine(""In parameterless catch"");
             }
 
-            throw new InvalidOperationException(StringBuilder.MythicalField);
+            throw new InvalidOperationException(""err"");
         }
     }
 }", @"
@@ -1443,7 +1449,6 @@ package blargh;
 " + WriteImports.StandardImports + @"
 import system.Exception;
 import system.InvalidOperationException;
-import system.text.StringBuilder;
 
 class Utilities
 {
@@ -1475,7 +1480,7 @@ class Utilities
             Console.WriteLine(""In parameterless catch"");
         }
 
-        throw new InvalidOperationException(StringBuilder.MythicalField);
+        throw new InvalidOperationException(""err"");
     }
     public function new()
     {
@@ -1777,6 +1782,13 @@ using System;
 
 namespace Blargh
 {
+#if !CS2HX
+	public class Cs2HxAttribute : Attribute
+    {
+        public string ReplaceWithType { get; set; }
+    }
+#endif
+
     public class Foo
     {
         [Cs2Hx(ReplaceWithType = ""bar.Baz"")]
@@ -2072,7 +2084,7 @@ namespace Blargh
     {
         public Foo()
         {
-            var s = string.Join(asdf, "";"");
+            var s = string.Join("";"", new[] { ""one"", ""two"" });
         }
     }
 }", @"
@@ -2083,7 +2095,7 @@ class Foo
 {
     public function new()
     {
-        var s = Cs2Hx.Join(asdf, "";"");
+        var s:String = Cs2Hx.Join("";"", [ ""one"", ""two"" ]);
     }
 }");
 		}

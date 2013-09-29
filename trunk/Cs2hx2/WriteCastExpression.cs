@@ -14,41 +14,41 @@ namespace Cs2hx
 			var castingFrom = TypeState.Instance.GetModel(expression).GetTypeInfo(expression.Expression).ConvertedType;
 			var castingFromStr = TypeProcessor.GenericTypeName(castingFrom);
 			var castingFromHaxe = TypeProcessor.ConvertType((TypeSymbol)castingFrom);
-			var destType = TypeProcessor.ConvertType(expression.Type);
+			var destType = TypeState.Instance.GetModel(expression).GetTypeInfo(expression.Type).Type;
+			var destTypeHaxe = TypeProcessor.ConvertType(expression.Type);
 
 
-			if (destType == "Int" && castingFromHaxe == "Int")
+			if (destTypeHaxe == "Int" && castingFromHaxe == "Int")
 			{
 				//Just eat casts from Int to Int.  Enums getting casted to int fall here, and since we use ints to represent enums anyway, it's not necessary
 				Core.Write(writer, expression.Expression);
 			}
-		    else if (destType == "Int")
+		    else if (destTypeHaxe == "Int")
             {
                 writer.Write("Std.int(");
                 Core.Write(writer, expression.Expression);
                 writer.Write(")");
             }
-            else if (destType == "Float")
+            else if (destTypeHaxe == "Float")
             {
                 Core.Write(writer, expression.Expression);
             }
-            else if (castingFromHaxe == "Dynamic")
+			else if (destType.TypeKind == Roslyn.Compilers.Common.CommonTypeKind.TypeParameter)
+			{
+				//ignore casts to template types
+				Core.Write(writer, expression.Expression);
+			}
+			else if (castingFromHaxe == "Dynamic")
 			{
 				//ignore casts from dynamic as dynamic can be used as any type.  haXe throws errors when casting dynamic too, which is odd.
                 Core.Write(writer, expression.Expression); 
 			}
-			//TODO: ignore casts to template types
-			//else if (Utility.IsGenericType(castExpression.CastTo, castExpression))
-			//{
-			//	//ignore casts to generic types
-			//	Core.Write(writer, expression.Expression); 
-			//}
 			else
 			{
 				writer.Write("cast(");
 				Core.Write(writer, expression.Expression);
 				writer.Write(", ");
-				writer.Write(destType);
+				writer.Write(destTypeHaxe);
 				writer.Write(")");
 			}
 		}

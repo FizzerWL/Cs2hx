@@ -75,6 +75,12 @@ namespace Cs2hx
 				WriteBreakStatement.Go(writer, node.As<BreakStatementSyntax>());
 			else if (node is DoStatementSyntax)
 				WriteDoStatement.Go(writer, node.As<DoStatementSyntax>());
+			else if (node is SwitchStatementSyntax)
+				WriteSwitchStatement.Go(writer, node.As<SwitchStatementSyntax>());
+			else if (node is TryStatementSyntax)
+				WriteTryStatement.Go(writer, node.As<TryStatementSyntax>());
+			else if (node is UsingStatementSyntax)
+				WriteUsingStatement.Go(writer, node.As<UsingStatementSyntax>());
 			else
 				throw new NotImplementedException(node.GetType().Name);
         }

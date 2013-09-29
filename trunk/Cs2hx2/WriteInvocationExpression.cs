@@ -56,46 +56,42 @@ namespace Cs2hx
 					writer.Write(".");
 					writer.Write(methodName);
 					writer.Write("(");
-					Core.Write(writer, memberReferenceExpression.Expression);
+
+					if (translateOpt == null || !translateOpt.SkipExtensionParameter)
+						Core.Write(writer, memberReferenceExpression.Expression);
 				}
 				else
 				{
 					
-					//TODO
-					//else if (memberReferenceExpression.TargetObject is TypeReferenceExpression)
-					//{
-					//	switch (methodName)
-					//	{
-					//		case "Parse":
-					//			var t = ConvertRawType(memberReferenceExpression.TargetObject.As<TypeReferenceExpression>().TypeReference);
-					//			if (t == null)
-					//				throw new Exception("Could not identify Parse method at " + Utility.Descriptor(memberReferenceExpression));
-					//			if (t == "Bool")
-					//			{
-					//				writer.Write("HaxeUtility.ParseBool");
-					//			}
-					//			else if (t == "Int" || t == "Float")
-					//			{
-					//				writer.Write("Std.parse" + t);
-					//			}
-					//			else
-					//				throw new Exception("Parse method on " + t + " is not supported.  " + Utility.Descriptor(memberReferenceExpression));
+					if (memberReferenceExpression.Expression is PredefinedTypeSyntax)
+					{
+						switch (methodName)
+						{
+							case "Parse":
+								var t = TypeProcessor.ConvertType((TypeSymbol)expressionTypeOpt);
 
-					//			break;
-					//		case "IsNaN":
-					//			writer.Write("Math.isNaN");
-					//			break;
-					//		case "IsInfinity":
-					//			writer.Write("Cs2Hx.IsInfinity");
-					//			break;
-					//		case "Join":
-					//			writer.Write("Cs2Hx.Join");
-					//			break;
-					//		default:
-					//			throw new Exception(methodName + " is not supported.  " + Utility.Descriptor(memberReferenceExpression));
-					//	}
-					//}
-					//else
+								if (t == "Bool")
+									writer.Write("HaxeUtility.ParseBool");
+								else if (t == "Int" || t == "Float")
+									writer.Write("Std.parse" + t);
+								else
+									throw new Exception("Parse method on " + t + " is not supported.  " + Utility.Descriptor(memberReferenceExpression));
+
+								break;
+							case "IsNaN":
+								writer.Write("Math.isNaN");
+								break;
+							case "IsInfinity":
+								writer.Write("Cs2Hx.IsInfinity");
+								break;
+							case "Join":
+								writer.Write("Cs2Hx.Join");
+								break;
+							default:
+								throw new Exception(methodName + " is not supported.  " + Utility.Descriptor(memberReferenceExpression));
+						}
+					}
+					else
 					{
 						if (expressionTypeOpt != null)
 						{
@@ -144,17 +140,6 @@ namespace Cs2hx
 						//	writer.Write(")");
 						//	return;
 						//}
-						//else if (methodName == "As" && memberReferenceExpression.TypeArguments.Count == 1)
-						//{
-						//	var castTo = this.ConvertRawType(memberReferenceExpression.TypeArguments.Single()) ?? "Dynamic";
-
-						//	writer.Write("cast(");
-						//	Core.Write(writer, memberReferenceExpression.Expression);
-						//	writer.Write(", ");
-						//	writer.Write(castTo);
-						//	writer.Write(")");
-						//	return;
-						//}
 						//else
 						{
 							Core.Write(writer, memberReferenceExpression.Expression);
@@ -168,7 +153,7 @@ namespace Cs2hx
 			//extension methods already had the first argument written above, so skip the open paren and always render the first comma
             if (extensionNamespace == null)
                 writer.Write("(");
-            var firstArg = extensionNamespace == null; 
+            var firstArg = extensionNamespace == null || (translateOpt != null && translateOpt.SkipExtensionParameter); 
 
             foreach (var arg in TranslateParameters(translateOpt, invocationExpression.ArgumentList.Arguments, invocationExpression))
             {

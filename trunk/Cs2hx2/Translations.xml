@@ -13,6 +13,7 @@
   <Method SourceObject="System.String" Match="EndsWith" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="Trim" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="IsNullOrEmpty" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+  <Method SourceObject="System.String" Match="Join" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.Char" Match="IsLetterOrDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.Char" Match="IsDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
 

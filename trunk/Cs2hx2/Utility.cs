@@ -432,10 +432,20 @@ namespace Cs2hx
         {
             AttributeSyntax attr = null;
 
-            if (node is BaseMethodDeclarationSyntax)
-                attr = node.As<BaseMethodDeclarationSyntax>().AttributeLists.SelectMany(o => o.Attributes).SingleOrDefault(o => o.Name.ToString() == "CS2HX");
-            else if (node is BaseTypeDeclarationSyntax)
-				attr = node.As<BaseTypeDeclarationSyntax>().AttributeLists.SelectMany(o => o.Attributes).SingleOrDefault(o => o.Name.ToString() == "CS2HX");
+			while (node != null)
+			{
+				if (node is BaseMethodDeclarationSyntax || node is BaseTypeDeclarationSyntax || node is BaseFieldDeclarationSyntax)
+				{
+					var list = node is BaseMethodDeclarationSyntax ? node.As<BaseMethodDeclarationSyntax>().AttributeLists 
+						: node is BaseTypeDeclarationSyntax ? node.As<BaseTypeDeclarationSyntax>().AttributeLists
+						: node.As<BaseFieldDeclarationSyntax>().AttributeLists;
+
+					attr = list.SelectMany(o => o.Attributes).SingleOrDefault(o => o.Name.ToString() == "Cs2Hx");
+					if (attr != null)
+						break;
+				}
+				node = node.Parent;
+			}
 
             if (attr == null || attr.ArgumentList == null)
                 return new Dictionary<string, string>();
@@ -445,7 +455,7 @@ namespace Cs2hx
 
         private static string GetAttributeName(AttributeArgumentSyntax attr)
         {
-			throw new NotImplementedException();
+			return attr.NameEquals.Name.ToString();
 			//if (attr.NameEquals != null)
 			//	return attr.NameEquals.Identifier.ValueText;
 			//else if (attr.NameColon != null)

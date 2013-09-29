@@ -87,6 +87,8 @@
     <Compile Include="WriteMethods.cs" />
     <Compile Include="WriteObjectCreationExpression.cs" />
     <Compile Include="WriteOperatorExpression.cs" />
+    <Compile Include="WriteSwitchStatement.cs" />
+    <Compile Include="WriteTryStatement.cs" />
     <Compile Include="WriteUnaryExpression.cs" />
     <Compile Include="WriteProperties.cs" />
     <Compile Include="HaxeWriter.cs" />
@@ -107,6 +109,7 @@
     <Compile Include="WriteThisExpression.cs" />
     <Compile Include="WriteThrowStatement.cs" />
     <Compile Include="WriteType.cs" />
+    <Compile Include="WriteUsingStatement.cs" />
     <Compile Include="WriteWhileStatement.cs" />
   </ItemGroup>
   <ItemGroup>

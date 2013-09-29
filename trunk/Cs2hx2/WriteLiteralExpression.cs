@@ -30,6 +30,9 @@ namespace Cs2hx
 				str = ((int)str[0]).ToString();
 			}
 
+			if (str.EndsWith("f") && !str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+				str = str.Substring(0, str.Length - 1);
+
 
 			writer.Write(str);
 		}

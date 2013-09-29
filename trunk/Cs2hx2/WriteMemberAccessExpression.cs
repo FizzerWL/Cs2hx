@@ -35,8 +35,12 @@ namespace Cs2hx
 				if (translate != null)
 					memberName = translate.ReplaceWith;
 
-				Core.Write(writer, expression.Expression);
-				writer.Write(".");
+				if (type != null) //if type is null, then we're just a namespace.  TODO: if there's a type name conflict, we could need to render namespaces. just ToLowering them and spitting them out should work
+				{
+					Core.Write(writer, expression.Expression);
+					writer.Write(".");
+				}
+
 				writer.Write(memberName);
 
 				if (expression.Name is GenericNameSyntax)

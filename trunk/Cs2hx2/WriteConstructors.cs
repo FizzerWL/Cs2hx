@@ -113,9 +113,9 @@ namespace Cs2hx
             {
                 writer.WriteIndent();
                 writer.Write(field.Identifier.ValueText);
-                writer.Write(" = ");
+				writer.Write(" = ");
 				Core.Write(writer, field.Initializer.As<EqualsValueClauseSyntax>().Value);
-                writer.Write(";\r\n");
+				writer.Write(";\r\n");
             }
 
             if (staticConstructor != null && staticConstructor.Body != null)
