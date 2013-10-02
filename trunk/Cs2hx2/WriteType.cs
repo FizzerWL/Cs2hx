@@ -105,9 +105,9 @@ namespace Cs2hx
 				if (first is TypeDeclarationSyntax)
 				{
 
-					var allChildren = TypeState.Instance.Partials.Cast<TypeDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !TypeState.Instance.DoNotWrite.Contains(o)).ToList();
+					var allChildren = TypeState.Instance.Partials.Cast<TypeDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)).ToList();
 
-					var fields = allChildren.OfType<FieldDeclarationSyntax>().Where(o => !TypeState.Instance.DoNotWrite.Contains(o));
+					var fields = allChildren.OfType<FieldDeclarationSyntax>().Where(o => !Program.DoNotWrite.ContainsKey(o));
 					var staticFields = fields.Where(o => o.Modifiers.Any(m => m.ValueText == "static"));
 					var staticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null &&  !WriteFields.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer));
 					var instanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null && !WriteFields.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer));
@@ -126,7 +126,7 @@ namespace Cs2hx
 				}
 				else
 				{
-					WriteEnumBody.Go(writer, TypeState.Instance.Partials.Cast<EnumDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !TypeState.Instance.DoNotWrite.Contains(o)));
+					WriteEnumBody.Go(writer, TypeState.Instance.Partials.Cast<EnumDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)));
 				}
 
 				writer.WriteCloseBrace();

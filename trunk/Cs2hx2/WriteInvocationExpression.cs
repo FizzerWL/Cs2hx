@@ -20,7 +20,12 @@ namespace Cs2hx
 
 			var extensionNamespace = methodSymbol.IsExtensionMethod ? Translation.ExtensionName(methodSymbol.ContainingType) : null; //null means it's not an extension method, non-null means it is
 
-			if (!(invocationExpression.Expression is MemberAccessExpressionSyntax))
+			if (invocationExpression.Expression is GenericNameSyntax)
+			{
+				//Write it without the generic types. haxe will have to figure them out itself
+				writer.Write(invocationExpression.Expression.As<GenericNameSyntax>().Identifier.ValueText);
+			}
+			else if (!(invocationExpression.Expression is MemberAccessExpressionSyntax))
 			{
 				extensionNamespace = null;
 				Core.Write(writer, invocationExpression.Expression);

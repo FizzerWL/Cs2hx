@@ -14,6 +14,11 @@ namespace Cs2hx
             return (T)o;
         }
 
+		public static bool None<T>(this IEnumerable<T> a, Func<T, bool> pred)
+		{
+			return !a.Any(pred);
+		}
+
 		public static string SubstringAfterLast(this string s, char c)
 		{
 			int i = s.LastIndexOf(c);

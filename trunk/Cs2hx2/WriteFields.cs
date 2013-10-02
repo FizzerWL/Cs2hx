@@ -36,8 +36,7 @@ namespace Cs2hx
             writer.Write("var ");
 
             writer.Write(name);
-            writer.Write(":");
-			writer.Write(TypeProcessor.ConvertType(type));
+			writer.Write(TypeProcessor.ConvertTypeWithColon(type));
 
 			if (isConst)
 			{

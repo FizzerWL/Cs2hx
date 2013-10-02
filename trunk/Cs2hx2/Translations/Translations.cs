@@ -33,52 +33,12 @@ namespace Cs2hx.Translations
             return ret;
         }
 
-		public static Translation GetTranslation(TranslationType type, string objectName, TypeSyntax typeReference)
-		{
-			string sourceTypeName;
-
-			if (typeReference == null)
-				sourceTypeName = null;
-			else
-				sourceTypeName = typeReference.ToString();
-
-			return GetTranslation(type, objectName, sourceTypeName);
-		}
-
-		public static Translation GetTranslation(TranslationType type, string objectName, ExpressionSyntax expression)
-		{
-			string source = null;
-
-			//if (expression is IdentifierNameSyntax)
-			//{
-			//	var identifier = expression.As<IdentifierNameSyntax>();
-
-			//	//TypeSyntax typeRef;
-			//	//if (Utility.TryFindType(identifier, out typeRef))
-			//	//	source = typeRef.Type;
-			//	//else
-			//		source = identifier.Identifier.ToString();
-			//}
-			//else if (expression is MemberAccessExpressionSyntax && expression.As<MemberAccessExpressionSyntax>().Name is ThisExpressionSyntax)
-			//{
-			//	//If an expression is simply this.<expr>, we can still easily identify it's type just as we could if it was an identifier
-			//	var identifier = expression.As<MemberReferenceExpression>().MemberName;
-			//	TypeReference typeRef;
-			//	if (Utility.TryFindType(identifier, expression, out typeRef))
-			//		source = typeRef.Type;
-			//	else
-			//		source = identifier;
-			//}
-
-			return GetTranslation(type, objectName, source);
-		}
-
 		public static Translation GetTranslation(TranslationType type, string objectName, string sourceTypeName)
 		{
 			if (string.IsNullOrEmpty(sourceTypeName))
 				sourceTypeName = "*";
 
-			var matches = Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/" + type.ToString() + "[(@SourceObject = '*' or @SourceObject = '" + sourceTypeName + "') and @Match='" + objectName + "']")).ToList();
+			var matches = Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/" + type.ToString() + "[(not(@SourceObject) or @SourceObject = '*' or @SourceObject = '" + sourceTypeName + "') and @Match='" + objectName + "']")).ToList();
 
 			if (matches.Count == 0)
 				return null;

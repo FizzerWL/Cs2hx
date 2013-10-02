@@ -14,7 +14,7 @@ namespace Cs2hx
 			foreach (var variable in declaration.Declaration.Variables)
 			{
 				writer.WriteIndent();
-				writer.Write("var " + variable.Identifier.ToString() + ":" + TypeProcessor.ConvertType(declaration.Declaration.Type));
+				writer.Write("var " + variable.Identifier.ToString() + TypeProcessor.ConvertTypeWithColon(declaration.Declaration.Type));
 
 				if (variable.Initializer != null)
 				{

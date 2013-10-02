@@ -30,6 +30,13 @@ namespace Test
         {
             var dir = Path.Combine(@"D:\temp\CS2HX\", testName + @"\src");
 
+			if (Directory.Exists(dir))
+				foreach (var existing in Directory.GetFiles(dir, "*.hx", SearchOption.AllDirectories))
+				{
+					File.SetAttributes(existing, FileAttributes.Normal); //clear read only flag so we can delete it
+					File.Delete(existing);
+				}
+
             Console.WriteLine("Parsing into " + dir);
 
 			var compilation = Compilation.Create(testName, new CompilationOptions(OutputKind.DynamicallyLinkedLibrary)) //dll so we don't require a main method

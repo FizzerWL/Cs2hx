@@ -26,9 +26,8 @@ namespace Cs2hx
 					writer.Write("__ex:Dynamic");
 				else
 				{
-					writer.Write(catchClause.Declaration.Identifier == null ? "__ex" : catchClause.Declaration.Identifier.ValueText);
-					writer.Write(":");
-					writer.Write(TypeProcessor.ConvertType(catchClause.Declaration.Type));
+					writer.Write(string.IsNullOrWhiteSpace(catchClause.Declaration.Identifier.ValueText) ? "__ex" : catchClause.Declaration.Identifier.ValueText);
+					writer.Write(TypeProcessor.ConvertTypeWithColon(catchClause.Declaration.Type));
 				}
 				writer.Write(")\r\n");
 				Core.Write(writer, catchClause.Block);

@@ -19,7 +19,7 @@
 
   <Method SourceObject="System.Collections.Generic.Queue" Match="Enqueue" ReplaceWith="push" />
   <Method SourceObject="System.Collections.Generic.Queue" Match="Dequeue" ReplaceWith="shift" />
-  <Method SourceObject="System.Collections.Generic.Queue" Match="Peek" ReplaceWith="First" ExtensionNamespace="Linq" />
+  <Method SourceObject="System.Collections.Generic.Queue" Match="Peek" ReplaceWith="First" ExtensionNamespace="system.linq.Linq" />
   <Method SourceObject="System.Collections.Generic.Queue" Match=".ctor">
     <Argument Location="0" Action="DeleteIfPresent" />
   </Method>

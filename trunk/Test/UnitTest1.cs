@@ -9,6 +9,95 @@ namespace UnitTestProject1
 	[TestClass]
 	public class UnitTest1
 	{
+
+		[TestMethod]
+		public void AttributesAreIgnored()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using Shared;
+
+#if !CS2HX
+namespace Shared
+{
+	public class TestingAttribute : Attribute
+    {
+    }
+}
+#endif
+
+namespace Blargh
+{
+
+    public class Foo
+    {
+        [Testing]
+        public string Str;
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Foo
+{
+    public var Str:String;
+    public function new()
+    {
+    }
+}");
+		}
+
+
+		[TestMethod]
+		public void PreprocessorDirectives()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public class SomeClass
+    {
+        public SomeClass()
+        {
+#if CS2HX
+			Console.WriteLine(""cs2hx1"");
+#else
+			Console.WriteLine(""not1"");
+#endif
+#if CS2HX
+			Console.WriteLine(""cs2hx2"");
+#else
+
+			Console.WriteLine(""not2"");
+#if nope
+			Console.WriteLine(""not3"");
+#endif
+
+#endif
+			Console.WriteLine(""outside"");
+
+//#if CS2HX //todo
+//			Console.WriteLine(""cs2hx3"");
+//#endif
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class SomeClass
+{
+    public function new()
+    {
+		Console.WriteLine(""cs2hx1"");
+		Console.WriteLine(""cs2hx2"");
+		Console.WriteLine(""outside"");
+    }
+}");
+		}
+
+
 		[TestMethod]
 		public void OfType()
 		{
@@ -370,13 +459,15 @@ class Derived extends Top
 		public void ImportStatements()
 		{
 			var cSharp = @"
+using System;
 namespace SomeClassNamespace
 {
     using SomeInterfaceNamespace;
 
-    public class SomeClass : ISomeInterface
+    public class SomeClass : ISomeInterface, IDisposable
     {
         public void SomeClassMethod() { }
+		public void Dispose() { }
     }
 }
 
@@ -395,12 +486,17 @@ namespace SomeInterfaceNamespace
 package someclassnamespace;
 " + WriteImports.StandardImports + @"
 import someinterfacenamespace.ISomeInterface;
+import system.IDisposable;
 
-class SomeClass implements ISomeInterface
+class SomeClass implements ISomeInterface, implements IDisposable
 {
     public function SomeClassMethod():Void
     {
     }
+
+	public function Dispose():Void
+	{
+	}
     
     public function new()
     {
@@ -599,6 +695,7 @@ namespace Blargh
             double f = i / 3f;
             int hex = 0x00ff;
             i = (int)f;
+			var z = (i & hex) == 5;
         }
     }
 }", @"
@@ -625,6 +722,7 @@ class Utilities
         var f:Float = i / 3;
         var hex:Int = 0x00ff;
         i = Std.int(f);
+		var z:Bool = (i & hex) == 5;
     }
     public function new()
     {
@@ -1779,15 +1877,20 @@ class Utilities
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
+using Shared;
 
-namespace Blargh
-{
 #if !CS2HX
+namespace Shared
+{
 	public class Cs2HxAttribute : Attribute
     {
         public string ReplaceWithType { get; set; }
     }
+}
 #endif
+
+namespace Blargh
+{
 
     public class Foo
     {

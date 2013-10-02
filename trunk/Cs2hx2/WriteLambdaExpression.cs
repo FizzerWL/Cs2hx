@@ -34,22 +34,25 @@ namespace Cs2hx
 
 				writer.Write(parameter.Identifier.ValueText);
 				if (parameter.Type != null)
-					writer.Write(":" + TypeProcessor.ConvertType(parameter.Type));
+					writer.Write(TypeProcessor.ConvertTypeWithColon(parameter.Type));
 				else
-					writer.Write(":" + TypeProcessor.ConvertType(methodSymbol.Parameters[pi].Type));
+					writer.Write(TypeProcessor.ConvertTypeWithColon(methodSymbol.Parameters[pi].Type));
 			}
 
 			writer.Write("):");
 			writer.Write(TypeProcessor.ConvertType(methodSymbol.ReturnType));
 
 			if (body is BlockSyntax)
+			{
+				writer.Write("\r\n");
 				Core.Write(writer, body);
+			}
 			else
 			{
 				writer.Write(" { ");
 
 				if (methodSymbol.ReturnsVoid == false)
-					writer.WriteLine("return ");
+					writer.Write("return ");
 
 				Core.Write(writer, body);
 

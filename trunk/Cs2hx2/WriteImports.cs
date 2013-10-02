@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cs2hx.Translations;
 using Roslyn.Compilers.CSharp;
@@ -14,49 +17,53 @@ namespace Cs2hx
 		/// <summary>
 		/// Anything that we need always available, even if nothing in user code references it.
 		/// </summary>
-		static public string StandardImports = @"import system.Cs2Hx;
+		static public string StandardImports = @"using StringTools;
+import system.Cs2Hx;
 import system.Exception;";
 
 		/// <summary>
 		/// TODO: Calculate these by parsing our system haxe dir
 		/// </summary>
-		static public string[] SystemImports = new[] { 
-"system.ArgumentException",
-"system.collections.generic.CSDictionary",
-"system.collections.generic.HashSet",
-"system.collections.generic.KeyValuePair",
-"system.DateTime",
-"system.diagnostics.Stopwatch",
-"system.Enumerable",
-"system.Exception",
-"system.Guid",
-"system.IDisposable",
-"system.InvalidOperationException",
-"system.io.BinaryReader",
-"system.io.BinaryWriter",
-"system.KeyNotFoundException",
-"system.linq.Linq",
-"system.NotImplementedException",
-"system.Nullable_Float",
-"system.Nullable_Int",
-"system.Nullable_Bool",
-"system.Nullable_TimeSpan",
-"system.Nullable_DateTime",
-"system.OverflowException",
-"system.RandomAS",
-"system.text.StringBuilder",
-"system.text.UTF8Encoding",
-"system.ThreadAbortException",
-"system.TimeoutException",
-"system.TimeSpan",
-"system.Environment",
-"system.xml.linq.XAttribute",
-"system.xml.linq.XElement",
-"system.xml.linq.XContainer",
-"system.xml.linq.XDocument",
-"system.xml.linq.XObject",
-"haxe.io.Bytes"
-        };
+		static private string[] _systemImports;
+
+
+		static public string[] SystemImports
+		{
+			get
+			{
+				if (_systemImports == null) //not threadsafe, but it's fine since it doesn't hurt if we load them twice
+					_systemImports = LoadSystemImports(); 
+				return _systemImports;
+			}
+		}
+
+		private static string[] LoadSystemImports()
+		{
+			return Directory.GetFiles(ConfigurationManager.AppSettings["PathToSystemDir"], "*.hx", SearchOption.AllDirectories)
+				.Select(GetTypeName)
+				.Where(o => o != null)
+				.ToArray();
+		}
+		
+		private static string GetTypeName(string pathToHaxeFile)
+		{
+			var file = File.ReadAllText(pathToHaxeFile);
+
+			var package = Regex.Match(file, @"^package (?<packageName>.*);", RegexOptions.Multiline);
+			if (!package.Success)
+				return null;
+
+			var type = Regex.Match(file, @"^class (?<typeName>\w+)", RegexOptions.Multiline);
+			if (!type.Success)
+			{
+				type = Regex.Match(file, @"^interface (?<typeName>\w+)", RegexOptions.Multiline);
+				if (!type.Success)
+					return null;
+			}
+
+			return package.Groups["packageName"].Value + "." + type.Groups["typeName"].Value;
+		}
+		
 
 		public static void Go(HaxeWriter writer)
 		{
@@ -68,19 +75,23 @@ import system.Exception;";
 			//Also allow users to specify extra import statements in the xml file
 			imports.AddRange(Translations.Translation.ExtraImports());
 
-			//Add in imports from the C#'s using statements
-			foreach (var usingDeclaration in
-				partials.SelectMany(o => o.Parent.ChildNodes().OfType<UsingDirectiveSyntax>())
+			//Add types we reference from haxe libraries
+			imports.Add("haxe.io.Bytes");
+
+			//Add in imports from the using statements
+			partials.SelectMany(o => o.Parent.ChildNodes().OfType<UsingDirectiveSyntax>())
 				.Concat(partials.SelectMany(o => o.Parent.Parent.ChildNodes().OfType<UsingDirectiveSyntax>()))
 				.Select(o => o.Name.ToString())
 				.Distinct()
-				.OrderBy(o => o))
-			{
-				if (usingDeclaration.StartsWith("System.") || usingDeclaration == "System")
-					continue; //system usings are handled by our standard imports
+				.Where(o => !o.StartsWith("System.") && o != "System") //system usings are handled by our standard imports
+				//.Where(o => !o.EndsWith("Attribute")) //exclude attributes, since those don't get generated into haxe at all.
+				.OrderBy(o => o)
+				.ToList()
+				.ForEach(usingDeclaration =>
+				imports.AddRange(TypeState.Instance.GetTypesInNamespace(usingDeclaration).Select(t => usingDeclaration.ToLower() + "." + t.Identifier.ValueText)));
 
-				imports.AddRange(TypeState.Instance.GetTypesInNamespace(usingDeclaration).Select(t => usingDeclaration.ToLower() + "." + t.Identifier.ValueText));
-			}
+			//Filter out anything that's excluded by preprocessor directives
+			//imports = imports.Except(Program.DoNotWrite.Keys.OfType<ClassDeclarationSyntax>().Select(o => o.Parent.As<NamespaceDeclarationSyntax>().Name + "." + o.Identifier.ValueText)).ToList();
 
 			//Filter out any ones that aren't being used by this file
 			imports = FilterUnusedImports(imports, partials);
@@ -123,8 +134,10 @@ import system.Exception;";
 				.Select(o => TypeState.Instance.GetModel(o).GetSymbolInfo(o).Symbol.As<MethodSymbol>().UnReduce())
 				.Where(o => o.IsExtensionMethod))
 				typesReferenced.Add(Translation.ExtensionName(symbol.ContainingType));
-			
-				
+
+			foreach (var doNotWrite in Program.DoNotWriteTypeNames.Keys)
+				typesReferenced.Remove(doNotWrite);
+
 
 			return imports.Where(o => typesReferenced.Contains(o.SubstringAfterLast('.'))).Distinct().ToList();
 		}

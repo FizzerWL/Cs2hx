@@ -11,6 +11,9 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, ForStatementSyntax forStatement)
 		{
+			if (forStatement.DescendantNodes().OfType<ContinueStatementSyntax>().Any())
+				throw new Exception("Cannot use \"continue\" in a \"for\" loop.  Consider changing to a while loop instead. " + Utility.Descriptor(forStatement));
+
 			writer.WriteLine("{ //for");
 			writer.Indent++;
 
@@ -20,8 +23,7 @@ namespace Cs2hx
 					writer.WriteIndent();
 					writer.Write("var ");
 					writer.Write(variable.Identifier.ValueText);
-					writer.Write(":");
-					writer.Write(TypeProcessor.ConvertType(forStatement.Declaration.Type));
+					writer.Write(TypeProcessor.ConvertTypeWithColon(forStatement.Declaration.Type));
 
 					if (variable.Initializer != null)
 					{

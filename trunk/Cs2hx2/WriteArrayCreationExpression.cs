@@ -21,11 +21,12 @@ namespace Cs2hx
 
 			if (array.Type.ElementType.ToString() == "byte")
 			{
-				if (array.Initializer != null)
+				var size = array.Type.RankSpecifiers[0].Sizes[0].ToString();
+				if (size != "0" && array.Initializer != null)
 					throw new Exception("Cannot use array initialization syntax for byte arrays");
 
 				writer.Write("Bytes.alloc(");
-				writer.Write(array.Type.RankSpecifiers[0].Sizes[0].ToString());
+				writer.Write(size);
 				writer.Write(")");
 			}
 			else

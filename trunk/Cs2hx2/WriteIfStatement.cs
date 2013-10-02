@@ -9,9 +9,11 @@ namespace Cs2hx
 {
 	static class WriteIfStatement
 	{
-		public static void Go(HaxeWriter writer, IfStatementSyntax ifStatement)
+		public static void Go(HaxeWriter writer, IfStatementSyntax ifStatement, bool indent = true)
 		{
-			writer.WriteIndent();
+			if (indent)
+				writer.WriteIndent();
+
 			writer.Write("if (");
 			Core.Write(writer, ifStatement.Condition);
 			writer.Write(")\r\n");
@@ -29,18 +31,21 @@ namespace Cs2hx
 			if (ifStatement.Else != null)
 			{
 				writer.WriteIndent();
-				writer.Write("else ");
+				writer.Write("else");
 
 				if (ifStatement.Else.Statement is BlockSyntax)
 				{
+					writer.Write("\r\n");
 					Core.Write(writer, ifStatement.Else.Statement);
 				}
 				else if (ifStatement.Else.Statement is IfStatementSyntax)
 				{
-					WriteIfStatement.Go(writer, ifStatement.Else.Statement.As<IfStatementSyntax>());
+					writer.Write(" ");
+					WriteIfStatement.Go(writer, ifStatement.Else.Statement.As<IfStatementSyntax>(), false);
 				}
 				else
 				{
+					writer.Write("\r\n");
 					writer.WriteOpenBrace();
 					Core.Write(writer, ifStatement.Else.Statement);
 					writer.WriteCloseBrace();

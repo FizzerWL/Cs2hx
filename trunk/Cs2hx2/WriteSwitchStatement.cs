@@ -16,25 +16,26 @@ namespace Cs2hx
 			Core.Write(writer, switchStatement.Expression);
 			writer.Write(")\r\n");
 			writer.WriteOpenBrace();
-			foreach (var section in switchStatement.Sections)
-			{
-				if (section.Labels.Count > 1)
-					throw new Exception("haXe does not support falling through from one case statement to another " + Utility.Descriptor(section));
 
+			//First process all blocks except the section with the default block
+			foreach (var section in switchStatement.Sections.Where(o => o.Labels.None(z => z.CaseOrDefaultKeyword.Kind == SyntaxKind.DefaultKeyword)))
+			{
+				writer.WriteIndent();
+				writer.Write("case ");
+
+
+				var firstLabel = true;
 				foreach (var label in section.Labels)
 				{
-					writer.WriteIndent();
-
-					if (label.CaseOrDefaultKeyword.Kind == SyntaxKind.DefaultKeyword)
-						writer.Write("default");
+					if (firstLabel)
+						firstLabel = false;
 					else
-					{
-						writer.Write("case ");
-						Core.Write(writer, label.Value);
-					}
+						writer.Write(", ");
 
-					writer.Write(":\r\n");
+					Core.Write(writer, label.Value);
+
 				}
+				writer.Write(":\r\n");
 				writer.Indent++;
 
 				foreach (var statement in section.Statements)
@@ -43,6 +44,26 @@ namespace Cs2hx
 
 				writer.Indent--;
 			}
+
+			//Now write the default section
+			var defaultSection = switchStatement.Sections.SingleOrDefault(o => o.Labels.Any(z => z.CaseOrDefaultKeyword.Kind == SyntaxKind.DefaultKeyword));
+			if (defaultSection != null)
+			{
+				if (defaultSection.Labels.Count > 1)
+					throw new Exception("Cannot fall-through into or out of the default section of switch statement " + Utility.Descriptor(defaultSection));
+
+				writer.WriteLine("default:");
+				writer.Indent++;
+
+				foreach (var statement in defaultSection.Statements)
+					if (!(statement is BreakStatementSyntax))
+						Core.Write(writer, statement);
+
+				writer.Indent--;
+
+			}
+
+
 			writer.WriteCloseBrace();
 		}
 	}

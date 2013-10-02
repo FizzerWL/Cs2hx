@@ -84,7 +84,7 @@ namespace Cs2hx
                         writer.Write(", ");
 
                     writer.Write(parameter.Identifier.ValueText);
-                    writer.Write(":" + TypeProcessor.ConvertType(parameter.Type));
+					writer.Write(TypeProcessor.ConvertTypeWithColon(parameter.Type));
 
                     var def = defaultParameters[parameterNumber];
 					if (def != null)
@@ -98,8 +98,8 @@ namespace Cs2hx
                     parameterNumber++;
                 }
 
-                writer.Write("):");
-                writer.Write(TypeProcessor.ConvertType(method.ReturnType));
+                writer.Write(")");
+                writer.Write(TypeProcessor.ConvertTypeWithColon(method.ReturnType));
 
                 if (method.Modifiers.Any(SyntaxKind.AbstractKeyword))
                 {

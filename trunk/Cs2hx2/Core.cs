@@ -12,7 +12,7 @@ namespace Cs2hx
         {
 			TriviaProcessor.ProcessNode(writer, node);
 
-			if (TypeState.Instance.DoNotWrite.Contains(node))
+			if (Program.DoNotWrite.ContainsKey(node))
 				return;
 
 			if (node is ExpressionStatementSyntax)
@@ -81,6 +81,16 @@ namespace Cs2hx
 				WriteTryStatement.Go(writer, node.As<TryStatementSyntax>());
 			else if (node is UsingStatementSyntax)
 				WriteUsingStatement.Go(writer, node.As<UsingStatementSyntax>());
+			else if (node is ParenthesizedExpressionSyntax)
+				WriteParenthesizedExpression.Go(writer, node.As<ParenthesizedExpressionSyntax>());
+			else if (node is LockStatementSyntax)
+				Core.Write(writer, node.As<LockStatementSyntax>().Statement); //eat lock statements -- haxe is single-threaded so they do nothing.
+			else if (node is ContinueStatementSyntax)
+				WriteContinueStatement.Go(writer, node.As<ContinueStatementSyntax>());
+			else if (node is TypeOfExpressionSyntax)
+				WriteTypeOfExpression.Go(writer, node.As<TypeOfExpressionSyntax>());
+			else if (node is EmptyStatementSyntax)
+				return; //ignore empty statements
 			else
 				throw new NotImplementedException(node.GetType().Name);
         }

@@ -33,9 +33,24 @@ namespace Cs2hx
 			var typeInfo = TypeState.Instance.GetModel(node).GetTypeInfo(node).ConvertedType;
 
 			if (typeInfo == null || typeInfo is ErrorTypeSymbol)
-				return null;
+			{
+				if (node.ToString() == "byte[]")
+					return "Bytes"; //not sure why Roslyn isn't converting these properly, perhaps it's a bug. Just hard-code byte arrays here instead of failing
+				else
+					return null;
+			}
 
 			return ConvertType((TypeSymbol)typeInfo);
+		}
+
+		public static string ConvertTypeWithColon(SyntaxNode node)
+		{
+			var ret = TryConvertType(node);
+
+			if (ret == null)
+				return "";
+			else
+				return ":" + ret;
 		}
 
         
@@ -47,6 +62,16 @@ namespace Cs2hx
 				throw new Exception("Type could not be determined for " + node);
 
 			return ret;
+		}
+
+		public static string ConvertTypeWithColon(TypeSymbol node)
+		{
+			var ret = ConvertType(node);
+
+			if (ret == null)
+				return "";
+			else
+				return ":" + ret;
 		}
 
 		public static string ConvertType(TypeSymbol typeInfo)
@@ -109,6 +134,7 @@ namespace Cs2hx
 					return "String";
 
 				case "System.Int32":
+				case "System.UInt32":
 				case "System.Byte":
 				case "System.Int16":
 				case "System.UInt16":
@@ -123,16 +149,23 @@ namespace Cs2hx
 				case "System.Collections.Generic.Queue<>":
 				case "System.Collections.Generic.Stack<>":
 				case "System.Collections.Generic.IEnumerable<>":
-				
 					return "Array";
+
+				case "System.Array":
+					return null; //in haxe, unlike C#, array must always have type arguments.  To work around this, just avoid printing the type anytime we see a bare Array type in C#. haxe will infer it.
+
 				case "System.Collections.Generic.LinkedList<>":
 					return "List";
 
 				default:
+					var trans = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Type, typeStr, null);
 
-					
+					if (trans != null)
+						return trans.As<Translations.Type>().ReplaceWith;
+
 					//This type does not get translated and gets used as-is
 					return typeInfo.Name;
+				
 			}
 
         }

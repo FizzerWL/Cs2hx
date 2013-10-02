@@ -74,6 +74,7 @@
     <Compile Include="WriteCastExpression.cs" />
     <Compile Include="WriteConditionalExpression.cs" />
     <Compile Include="WriteConstructors.cs" />
+    <Compile Include="WriteContinueStatement.cs" />
     <Compile Include="WriteDoStatement.cs" />
     <Compile Include="WriteElementAccessExpression.cs" />
     <Compile Include="WriteEnumBody.cs" />
@@ -87,8 +88,10 @@
     <Compile Include="WriteMethods.cs" />
     <Compile Include="WriteObjectCreationExpression.cs" />
     <Compile Include="WriteOperatorExpression.cs" />
+    <Compile Include="WriteParenthesizedExpression.cs" />
     <Compile Include="WriteSwitchStatement.cs" />
     <Compile Include="WriteTryStatement.cs" />
+    <Compile Include="WriteTypeOfExpression.cs" />
     <Compile Include="WriteUnaryExpression.cs" />
     <Compile Include="WriteProperties.cs" />
     <Compile Include="HaxeWriter.cs" />

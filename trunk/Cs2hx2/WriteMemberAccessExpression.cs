@@ -57,7 +57,7 @@ namespace Cs2hx
 						else
 							writer.Write(", ");
 
-						writer.Write(":" + TypeProcessor.ConvertType(g));
+						writer.Write(TypeProcessor.ConvertTypeWithColon(g));
 					}
 
 					writer.Write(">");

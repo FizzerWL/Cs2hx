@@ -42,7 +42,7 @@ namespace Cs2hx
                         writer.Write(", ");
 
                     writer.Write(parameter.Identifier.ValueText);
-					writer.Write(":" + TypeProcessor.ConvertType(parameter.Type));
+					writer.Write(TypeProcessor.ConvertTypeWithColon(parameter.Type));
 
 					if (parameter.Default != null)
 					{

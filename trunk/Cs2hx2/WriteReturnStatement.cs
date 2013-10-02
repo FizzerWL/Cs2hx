@@ -12,8 +12,15 @@ namespace Cs2hx
 		public static void Go(HaxeWriter writer, ReturnStatementSyntax statement)
 		{
 			writer.WriteIndent();
-			writer.Write("return ");
-			Core.Write(writer, statement.Expression);
+			writer.Write("return");
+
+			if (statement.Expression != null)
+			{
+				writer.Write(" ");
+				Core.Write(writer, statement.Expression);
+			}
+
+
 			writer.Write(";\r\n");
 		}
 	}

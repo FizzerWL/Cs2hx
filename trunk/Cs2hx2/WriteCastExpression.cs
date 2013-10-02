@@ -11,7 +11,10 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, CastExpressionSyntax expression)
 		{
-			var castingFrom = TypeState.Instance.GetModel(expression).GetTypeInfo(expression.Expression).ConvertedType;
+			var castingFrom = TypeState.Instance.GetModel(expression).GetTypeInfo(expression.Expression).Type;
+			if (castingFrom == null)
+				castingFrom = TypeState.Instance.GetModel(expression).GetTypeInfo(expression).Type;
+
 			var castingFromStr = TypeProcessor.GenericTypeName(castingFrom);
 			var castingFromHaxe = TypeProcessor.ConvertType((TypeSymbol)castingFrom);
 			var destType = TypeState.Instance.GetModel(expression).GetTypeInfo(expression.Type).Type;
