@@ -4,11 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using Roslyn.Compilers.CSharp;
+using System.Threading.Tasks;
 
 namespace Cs2hx
 {
     public static class Utility
     {
+		public static void Parallel<T>(List<T> list, Action<T> action)
+		{
+			//list.ForEach(action);
+			System.Threading.Tasks.Parallel.ForEach(list, action);
+		}
+
         public static T As<T>(this object o)
         {
             return (T)o;
@@ -17,6 +24,11 @@ namespace Cs2hx
 		public static bool None<T>(this IEnumerable<T> a, Func<T, bool> pred)
 		{
 			return !a.Any(pred);
+		}
+
+		public static bool None<T>(this IEnumerable<T> a)
+		{
+			return !a.Any();
 		}
 
 		public static string SubstringAfterLast(this string s, char c)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -39,10 +40,35 @@ import system.Exception;";
 
 		private static string[] LoadSystemImports()
 		{
-			return Directory.GetFiles(ConfigurationManager.AppSettings["PathToSystemDir"], "*.hx", SearchOption.AllDirectories)
+			return Directory.GetFiles(GetSystemDir(), "*.hx", SearchOption.AllDirectories)
 				.Select(GetTypeName)
 				.Where(o => o != null)
 				.ToArray();
+		}
+
+		private static string GetSystemDir()
+		{
+			var cfg = ConfigurationManager.AppSettings["PathToSystemDir"];
+
+			if (cfg != null && Directory.Exists(cfg))
+				return cfg;
+
+			var appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+			cfg = Path.Combine(appDir, "system");
+			if (Directory.Exists(cfg))
+				return cfg;
+			cfg = Path.Combine(appDir, "../system");
+			if (Directory.Exists(cfg))
+				return cfg;
+			cfg = Path.Combine(appDir, "../../system");
+			if (Directory.Exists(cfg))
+				return cfg;
+			cfg = Path.Combine(appDir, "../../../system");
+			if (Directory.Exists(cfg))
+				return cfg;
+
+			throw new Exception("Could not find system dir");
 		}
 		
 		private static string GetTypeName(string pathToHaxeFile)

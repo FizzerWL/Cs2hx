@@ -15,7 +15,15 @@ namespace Cs2hx
 			if (Program.DoNotWrite.ContainsKey(node))
 				return;
 
-			if (node is ExpressionStatementSyntax)
+			if (node is MethodDeclarationSyntax)
+				WriteMethod.Go(writer, node.As<MethodDeclarationSyntax>());
+			else if (node is PropertyDeclarationSyntax)
+				WriteProperty.Go(writer, node.As<PropertyDeclarationSyntax>());
+			else if (node is FieldDeclarationSyntax)
+				WriteField.Go(writer, node.As<FieldDeclarationSyntax>());
+			else if (node is ConstructorDeclarationSyntax)
+				WriteConstructor.Go(writer, node.As<ConstructorDeclarationSyntax>());
+			else if (node is ExpressionStatementSyntax)
 				WriteStatement(writer, node.As<ExpressionStatementSyntax>());
 			else if (node is LocalDeclarationStatementSyntax)
 				WriteLocalDeclaration.Go(writer, node.As<LocalDeclarationStatementSyntax>());
@@ -91,6 +99,8 @@ namespace Cs2hx
 				WriteTypeOfExpression.Go(writer, node.As<TypeOfExpressionSyntax>());
 			else if (node is EmptyStatementSyntax)
 				return; //ignore empty statements
+			else if (node is DelegateDeclarationSyntax)
+				return; //don't write delegates - we convert them to types directly
 			else
 				throw new NotImplementedException(node.GetType().Name);
         }

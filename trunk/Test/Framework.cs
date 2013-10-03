@@ -74,6 +74,7 @@ namespace Test
 
 					Console.WriteLine("Different at " + DifferentAt(expectedOutputStripped[i], haxeFilesFromDisk[i]));
                 }
+
                 Assert.AreEqual(expectedOutputStripped[i], haxeFilesFromDisk[i]);
             }
         }

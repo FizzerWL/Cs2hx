@@ -58,6 +58,10 @@ namespace Blargh
 {
     public class SomeClass
     {
+#if CS2HX
+		public static var Variable:Int;
+#endif
+
         public SomeClass()
         {
 #if CS2HX
@@ -88,6 +92,8 @@ package blargh;
 
 class SomeClass
 {
+	public static var Variable:Int;
+
     public function new()
     {
 		Console.WriteLine(""cs2hx1"");
@@ -387,7 +393,7 @@ class Utilities
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(Exception), "Cannot use \"continue\" in a \"for\" loop")]
+		[ExpectedException(typeof(AggregateException), "Cannot use \"continue\" in a \"for\" loop")]
 		public void CannotUseContinueInForLoop()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
@@ -395,7 +401,7 @@ using System;
 
 namespace Blargh
 {
-    public static class SomeClass
+    public class SomeClass
     {
         public void SomeMethod()
         {
@@ -696,6 +702,7 @@ namespace Blargh
             int hex = 0x00ff;
             i = (int)f;
 			var z = (i & hex) == 5;
+			var x = (int)(i / 3);
         }
     }
 }", @"
@@ -723,6 +730,7 @@ class Utilities
         var hex:Int = 0x00ff;
         i = Std.int(f);
 		var z:Bool = (i & hex) == 5;
+		var x:Int = Std.int(i / 3);
     }
     public function new()
     {
@@ -743,12 +751,17 @@ namespace Blargh
 
     public static class Utilities
     {
+		public static Action StaticAction;
         public delegate int GetMahNumber(int arg);
 
         public static void SomeFunction(GetMahNumber getit, NamespaceDlg getitnow, TemplatedDelegate<float> unused)
         {
             Console.WriteLine(getit(getitnow()));
-            
+            var a = new[] { getitnow };
+			a[0]();
+			StaticAction();
+			Utilities.StaticAction();
+			Blargh.Utilities.StaticAction();
         }
     }
 }", @"
@@ -757,9 +770,16 @@ package blargh;
 
 class Utilities
 {
+	public static var StaticAction:(Void -> Void);
+
     public static function SomeFunction(getit:(Int -> Int), getitnow:(Void -> Int), unused:(Float -> Int -> Float)):Void
     {
-        Console.WriteLine(getit(getitnow()));
+        Console.WriteLine_Int32(getit(getitnow()));
+		var a:Array<(Void -> Int)> = [ getitnow ];
+		a[0]();
+		StaticAction();
+		Utilities.StaticAction();
+		Utilities.StaticAction();
     }
     public function new()
     {
@@ -799,10 +819,10 @@ class Utilities
     public static function SomeFunction():Void
     {
         Utilities.Foo = 4;
-        Console.WriteLine(2147483647);
-        Console.WriteLine(-2147483648);
+        Console.WriteLine_Int32(2147483647);
+        Console.WriteLine_Int32(-2147483648);
         var s:String = ""123"";
-        Console.WriteLine(Std.parseInt(s) + 1);
+        Console.WriteLine_Int32(Std.parseInt(s) + 1);
         Std.parseFloat(s);
         Std.parseFloat(s);
     }
@@ -856,26 +876,26 @@ class Utilities
     {
         var dict:CSDictionary<Int, Int> = new CSDictionary<Int, Int>();
         dict.Add(4, 3);
-        Console.WriteLine(dict.GetValue(4));
-        Console.WriteLine(dict.ContainsKey(8));
+        Console.WriteLine_Int32(dict.GetValue(4));
+        Console.WriteLine_Boolean(dict.ContainsKey(8));
         dict.Remove(4);
         for (key in dict.Keys)
         {
-            Console.WriteLine(key);
+            Console.WriteLine_Int32(key);
         }
         for (val in dict.Values)
         {
-            Console.WriteLine(val);
+            Console.WriteLine_Int32(val);
         }
         
         var hash:HashSet<Int> = new HashSet<Int>();
         hash.Add(999);
-        Console.WriteLine(hash.Contains(999));
+        Console.WriteLine_Boolean(hash.Contains(999));
         hash.Remove(999);
-        Console.WriteLine(hash.Contains(999));
+        Console.WriteLine_Boolean(hash.Contains(999));
         for (hashItem in hash.Values())
         {
-            Console.WriteLine(hashItem);
+            Console.WriteLine_Int32(hashItem);
         }
     }
     public function new()
@@ -913,9 +933,9 @@ class Utilities
     public static function SomeFunction():Void
     {
         var nullableInt:Nullable_Int = new Nullable_Int();
-        Console.WriteLine(nullableInt.HasValue);
+        Console.WriteLine_Boolean(nullableInt.HasValue);
         var withValue:Nullable_Int = new Nullable_Int(8);
-        Console.WriteLine(withValue.Value);
+        Console.WriteLine_Int32(withValue.Value);
     }
     public function new()
     {
@@ -1021,11 +1041,11 @@ class Utilities
         switch (s)
         {
             case ""NotMe"":
-                Console.WriteLine(4);
+                Console.WriteLine_Int32(4);
             case ""Box"": 
-                Console.WriteLine(4); 
+                Console.WriteLine_Int32(4); 
             case ""Blah"": 
-                Console.WriteLine(3); 
+                Console.WriteLine_Int32(3); 
             default: 
                 throw new InvalidOperationException();
         }
@@ -1054,7 +1074,7 @@ namespace Blargh
             Console.WriteLine(e.First(o => o == 1));
             Console.WriteLine(e.ElementAt(2));
             Console.WriteLine(e.Last());
-            Console.WriteLine(e.Count());
+            Console.WriteLine(e.Select(o => o).Count());
             Console.WriteLine(e.Where(o => o > 0).Count() + 2);
             Console.WriteLine(e.Count(o => true) + 2);
 
@@ -1073,20 +1093,20 @@ class Utilities
     public static function SomeFunction():Void
     {
         var e:Array<Int> = [ 0, 1, 2, 3 ];
-        Console.WriteLine(Linq.First(e));
+        Console.WriteLine_Int32(Linq.First(e));
 		
-        Console.WriteLine(Linq.First(e, function (o:Int):Bool
+        Console.WriteLine_Int32(Linq.First_IEnumerable_Func(e, function (o:Int):Bool
         {
             return o == 1;
         } ));
-        Console.WriteLine(Linq.ElementAt(e, 2));
-        Console.WriteLine(Linq.Last(e));
-        Console.WriteLine(Linq.Count(e));
-        Console.WriteLine(Linq.Count(Linq.Where(e, function (o:Int):Bool
+        Console.WriteLine_Int32(Linq.ElementAt(e, 2));
+        Console.WriteLine_Int32(Linq.Last(e));
+        Console.WriteLine_Int32(Linq.Count(Linq.Select(e, function (o:Int):Int { return o; } )));
+        Console.WriteLine_Int32(Linq.Count(Linq.Where(e, function (o:Int):Bool
         {
             return o > 0;
         } )) + 2);
-        Console.WriteLine(Linq.Count(e, function (o:Int):Bool
+        Console.WriteLine_Int32(Linq.Count_IEnumerable_Func(e, function (o:Int):Bool
         {
             return true;
         } ) + 2);
@@ -1117,12 +1137,12 @@ namespace Blargh
     {
         public static void OverOne()
         {
-            OverOne(3, ""Blah"");
+            OverOne(3);
         }
 
         public static void OverOne(int param)
         {
-            OverOne(3, ""Blah"");
+            OverOne(param, ""Blah"");
         }
 
         public static void OverOne(int param, string prm)
@@ -1130,13 +1150,13 @@ namespace Blargh
             Console.WriteLine(param + prm);
         }
 
-        public static int OverTwo(int prm)
-        {
-            return prm;
-        }
         public static int OverTwo()
         {
             return OverTwo(18);
+        }
+        public static int OverTwo(int prm)
+        {
+            return prm;
         }
     }
 }", @"
@@ -1145,11 +1165,23 @@ package blargh;
 
 class Utilities
 {
-    public static function OverOne(param:Int = 3, prm:String = ""Blah""):Void
+	public static function OverOne():Void
+	{
+		OverOne_Int32(3);
+	}
+	public static function OverOne_Int32(param:Int):Void
+	{
+		OverOne_Int32_String(param, ""Blah"");
+	}
+    public static function OverOne_Int32_String(param:Int, prm:String):Void
     {
         Console.WriteLine(param + prm);
     }
-    public static function OverTwo(prm:Int = 18):Int
+	public static function OverTwo():Int
+	{
+		return OverTwo_Int32(18);
+	}
+    public static function OverTwo_Int32(prm:Int):Int
     {
         return prm;
     }
@@ -1279,6 +1311,10 @@ package blargh;
 " + WriteImports.StandardImports + @"
 class TopLevel
 {
+    public function AbstractMethod():Void
+    {
+    	throw new Exception(""Abstract item called"");
+    }
 	public var AbstractProperty(get_AbstractProperty, never):String;
 	
     public function get_AbstractProperty():String
@@ -1287,20 +1323,17 @@ class TopLevel
 		return null;
     }
 
+    public function VirtualMethod():Void
+    {
+        Console.WriteLine(""TopLevel::VirtualMethod"");
+    }
+
     public var VirtualProperty(get_VirtualProperty, never):String;
     public function get_VirtualProperty():String
     {
         return ""TopLevel::VirtualProperty"";
     }
 
-    public function AbstractMethod():Void
-    {
-    	throw new Exception(""Abstract item called"");
-    }
-    public function VirtualMethod():Void
-    {
-        Console.WriteLine(""TopLevel::VirtualMethod"");
-    }
     public function toString():String
     {
         return """";
@@ -1315,24 +1348,25 @@ package blargh;
 " + WriteImports.StandardImports + @"
 class Derived extends TopLevel
 {
-    override public function get_AbstractProperty():String
-    {
-        return ""Derived::AbstractProperty"";
-    }
-    override public function get_VirtualProperty():String
-    {
-        return super.VirtualProperty + ""Derived:VirtualProperty"";
-    }
-
     override public function AbstractMethod():Void
     {
         Console.WriteLine(""Derived::AbstractMethod"");
+    }
+    override public function get_AbstractProperty():String
+    {
+        return ""Derived::AbstractProperty"";
     }
     override public function VirtualMethod():Void
     {
         super.VirtualMethod();
         Console.WriteLine(""Derived::VirtualMethod"");
     }
+
+    override public function get_VirtualProperty():String
+    {
+        return super.VirtualProperty + ""Derived:VirtualProperty"";
+    }
+
     override public function toString():String
     {
         return ""DerivedToString"";
@@ -1402,17 +1436,6 @@ import system.text.StringBuilder;
 class Box
 {
     private var _width:Float;
-    public var IsRectangular:Bool;
-    public var Characters:Array<Int>;
-    public static var StaticField:StringBuilder;
-    public static inline var ConstInt:Int = 24;
-    public static inline var StaticReadonlyInt:Int = 5;
-    public static inline var WithQuoteMiddle:String = ""before\""after"";
-    public static inline var WithQuoteStart:String = ""\""after"";
-    public var MultipleOne:Int;
-    public var MultipleTwo:Int;
-    public var ReadonlyInt:Int;
-
     public var Width(get_Width, set_Width):Float;
     public function get_Width():Float
     {
@@ -1426,7 +1449,7 @@ class Box
     public var SetOnly(never, set_SetOnly):Float;
     public function set_SetOnly(value:Float):Float
     {
-        Console.WriteLine(value);
+        Console.WriteLine_Single(value);
 		return 0;
     }
     public var GetOnly(get_GetOnly, never):Int;
@@ -1434,6 +1457,17 @@ class Box
     {
         return 4;
     }
+
+    public var IsRectangular:Bool;
+    public var Characters:Array<Int>;
+    public static var StaticField:StringBuilder;
+    public static inline var ConstInt:Int = 24;
+    public static inline var StaticReadonlyInt:Int = 5;
+    public static inline var WithQuoteMiddle:String = ""before\""after"";
+    public static inline var WithQuoteStart:String = ""\""after"";
+    public var MultipleOne:Int;
+    public var MultipleTwo:Int;
+    public var ReadonlyInt:Int;
 
     public static function cctor():Void
     {
@@ -1687,7 +1721,7 @@ class Utilities
         var queue:Array<Int> = new Array<Int>();
         queue.push(4);
         queue.push(2);
-        Console.WriteLine(queue.shift());
+        Console.WriteLine_Int32(queue.shift());
         queue.splice(0, queue.length);
 
         var list:Array<String> = new Array<String>();
@@ -1739,12 +1773,12 @@ class Utilities
         { 
             return x + 5; 
         } ;
-        Console.WriteLine(f1(3));
+        Console.WriteLine_Int32(f1(3));
         var f2:(Int -> Int) = function (x:Int):Int 
         { 
             return x + 6; 
         } ;
-        Console.WriteLine(f2(3));
+        Console.WriteLine_Int32(f2(3));
         var actions:Array<(Void -> Void)> = new Array<(Void -> Void)>();
     }
     public function new()
@@ -1856,7 +1890,7 @@ class Utilities
             var i:Int = 0;
             while (i < 50)
             {
-                Console.WriteLine(i);
+                Console.WriteLine_Int32(i);
                 i++;
             }
         } //end for
@@ -2002,11 +2036,11 @@ class Utilities
         var ar:Array<Int> = [ 1, 2, 3 ];
         for (i in ar)
         {
-        	Console.WriteLine(i);
+        	Console.WriteLine_Int32(i);
         }
-        Console.WriteLine(ar[1]);
-        Console.WriteLine(ar.length);
-		Console.WriteLine(new Array<String>().length);
+        Console.WriteLine_Int32(ar[1]);
+        Console.WriteLine_Int32(ar.length);
+		Console.WriteLine_Int32(new Array<String>().length);
     }
     public function new()
     {
@@ -2100,8 +2134,8 @@ class Utilities
     public static function SomeFunction(s2:String):Void
     {
         var s:String = ""50\\0"";
-        Console.WriteLine(s.indexOf(""0""));
-        Console.WriteLine(s2.indexOf(""0""));
+        Console.WriteLine_Int32(s.indexOf(""0""));
+        Console.WriteLine_Int32(s2.indexOf(""0""));
 
         for (s3 in [ ""Hello"" ])
         {
@@ -2111,7 +2145,7 @@ class Utilities
         var si:String = Std.string(i);
 		if (Cs2Hx.StartsWith(si, ""asdf""))
 		{
-			Console.WriteLine(4);
+			Console.WriteLine_Int32(4);
 		}
     }
     public function new()

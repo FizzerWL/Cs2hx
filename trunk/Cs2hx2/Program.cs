@@ -50,8 +50,8 @@ namespace Cs2hx
 
 			var allTypes = typesGroupedByNamespace.SelectMany(o => o).ToList();
 
-			//allTypes.ForEach(type =>
-			Parallel.ForEach(allTypes, type =>
+			
+			Utility.Parallel(allTypes, type =>
 				{
 					foreach (var n in type.Partials.Select(o => o.SyntaxTree).Distinct().SelectMany(TriviaProcessor.DoNotWrite))
 					{
@@ -65,8 +65,7 @@ namespace Cs2hx
 			sw.Restart();
 
 
-			//allTypes.ForEach(type =>
-			Parallel.ForEach(allTypes, type =>
+			Utility.Parallel(allTypes, type =>
 				{
 					TypeState.Instance = new TypeState();
 					TypeState.Instance.Compilation = compilation;

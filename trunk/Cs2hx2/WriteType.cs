@@ -35,7 +35,7 @@ namespace Cs2hx
 
 				var interfaces = bases.Where(o => o.TypeKind == TypeKind.Interface).ToList();
 
-				bool derivesFromObject = bases.Count == interfaces.Count;
+				TypeState.Instance.DerivesFromObject = bases.Count == interfaces.Count;
 
 				writer.WriteLine("package " + typeNamespace.Name.ToString().ToLower() + @";");
 
@@ -102,31 +102,40 @@ namespace Cs2hx
 
 				writer.WriteOpenBrace();
 
-				if (first is TypeDeclarationSyntax)
+				if (first is EnumDeclarationSyntax)
+					WriteEnumBody.Go(writer, TypeState.Instance.Partials.Cast<EnumDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)));
+				else
 				{
-
-					var allChildren = TypeState.Instance.Partials.Cast<TypeDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)).ToList();
+					var allChildren = partials.Cast<TypeDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)).ToList();
 
 					var fields = allChildren.OfType<FieldDeclarationSyntax>().Where(o => !Program.DoNotWrite.ContainsKey(o));
 					var staticFields = fields.Where(o => o.Modifiers.Any(m => m.ValueText == "static"));
-					var staticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null &&  !WriteFields.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer));
-					var instanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null && !WriteFields.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer));
+					TypeState.Instance.StaticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer)).ToList();
+					TypeState.Instance.InstanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer)).ToList();
 
-					WriteFields.Go(writer, allChildren.OfType<FieldDeclarationSyntax>());
-					writer.WriteLine();
-					WriteProperties.Go(writer, allChildren.OfType<PropertyDeclarationSyntax>());
-					writer.WriteLine();
-					WriteMethods.Go(writer, allChildren.OfType<MethodDeclarationSyntax>(), derivesFromObject);
+
+					foreach (var partial in partials)
+					{
+						foreach (var member in partial.As<TypeDeclarationSyntax>().Members)
+						{
+							if (member is ClassDeclarationSyntax)
+								throw new Exception("Subclasses are not supported " + Utility.Descriptor(member));
+
+							Core.Write(writer, member);
+						}
+					}
 
 					if (first.Kind != SyntaxKind.InterfaceDeclaration)
 					{
-						writer.WriteLine();
-						WriteConstructors.Go(writer, allChildren.OfType<ConstructorDeclarationSyntax>(), derivesFromObject, instanceFieldsNeedingInitialization, staticFieldsNeedingInitialization);
+						var ctors = allChildren.OfType<ConstructorDeclarationSyntax>().ToList();
+
+
+						if (ctors.None(o => o.Modifiers.Any(SyntaxKind.StaticKeyword)))
+							WriteConstructor.WriteStaticConstructor(writer, null);
+						if (ctors.None(o => !o.Modifiers.Any(SyntaxKind.StaticKeyword)))
+							WriteConstructor.WriteInstanceConstructor(writer, null);
+						
 					}
-				}
-				else
-				{
-					WriteEnumBody.Go(writer, TypeState.Instance.Partials.Cast<EnumDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)));
 				}
 
 				writer.WriteCloseBrace();

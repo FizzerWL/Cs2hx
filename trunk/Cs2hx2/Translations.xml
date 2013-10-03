@@ -14,6 +14,8 @@
   <Method SourceObject="System.String" Match="Trim" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="IsNullOrEmpty" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.String" Match="Join" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+  <Property SourceObject="System.String" Match="Length" ReplaceWith="length" />
+  
   <Method SourceObject="System.Char" Match="IsLetterOrDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.Char" Match="IsDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
 
@@ -30,6 +32,8 @@
 
   <Method SourceObject="System.Array" Match="Sort" ReplaceWith="sort" />
   <Property SourceObject="System.Array" Match="Length" ReplaceWith="length" />
+
+  <Property SourceObject="System.Collections.Generic.Dictionary" Match="Count" ReplaceWith="length" />
 
   <Property SourceObject="System.Collections.Generic.List" Match="Count" ReplaceWith="length" />
   <Method SourceObject="System.Collections.Generic.List" Match="Reverse" ReplaceWith="reverse" />

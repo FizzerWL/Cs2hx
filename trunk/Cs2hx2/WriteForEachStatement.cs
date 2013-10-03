@@ -19,7 +19,9 @@ namespace Cs2hx
 
 			var typeStr = TypeProcessor.GenericTypeName(TypeState.Instance.GetModel(foreachStatement).GetTypeInfo(foreachStatement.Expression).ConvertedType);
 
-			if (typeStr == "System.Collections.Generic.Dictionary<,>" || typeStr == "System.Collections.Generic.HashSet<>")
+			if (typeStr == "System.Collections.Generic.Dictionary<,>")
+				writer.Write(".KeyValues()");
+			else if (typeStr == "System.Collections.Generic.HashSet<>")
 				writer.Write(".Values()");
 			
 			writer.Write(")\r\n");

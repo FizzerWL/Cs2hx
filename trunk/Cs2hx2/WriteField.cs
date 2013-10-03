@@ -7,16 +7,15 @@ using Roslyn.Compilers.CSharp;
 namespace Cs2hx
 {
 
-    internal static class WriteFields
+    internal static class WriteField
     {
-        public static void Go(HaxeWriter writer, IEnumerable<FieldDeclarationSyntax> fields)
+        public static void Go(HaxeWriter writer, FieldDeclarationSyntax field)
         {
-            foreach (var field in fields)
-                foreach (var declaration in field.Declaration.Variables)
-                    WriteField(writer, field.Modifiers, declaration.Identifier.ValueText, field.Declaration.Type, declaration.Initializer);
+            foreach (var declaration in field.Declaration.Variables)
+                Go(writer, field.Modifiers, declaration.Identifier.ValueText, field.Declaration.Type, declaration.Initializer);
         }
 
-        public static void WriteField(HaxeWriter writer, SyntaxTokenList modifiers, string name, TypeSyntax type, EqualsValueClauseSyntax initializerOpt = null)
+        public static void Go(HaxeWriter writer, SyntaxTokenList modifiers, string name, TypeSyntax type, EqualsValueClauseSyntax initializerOpt = null)
         {
             writer.WriteIndent();
 

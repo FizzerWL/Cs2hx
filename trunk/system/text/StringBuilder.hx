@@ -19,7 +19,7 @@ class StringBuilder
 			buffer = "";
 	}
 	
-	public var length(get_Length, never):Int;
+	public var Length(get_Length, never):Int;
 	
 	public function get_Length():Int
 	{

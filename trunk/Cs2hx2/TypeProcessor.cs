@@ -30,7 +30,7 @@ namespace Cs2hx
 			if (attrs.ContainsKey("ReplaceWithType"))
 				return attrs["ReplaceWithType"];
 
-			var typeInfo = TypeState.Instance.GetModel(node).GetTypeInfo(node).ConvertedType;
+			var typeInfo = TypeState.Instance.GetModel(node).As<ISemanticModel>().GetTypeInfo(node).ConvertedType;
 
 			if (typeInfo == null || typeInfo is ErrorTypeSymbol)
 			{

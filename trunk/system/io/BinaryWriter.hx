@@ -45,7 +45,7 @@ class BinaryWriter
 		writer.writeFullBytes(data, 0, data.length);
 		#end
 	}
-	public function WriteInt32(data:Int):Void
+	public function Write_Int32(data:Int):Void
 	{
 		#if flash
 		writer.writeInt(data);
@@ -53,17 +53,17 @@ class BinaryWriter
 		writer.writeInt32(haxe.Int32.ofInt(data));
 		#end
 	}
-	public function WriteUInt16(data:Int):Void
+	public function Write_UInt16(data:Int):Void
 	{
 		for (i in 0...2)
 			writer.writeByte(data >> (8 * i));
 	}
-	public function WriteInt16(data:Int):Void
+	public function Write_Int16(data:Int):Void
 	{
 		for (i in 0...2)
 			writer.writeByte(data >> (8 * i));
 	}
-	public function WriteUInt32(data:Int):Void //Should be uint...
+	public function Write_UInt32(data:Int):Void //Should be uint...
 	{
 		#if flash
 		writer.writeUnsignedInt(data);
@@ -71,7 +71,7 @@ class BinaryWriter
 		writer.writeUInt30(data);
 		#end
 	}
-	public function WriteString(data:String):Void
+	public function Write_String(data:String):Void
 	{
 		#if flash
 		
@@ -85,7 +85,7 @@ class BinaryWriter
 		throw new Exception("TODO");
 		#end
 	}
-	public function WriteBoolean(data:Bool):Void
+	public function Write(data:Bool):Void
 	{
 		#if flash
 		writer.writeBoolean(data);
@@ -93,15 +93,15 @@ class BinaryWriter
 		writer.writeByte(data ? 1 : 0);
 		#end
 	}
-	public function WriteDouble(data:Float):Void
+	public function Write_Double(data:Float):Void
 	{
 		writer.writeDouble(data);
 	}
-	public function WriteSingle(data:Float):Void
+	public function Write_Single(data:Float):Void
 	{
 		writer.writeFloat(data);
 	}
-	public function WriteByte(data:Int):Void
+	public function Write_Byte(data:Int):Void
 	{
 		writer.writeByte(data);
 	}
@@ -111,9 +111,9 @@ class BinaryWriter
 		var num:Int = value;
 		while (num >= 0x80)
 		{
-			this.WriteByte(num | 0x80);
+			this.Write_Byte(num | 0x80);
 			num = num >> 7;
 		}
-		this.WriteByte(num);
+		this.Write_Byte(num);
 	}
 }

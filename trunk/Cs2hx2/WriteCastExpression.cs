@@ -20,23 +20,29 @@ namespace Cs2hx
 			var destType = TypeState.Instance.GetModel(expression).GetTypeInfo(expression.Type).Type;
 			var destTypeHaxe = TypeProcessor.ConvertType(expression.Type);
 
+			var subExpression = expression.Expression;
 
-			if (destTypeHaxe == "Int" && castingFromHaxe == "Int")
+			//Since we output parenthesis, we can eat one set of them
+			if (subExpression is ParenthesizedExpressionSyntax)
+				subExpression = subExpression.As<ParenthesizedExpressionSyntax>().Expression;
+
+
+			if (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind == SyntaxKind.SlashToken).None())
 			{
-				//Just eat casts from Int to Int.  Enums getting casted to int fall here, and since we use ints to represent enums anyway, it's not necessary
+				//Just eat casts from Int to Int.  Enums getting casted to int fall here, and since we use ints to represent enums anyway, it's not necessary.  Unless we contain the division operator, since haxe division always produces floating points and C# integer division produces integers, so we can't rely on the C# expression type
 				Core.Write(writer, expression.Expression);
 			}
 		    else if (destTypeHaxe == "Int")
             {
                 writer.Write("Std.int(");
-                Core.Write(writer, expression.Expression);
+                Core.Write(writer, subExpression);
                 writer.Write(")");
             }
             else if (destTypeHaxe == "Float")
             {
                 Core.Write(writer, expression.Expression);
             }
-			else if (destType.TypeKind == Roslyn.Compilers.Common.CommonTypeKind.TypeParameter)
+			else if (destType.TypeKind == TypeKind.TypeParameter)
 			{
 				//ignore casts to template types
 				Core.Write(writer, expression.Expression);
@@ -49,7 +55,7 @@ namespace Cs2hx
 			else
 			{
 				writer.Write("cast(");
-				Core.Write(writer, expression.Expression);
+				Core.Write(writer, subExpression);
 				writer.Write(", ");
 				writer.Write(destTypeHaxe);
 				writer.Write(")");

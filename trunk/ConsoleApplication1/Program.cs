@@ -10,7 +10,11 @@ namespace ConsoleApplication1
 	{
 		static void Main(string[] args)
 		{
-			new UnitTestProject1.UnitTest1().Lambda();
+			var t = new UnitTestProject1.UnitTest1();
+
+			t.PreprocessorDirectives();
+
+			//foreach (var m in t.GetType().GetMethods().Where(o => o.GetParameters().Length == 0))				m.Invoke(t, new object[] { });
 		}
 	}
 }

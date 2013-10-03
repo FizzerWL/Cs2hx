@@ -16,15 +16,18 @@ namespace Cs2hx
 		public List<BaseTypeDeclarationSyntax> Partials;
 		public Func<string, IEnumerable<TypeDeclarationSyntax>> GetTypesInNamespace;
 		public string TypeName;
-		public CommonCompilation Compilation;
+		public Compilation Compilation;
 
-		private Dictionary<SyntaxTree, ISemanticModel> _models = new Dictionary<SyntaxTree, ISemanticModel>();
+		private Dictionary<SyntaxTree, SemanticModel> _models = new Dictionary<SyntaxTree, SemanticModel>();
+		public bool DerivesFromObject;
+		public List<VariableDeclaratorSyntax> InstanceFieldsNeedingInitialization;
+		public List<VariableDeclaratorSyntax> StaticFieldsNeedingInitialization;
 
-		public ISemanticModel GetModel(SyntaxNode node)
+		public SemanticModel GetModel(SyntaxNode node)
 		{
 			var tree = node.SyntaxTree;
 
-			ISemanticModel ret;
+			SemanticModel ret;
 			if (_models.TryGetValue(tree, out ret))
 				return ret;
 

@@ -229,7 +229,7 @@ class Linq
 			throw new Exception("No items");
 		return item;
 	}
-	public static function SingleOrDefault<T>(a:Array<T>, where:T -> Bool):T
+	public static function SingleOrDefault_IEnumerable_Func<T>(a:Array<T>, where:T -> Bool):T
 	{
 		var item:T = null;
 		for (val in a)
@@ -297,7 +297,7 @@ class Linq
 			return true;
 		return false;
 	}
-	public static function AnyWhere<T>(a:Array<T>, func:T -> Bool):Bool
+	public static function Any_IEnumerable_Func<T>(a:Array<T>, func:T -> Bool):Bool
 	{
 		for (i in a)
 			if (func(i))
