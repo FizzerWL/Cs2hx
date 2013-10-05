@@ -2,23 +2,21 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{07231F24-F084-4AF5-BE1A-ACB5750DFADD}</ProjectGuid>
+    <ProjectGuid>{9E6DE880-241E-451B-86F1-36EE3E10B316}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cs2hx</RootNamespace>
     <AssemblyName>Cs2hx</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
-    <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -26,49 +24,105 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.NRefactory, Version=3.0.0.3800, Culture=neutral, PublicKeyToken=efe927acf176eea2, processorArchitecture=MSIL">
+    <Reference Include="Roslyn.Compilers, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ref\ICSharpCode.NRefactory.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Roslyn\v1.2\Roslyn.Compilers.dll</HintPath>
+    </Reference>
+    <Reference Include="Roslyn.Compilers.CSharp, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Roslyn\v1.2\Roslyn.Compilers.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Roslyn.Services, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Roslyn\v1.2\Roslyn.Services.dll</HintPath>
+    </Reference>
+    <Reference Include="Roslyn.Services.CSharp, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Roslyn\v1.2\Roslyn.Services.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HaxeWriter.cs" />
+    <Compile Include="Core.cs" />
     <Compile Include="EntryPoint.cs" />
+    <Compile Include="ExpressionOrString.cs" />
+    <Compile Include="OverloadResolver.cs" />
+    <Compile Include="TriviaProcessor.cs" />
+    <Compile Include="WriteArrayCreationExpression.cs" />
+    <Compile Include="WriteBaseExpression.cs" />
+    <Compile Include="WriteBinaryExpression.cs" />
+    <Compile Include="WriteBreakStatement.cs" />
+    <Compile Include="WriteCastExpression.cs" />
+    <Compile Include="WriteConditionalExpression.cs" />
+    <Compile Include="WriteConstructor.cs" />
+    <Compile Include="WriteContinueStatement.cs" />
+    <Compile Include="WriteDoStatement.cs" />
+    <Compile Include="WriteElementAccessExpression.cs" />
+    <Compile Include="WriteEnumBody.cs" />
+    <Compile Include="WriteEqualsValueClause.cs" />
+    <Compile Include="WriteField.cs" />
+    <Compile Include="WriteForEachStatement.cs" />
+    <Compile Include="WriteForStatement.cs" />
+    <Compile Include="WriteIfStatement.cs" />
+    <Compile Include="WriteLambdaExpression.cs" />
+    <Compile Include="WriteLiteralExpression.cs" />
+    <Compile Include="WriteMethod.cs" />
+    <Compile Include="WriteObjectCreationExpression.cs" />
+    <Compile Include="WriteOperatorExpression.cs" />
+    <Compile Include="WriteParenthesizedExpression.cs" />
+    <Compile Include="WriteSwitchStatement.cs" />
+    <Compile Include="WriteTryStatement.cs" />
+    <Compile Include="WriteTypeOfExpression.cs" />
+    <Compile Include="WriteUnaryExpression.cs" />
+    <Compile Include="WriteProperty.cs" />
+    <Compile Include="HaxeWriter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Translations\Method.cs" />
     <Compile Include="Translations\Property.cs" />
     <Compile Include="Translations\Translations.cs" />
     <Compile Include="Translations\Type.cs" />
+    <Compile Include="TypeProcessor.cs" />
     <Compile Include="Utility.cs" />
+    <Compile Include="WriteImports.cs" />
+    <Compile Include="WriteInvocationExpression.cs" />
+    <Compile Include="WriteLocalDeclaration.cs" />
+    <Compile Include="WriteMemberAccessExpression.cs" />
+    <Compile Include="TypeState.cs" />
+    <Compile Include="WriteReturnStatement.cs" />
+    <Compile Include="WriteThisExpression.cs" />
+    <Compile Include="WriteThrowStatement.cs" />
+    <Compile Include="WriteType.cs" />
+    <Compile Include="WriteUsingStatement.cs" />
+    <Compile Include="WriteWhileStatement.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Translations.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -79,12 +133,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
 </Project>

@@ -74,7 +74,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cs2hx2\Cs2hx2.csproj">
+    <ProjectReference Include="..\Cs2hx\Cs2hx.csproj">
       <Project>{9e6de880-241e-451b-86f1-36ee3e10b316}</Project>
       <Name>Cs2hx2</Name>
     </ProjectReference>

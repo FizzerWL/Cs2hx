@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.Ast;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Reflection;
 using System.IO;
 using System.Diagnostics;
 using System.Configuration;
+using Roslyn.Compilers.CSharp;
+
 
 namespace Cs2hx.Translations
 {
@@ -27,87 +28,63 @@ namespace Cs2hx.Translations
                 builtInPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Translations.xml");
 
             var ret = new List<XDocument>();
-            foreach (var path in extra.Concat(builtInPath))
-                ret.Add(XDocument.Load(path));
+            foreach (var xml in extra.Concat(File.ReadAllText(builtInPath)))
+                ret.Add(XDocument.Parse(xml));
 
             return ret;
         }
 
-        public static Translation GetTranslation(TranslationType type, string objectName, TypeReference typeReference)
-        {
-            string sourceTypeName;
+		public static Translation GetTranslation(TranslationType type, string objectName, string sourceTypeName, string arguments = null)
+		{
+			if (string.IsNullOrEmpty(sourceTypeName))
+				sourceTypeName = "*";
 
-            if (typeReference == null || typeReference.IsNull)
-                sourceTypeName = null;
-            else
-                sourceTypeName = typeReference.Type;
+			var matches = Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/" + type.ToString() + "[(not(@SourceObject) or @SourceObject = '*' or @SourceObject = '" + sourceTypeName + "') and @Match='" + objectName + "']")).ToList();
 
-            return GetTranslation(type, objectName, sourceTypeName);
-        }
+			if (matches.Count > 1)
+			{
+				var matches2 = matches.Where(o => o.AttributeOrNull("ArgumentTypes") == arguments).ToList();
 
-        public static Translation GetTranslation(TranslationType type, string objectName, Expression expression)
-        {
-            string source = null;
+				if (matches2.Count > 0)
+					matches = matches2;
+				else
+					matches = matches.Where(o => o.AttributeOrNull("ArgumentTypes") == null).ToList();
 
-            if (expression is IdentifierExpression)
-            {
-                var identifier = expression.As<IdentifierExpression>();
+				if (matches.Count > 1)
+				{
+					matches = matches.Except(matches.Where(o => o.Attribute("SourceObject").Value == "*")).ToList();	
 
-                TypeReference typeRef;
-                if (Utility.TryFindType(identifier, out typeRef))
-                    source = typeRef.Type;
-                else
-                    source = identifier.Identifier;
-            }
-            else if (expression is TypeReferenceExpression)
-                source = expression.As<TypeReferenceExpression>().TypeReference.Type;
-            else if (expression is MemberReferenceExpression && expression.As<MemberReferenceExpression>().TargetObject is ThisReferenceExpression)
-            {
-                //If an expression is simply this.<expr>, we can still easily identify it's type just as we could if it was an identifier
-                var identifier = expression.As<MemberReferenceExpression>().MemberName;
-                TypeReference typeRef;
-                if (Utility.TryFindType(identifier, expression, out typeRef))
-                    source = typeRef.Type;
-                else
-                    source = identifier;
-            }
+				}
+			}
 
-            return GetTranslation(type, objectName, source);
-        }
+			if (matches.Count == 0)
+				return null;
 
-        public static IEnumerable<string> ExtraImports()
-        {
-            return Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/ExtraImport")).Select(o => o.Attribute("Import").Value);
-        }
+			var match = matches.Single();
 
-        public static Translation GetTranslation(TranslationType type, string objectName, string sourceTypeName)
-        {
-            if (string.IsNullOrEmpty(sourceTypeName))
-                sourceTypeName = "*";
+			var trans = (Translation)Activator.CreateInstance(Assembly.GetExecutingAssembly().GetType("Cs2hx.Translations." + match.Name.LocalName));
+			trans.Init(match);
 
-            var matches = Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/" + type.ToString() + "[(@SourceObject = '*' or @SourceObject = '" + sourceTypeName + "') and @Match='" + objectName + "']")).ToList();
+			return trans;
+		}
 
-            if (matches.Count == 0)
-                return null;
+		public static string ExtensionName(NamedTypeSymbol symbol)
+		{
+			var trans = Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/ExtensionType[@Match='" + symbol.ContainingNamespace + "." + symbol.Name + "']")).SingleOrDefault();
 
-            if (matches.Count > 1)
-            {
-                //Try to resolve duplicates.  If one is an exact match and others are a wildcard match, we can safely assume we want the exact match.
-                var exactMatches = matches.Except(matches.Where(o => o.Attribute("SourceObject").Value == "*")).ToList();
+			if (trans == null)
+				return symbol.Name;
+			else
+				return trans.Attribute("ReplaceWith").Value.SubstringAfterLast('.');
+		}
 
-                if (exactMatches.Count == 1)
-                    matches = exactMatches;
-                else
-                    throw new Exception("Multiple matches for " + objectName);
-            }
 
-            var match = matches.Single();
 
-            var trans = (Translation)Activator.CreateInstance(Assembly.GetExecutingAssembly().GetType("Cs2hx.Translations." + match.Name.LocalName));
-            trans.Init(match);
+		public static IEnumerable<string> ExtraImports()
+		{
+			return Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/ExtraImport")).Select(o => o.Attribute("Import").Value);
+		}
 
-            return trans;
-        }
 
         protected virtual void Init(XElement data)
         {
@@ -127,5 +104,6 @@ namespace Cs2hx.Translations
         }
 
 
-    }
+
+	}
 }

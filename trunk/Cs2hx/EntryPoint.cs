@@ -7,6 +7,8 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Xml;
 using System.Diagnostics;
+using Roslyn.Services;
+using Roslyn.Compilers.CSharp;
 
 namespace Cs2hx
 {
@@ -17,79 +19,77 @@ namespace Cs2hx
             try
             {
 
-                Console.WriteLine("C# to haXe Converter by Randy Ficker.\nSee http://www.codeplex.com/cs2hx for full info and documentation.\n\n");
+				Console.WriteLine("C# to haXe Converter\nSee http://www.codeplex.com/cs2hx for full info and documentation.\n\n");
 
-                if (args.Length == 0 || args.Any(o => o == "-?" || o == "--help" || o == "/?"))
-                {
-                    //Print usage
-                    Console.WriteLine(
+				if (args.Length == 0 || args.Any(o => o == "-?" || o == "--help" || o == "/?"))
+				{
+					//Print usage
+					Console.WriteLine(
 @"
 CS2HX can derive your C# source files and pre-processor definitions from a .csproj file or you 
 can specify them yourself.
 
 Usage 1:
-    cs2hx.exe /out:<OutputDirectory> [options] /csproj:<PathToCsprojFile>
-
-Usage 2:
-    cs2hx.exe /out:<OutputDirectory> [options] <SourceFile1> [SourceFile2]...
+    cs2hx.exe  /sln:<path to solution file> [options] 
 
 
 Options available:
 
-    /define:<symbol>            
-        Defines a pre-processor symbol to obey when reading the source file.  The symbol CS2HX is automatically defined for you.
+	/out:<output directory>
+		If not specified, output will be written to the current working directory.
 
-    /extraTranslation:<xml file>
+	/config:<configuration>
+		The configuration within the passed solution file to use.
+
+	/projects:<comma-delimited list of project names>
+		If you don't want to process all projects in the passed solution, you can provide a list of project names.  Only the projects named here will be converted.
+
+    /extraTranslation:<path to xml file>
         Defines extra conversion parameters for use with this project.  See Translations.xml for examples.");
-                    return;
-                }
+					return;
+				}
 
-                var conditionalCompilationSymbols = new List<string>();
-                var sourceFiles = new List<string>();
-                string outDir = Directory.GetCurrentDirectory();
-                //var references = new List<string>();
-                var extraTranslations = new List<string>();
+				var sourceFiles = new List<string>();
+				var outDir = Directory.GetCurrentDirectory();
+				var extraTranslations = new List<string>();
+				string pathToSolution = null;
+				string config = null;
+				string projects = null;
 
-                foreach (var arg in args)
-                {
-                    if (arg.StartsWith("/define:"))
-                        conditionalCompilationSymbols.Add(arg.Substring(8));
-                    //else if (arg.StartsWith("/ref:"))
-                    //    references.Add(arg.Substring(5));
-                    else if (arg.StartsWith("/extraTranslation:"))
-                        extraTranslations.Add(arg.Substring(18));
-                    else if (arg.StartsWith("/out:"))
-                        outDir = arg.Substring(5);
-                    else if (arg.StartsWith("/csproj:"))
-                    {
-                        var csProjPath = arg.Substring(8);
-                        var csproj = XDocument.Load(csProjPath);
-                        var nsMgr = new XmlNamespaceManager(new NameTable());
-                        nsMgr.AddNamespace("r", "http://schemas.microsoft.com/developer/msbuild/2003");
+				foreach (var arg in args)
+				{
+					if (arg.StartsWith("/extraTranslation:"))
+						extraTranslations.Add(File.ReadAllText(arg.Substring(18)));
+					else if (arg.StartsWith("/out:"))
+						outDir = arg.Substring(5);
+					else if (arg.StartsWith("/sln:"))
+						pathToSolution = arg.Substring(5);
+					else if (arg.StartsWith("/config:"))
+						config = arg.Substring(8);
+					else if (arg.StartsWith("/projects:"))
+						projects = arg.Substring(10);
+					else
+						throw new Exception("Invalid argument: " + arg);
+				}
 
-                        conditionalCompilationSymbols.AddRange(
-                            csproj.XPathSelectElements("/r:Project/r:PropertyGroup/r:DefineConstants", nsMgr).First()
-                            .Value.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(o => o.Trim()));
+				if (pathToSolution == null)
+					throw new Exception("/sln parameter not passed");
 
-                        sourceFiles.AddRange(csproj.XPathSelectElements("/r:Project/r:ItemGroup/r:Compile", nsMgr)
-                            .Select(o => o.Attribute("Include").Value)
-                            .Select(o => Path.Combine(Path.GetDirectoryName(csProjPath), o)));
+				var solution = Solution.Load(pathToSolution, config);
 
-                        //references.AddRange(csproj.XPathSelectElements("/r:Project/r:ItemGroup/r:Reference").Select(o => GetReferencePath(o, csProjPath)));
-                    }
-                    else if (arg.StartsWith("/"))
-                        throw new Exception("Invalid argument: " + arg);
-                    else
-                        sourceFiles.Add(arg);
-                }
+				var projectsList = solution.Projects.ToList();
 
-                var sw = Stopwatch.StartNew();
+				if (projects != null)
+					TrimList(projectsList, projects);
 
-                new Program().Go(sourceFiles, outDir, conditionalCompilationSymbols, extraTranslations);
+				foreach (var project in projectsList)
+				{
+					Console.WriteLine("Building project " + project.Name + "...");
 
-                Console.WriteLine("Completed in " + sw.Elapsed.TotalSeconds + " seconds");
+					Program.Go((Compilation)project.GetCompilation(), outDir, extraTranslations);
+				}
 
-                Environment.ExitCode = 0;
+				Environment.ExitCode = 0;
             }
             catch (Exception ex)
             {
@@ -99,37 +99,25 @@ Options available:
             }
         }
 
-        ///// <summary>
-        ///// Attempts to locate the assembly based on the reference in the csProj file.
-        ///// TODO: Find a better way of resolving system assemblies rather than just scanning through the gac dir
-        ///// </summary>
-        ///// <param name="referenceNode"></param>
-        ///// <param name="csProjPath"></param>
-        ///// <returns></returns>
-        //private static string GetReferencePath(XElement referenceNode, string csProjPath)
-        //{
-        //    var hint = referenceNode.Elements().FirstOrDefault(o => o.Name.LocalName == "HintPath");
+		private static void TrimList(List<IProject> projectsList, string projectsCsv)
+		{
+			var split = projectsCsv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        //    if (hint != null)
-        //        return Path.Combine(csProjPath, hint.Value);
+			for (int i = 0; i < projectsList.Count; i++)
+			{
+				var si = split.IndexOf(projectsList[i].Name);
+				if (si != -1)
+					split.RemoveAt(si);
+				else
+				{
+					projectsList.RemoveAt(i);
+					i--;
+				}
+			}
 
-        //    var assemblyString = referenceNode.Attribute("Include").Value;
+			if (split.Count > 0)
+				throw new Exception("Project(s) not found: " + string.Join(", ", split));
+		}
 
-        //    var assemblyDir = Path.Combine(Environment.GetEnvironmentVariable("WINDIR"), @"assembly");
-        //    var searchResults = Directory.GetFiles(assemblyDir, assemblyString + ".dll", SearchOption.AllDirectories);
-
-        //    if (searchResults.Length == 1)
-        //        return searchResults[0];
-        //    else if (searchResults.Length == 0)
-        //    {
-        //        Console.WriteLine("Warning: Could not find assembly " + assemblyString + ". Skipping.");
-        //        return null;
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("Warning: Found duplicate assemblies for " + assemblyString + ". Using the first one...");
-        //        return searchResults[0];
-        //    }
-        //}
     }
 }
