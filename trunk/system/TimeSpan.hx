@@ -96,13 +96,13 @@ class TimeSpan
 	{
 		return _totalMilliseconds;
 	}
-	public function Add(date : Date) : Date
+	public function AddDate(date:Date):Date
 	{
 		var ms:Float = date.getTime();
 		ms += TotalMilliseconds;
 		return Date.fromTime(ms);
 	}
-	public function AddSpan(span:TimeSpan):TimeSpan
+	public function Add(span:TimeSpan):TimeSpan
 	{
 		return new TimeSpan(span.TotalMilliseconds + this.TotalMilliseconds);
 	}

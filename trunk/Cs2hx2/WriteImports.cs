@@ -14,7 +14,25 @@ namespace Cs2hx
 {
 	public static class WriteImports
 	{
+		static Dictionary<string, string> _allTypes;
 
+		public static void Init(IEnumerable<BaseTypeDeclarationSyntax> codeTypes)
+		{
+			//Start with all system files
+			_allTypes = SystemImports.ToDictionary(o => o.SubstringAfterLast('.'), o => o);
+
+			//Allow users to specify extra import statements in the xml file
+			foreach (var extra in Translations.Translation.ExtraImports())
+				_allTypes.Add(extra.SubstringAfterLast('.'), extra);
+
+			//Add types we reference from haxe libraries
+			_allTypes.Add("Bytes", "haxe.io.Bytes");
+
+			foreach (var codeType in codeTypes)
+				_allTypes.Add(codeType.Identifier.ValueText, codeType.Parent.As<NamespaceDeclarationSyntax>().Name.ToString().ToLower() + "." + codeType.Identifier.ValueText);
+		}
+
+		#region Standard imports
 		/// <summary>
 		/// Anything that we need always available, even if nothing in user code references it.
 		/// </summary>
@@ -28,7 +46,7 @@ import system.Exception;";
 		static private string[] _systemImports;
 
 
-		static public string[] SystemImports
+		static string[] SystemImports
 		{
 			get
 			{
@@ -89,56 +107,18 @@ import system.Exception;";
 
 			return package.Groups["packageName"].Value + "." + type.Groups["typeName"].Value;
 		}
-		
+
+		#endregion
+
 
 		public static void Go(HaxeWriter writer)
 		{
 			var partials = TypeState.Instance.Partials;
 
-			//Write import statements.  First, all StandardImports are always considered
-			var imports = SystemImports.ToList();
-
-			//Also allow users to specify extra import statements in the xml file
-			imports.AddRange(Translations.Translation.ExtraImports());
-
-			//Add types we reference from haxe libraries
-			imports.Add("haxe.io.Bytes");
-
-			//Add in imports from the using statements
-			partials.SelectMany(o => o.Parent.ChildNodes().OfType<UsingDirectiveSyntax>())
-				.Concat(partials.SelectMany(o => o.Parent.Parent.ChildNodes().OfType<UsingDirectiveSyntax>()))
-				.Select(o => o.Name.ToString())
-				.Distinct()
-				.Where(o => !o.StartsWith("System.") && o != "System") //system usings are handled by our standard imports
-				//.Where(o => !o.EndsWith("Attribute")) //exclude attributes, since those don't get generated into haxe at all.
-				.OrderBy(o => o)
-				.ToList()
-				.ForEach(usingDeclaration =>
-				imports.AddRange(TypeState.Instance.GetTypesInNamespace(usingDeclaration).Select(t => usingDeclaration.ToLower() + "." + t.Identifier.ValueText)));
-
-			//Filter out anything that's excluded by preprocessor directives
-			//imports = imports.Except(Program.DoNotWrite.Keys.OfType<ClassDeclarationSyntax>().Select(o => o.Parent.As<NamespaceDeclarationSyntax>().Name + "." + o.Identifier.ValueText)).ToList();
-
-			//Filter out any ones that aren't being used by this file
-			imports = FilterUnusedImports(imports, partials);
-
-			//Cs2hx is always present, since we can't easily determine if it should be filtered
+			//Standard ones are always present, since we can't easily determine if it should be filtered
 			writer.WriteLine(StandardImports);
 
-			//Write the imports
-			foreach (var import in imports.OrderBy(o => o))
-				writer.WriteLine("import " + import + ";");
-
-
-		}
-
-		/// <summary>
-		/// Filters out import statements that we know aren't needed.
-		/// This algorithm isn't perfect, and in some edge cases will leave extra import statements that aren't needed.  These don't cause any problems, though, they just look ugly.
-		/// </summary>
-		private static List<string> FilterUnusedImports(List<string> imports, IEnumerable<BaseTypeDeclarationSyntax> partials)
-		{
-			var allNodes = partials.SelectMany(classType => classType.DescendantNodesAndSelf());
+			var allNodes = partials.SelectMany(classType => DescendantNodes(classType));
 			var typesReferenced = allNodes.OfType<TypeSyntax>()
 				.Select(o => TypeProcessor.TryConvertType(o))
 				.Where(o => o != null)
@@ -154,7 +134,7 @@ import system.Exception;";
 				.OfType<NamedTypeSymbol>()
 				.Where(o => o.Kind == SymbolKind.NamedType))
 				typesReferenced.Add(symbol.Name);
-				
+
 			//Add in extension methods.
 			foreach (var symbol in allNodes.OfType<InvocationExpressionSyntax>()
 				.Select(o => TypeState.Instance.GetModel(o).GetSymbolInfo(o).Symbol.As<MethodSymbol>().UnReduce())
@@ -164,8 +144,31 @@ import system.Exception;";
 			foreach (var doNotWrite in Program.DoNotWriteTypeNames.Keys)
 				typesReferenced.Remove(doNotWrite);
 
+			//Don't import ourself
+			typesReferenced.Remove(TypeState.Instance.TypeName);
 
-			return imports.Where(o => typesReferenced.Contains(o.SubstringAfterLast('.'))).Distinct().ToList();
+			var imports = _allTypes.Where(o => typesReferenced.Contains(o.Key)).Select(o => o.Value);
+
+			//Write the imports
+			foreach (var import in imports.OrderBy(o => o))
+				writer.WriteLine("import " + import + ";");
+
+
+		}
+
+		private static IEnumerable<SyntaxNode> DescendantNodes(SyntaxNode node)
+		{
+			foreach (var child in node.ChildNodes())
+			{
+				if (child is AttributeSyntax)
+					continue;
+
+				yield return child;
+
+				foreach (var c2 in DescendantNodes(child))
+					yield return c2;
+
+			}
 		}
 
 

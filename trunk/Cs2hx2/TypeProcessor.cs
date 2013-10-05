@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Roslyn.Compilers;
 using Roslyn.Compilers.Common;
 using Roslyn.Compilers.CSharp;
@@ -13,7 +15,7 @@ namespace Cs2hx
         public static string DefaultValue(TypeSyntax type)
         {
 			var t = TypeState.Instance.GetModel(type).GetTypeInfo(type).Type;
-			if (t.IsValueType == false)
+			if (t.IsValueType == false || t.Name == "Nullable")
 				return "null";
 			else if (t.SpecialType == SpecialType.System_Boolean)
 				return "false";
@@ -74,14 +76,28 @@ namespace Cs2hx
 				return ":" + ret;
 		}
 
+		private static ConcurrentDictionary<TypeSymbol, string> _cachedTypes = new ConcurrentDictionary<TypeSymbol, string>();
+
 		public static string ConvertType(TypeSymbol typeInfo)
 		{
+			string cachedValue;
+			if (_cachedTypes.TryGetValue(typeInfo, out cachedValue))
+				return cachedValue;
+
+			cachedValue = ConvertTypeUncached(typeInfo);
+			_cachedTypes.TryAdd(typeInfo, cachedValue);
+			return cachedValue;
+		}
+
+		private static string ConvertTypeUncached(TypeSymbol typeInfo)
+		{
+
 			var array = typeInfo as ArrayTypeSymbol;
 
 			if (array != null)
 			{
-				if (array.ElementType.ToString() == "byte") //TODO
-					return "Bytes"; //byte array becomes the Bytes type
+				if (array.ElementType.ToString() == "byte")
+					return "Bytes"; //byte arrays become haxe.io.Bytes
 				else
 					return "Array<" + ConvertType(array.ElementType) + ">";
 			}
@@ -109,7 +125,7 @@ namespace Cs2hx
 			}
 
 			if (named != null && named.IsGenericType && !named.IsUnboundGenericType)
-				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", named.TypeArguments.ToList().Select(o => ConvertType(o))) + ">";
+				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", TypeArguments(named).Select(o => ConvertType(o))) + ">";
 
 			var typeStr = GenericTypeName(typeInfo);
 
@@ -149,6 +165,9 @@ namespace Cs2hx
 				case "System.Collections.Generic.Queue<>":
 				case "System.Collections.Generic.Stack<>":
 				case "System.Collections.Generic.IEnumerable<>":
+				case "System.Collections.Generic.Dictionary<,>.ValueCollection":
+				case "System.Collections.Generic.Dictionary<,>.KeyCollection":
+				case "System.Linq.IOrderedEnumerable<>":
 					return "Array";
 
 				case "System.Array":
@@ -169,6 +188,25 @@ namespace Cs2hx
 			}
 
         }
+
+		private static IEnumerable<TypeSymbol> TypeArguments(NamedTypeSymbol named)
+		{
+			if (named.ContainingType != null)
+			{
+				//Hard-code generic types for subclasses, since I can't find a way to determine them programatically
+				switch (named.Name)
+				{
+					case "ValueCollection":
+						return new[] { named.ContainingType.TypeArguments.ElementAt(1) };
+					case "KeyCollection":
+						return new[] { named.ContainingType.TypeArguments.ElementAt(0) };
+					default:
+						throw new Exception("Handler for generic subclass " + named);
+				}
+			}
+
+			return named.TypeArguments.ToList();
+		}
 
 		//public static string ConvertRawType(TypeSyntax type, bool ignoreGenericArguments = false)
 		//{
@@ -240,8 +278,8 @@ namespace Cs2hx
 				return null;
 			else if (typeStr.EndsWith("[]"))
 				return "System.Array";
-			else 
-				return typeStr.TrimEnd(new[] { '>', '<', ',' });
+			else
+				return Regex.Replace(typeStr, @"[<>,]", "");
 		}
 
 		public static string RemoveGenericArguments(string haxeType)

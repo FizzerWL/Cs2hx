@@ -14,7 +14,6 @@ namespace Cs2hx
 		public static TypeState Instance;
 
 		public List<BaseTypeDeclarationSyntax> Partials;
-		public Func<string, IEnumerable<TypeDeclarationSyntax>> GetTypesInNamespace;
 		public string TypeName;
 		public Compilation Compilation;
 

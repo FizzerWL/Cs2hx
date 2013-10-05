@@ -5,7 +5,7 @@
   <Method SourceObject="System.String" Match="IndexOf" ReplaceWith="indexOf" />
   <Method SourceObject="System.String" Match="LastIndexOf" ReplaceWith="lastIndexOf" />
   <Method SourceObject="System.String" Match="Substring" ReplaceWith="substr" />
-  <Method SourceObject="System.String" Match="Split" ReplaceWith="split" />
+  <Method SourceObject="System.String" Match="Split" ReplaceWith="Split" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="Replace" ReplaceWith="replace" />
   <Method SourceObject="System.String" Match="ToLower" ReplaceWith="toLowerCase" />
   <Method SourceObject="System.String" Match="ToUpper" ReplaceWith="toUpperCase" />
@@ -19,6 +19,7 @@
   <Method SourceObject="System.Char" Match="IsLetterOrDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.Char" Match="IsDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
 
+  <Property SourceObject="System.Collections.Generic.Queue" Match="Count" ReplaceWith="length" />
   <Method SourceObject="System.Collections.Generic.Queue" Match="Enqueue" ReplaceWith="push" />
   <Method SourceObject="System.Collections.Generic.Queue" Match="Dequeue" ReplaceWith="shift" />
   <Method SourceObject="System.Collections.Generic.Queue" Match="Peek" ReplaceWith="First" ExtensionNamespace="system.linq.Linq" />
@@ -34,9 +35,16 @@
   <Property SourceObject="System.Array" Match="Length" ReplaceWith="length" />
 
   <Property SourceObject="System.Collections.Generic.Dictionary" Match="Count" ReplaceWith="length" />
+  <Property SourceObject="System.Collections.Generic.Dictionary.KeyCollection" Match="Count" ReplaceWith="length" />
+  <Property SourceObject="System.Collections.Generic.Dictionary.ValueCollection" Match="Count" ReplaceWith="length" />
+
+  <Property SourceObject="System.Collections.Generic.HashSet" Match="Count" ReplaceWith="length" />
+
 
   <Property SourceObject="System.Collections.Generic.List" Match="Count" ReplaceWith="length" />
+  <Property SourceObject="System.Collections.Generic.IList" Match="Count" ReplaceWith="length" />
   <Method SourceObject="System.Collections.Generic.List" Match="Reverse" ReplaceWith="reverse" />
+  <Method SourceObject="System.Collections.Generic.List" Match="ToArray" ReplaceWith="ToArray" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="Add" ReplaceWith="push" />
   <Method SourceObject="System.Collections.Generic.List" Match="Clear" ReplaceWith="splice">
     <Argument Location="0" Action="Insert 0" />
@@ -64,8 +72,11 @@
     <Argument Location="0" Action="Insert {genericType}" />
   </Method>
   
+  <Method SourceObject="System.Math" Match="Max" ArgumentTypes="int int" ReplaceWith="MaxInt" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.Math" Match="Max" ReplaceWith="max" />
+  <Method SourceObject="System.Math" Match="Min" ArgumentTypes="int int" ReplaceWith="MinInt" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.Math" Match="Min" ReplaceWith="min" />
+  <Method SourceObject="System.Math" Match="Abs" ArgumentTypes="int" ReplaceWith="AbsInt" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.Math" Match="Abs" ReplaceWith="abs" />
   <Method SourceObject="System.Math" Match="Sqrt" ReplaceWith="sqrt" />
   <Method SourceObject="System.Math" Match="Atan" ReplaceWith="atan" />

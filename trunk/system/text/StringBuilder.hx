@@ -26,7 +26,7 @@ class StringBuilder
 		return buffer.length;
 	}
 	
-	public function Insert(location:Int, ins:String):Void
+	public function Insert_Int32_String(location:Int, ins:String):Void
 	{
 		buffer = buffer.substr(0, location) + ins + buffer.substr(location);
 	}
@@ -43,7 +43,7 @@ class StringBuilder
 	
 	public inline function InsertChar(location:Int, char:Int):Void
 	{
-		Insert(location, String.fromCharCode(char));
+		Insert_Int32_String(location, String.fromCharCode(char));
 	}
 	
 	public inline function AppendChar(char:Int):Void

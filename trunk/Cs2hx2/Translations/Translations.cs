@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Configuration;
 using Roslyn.Compilers.CSharp;
 
+
 namespace Cs2hx.Translations
 {
     abstract class Translation
@@ -33,26 +34,31 @@ namespace Cs2hx.Translations
             return ret;
         }
 
-		public static Translation GetTranslation(TranslationType type, string objectName, string sourceTypeName)
+		public static Translation GetTranslation(TranslationType type, string objectName, string sourceTypeName, string arguments = null)
 		{
 			if (string.IsNullOrEmpty(sourceTypeName))
 				sourceTypeName = "*";
 
 			var matches = Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/" + type.ToString() + "[(not(@SourceObject) or @SourceObject = '*' or @SourceObject = '" + sourceTypeName + "') and @Match='" + objectName + "']")).ToList();
 
-			if (matches.Count == 0)
-				return null;
-
 			if (matches.Count > 1)
 			{
-				//Try to resolve duplicates.  If one is an exact match and others are a wildcard match, we can safely assume we want the exact match.
-				var exactMatches = matches.Except(matches.Where(o => o.Attribute("SourceObject").Value == "*")).ToList();
+				var matches2 = matches.Where(o => o.AttributeOrNull("ArgumentTypes") == arguments).ToList();
 
-				if (exactMatches.Count == 1)
-					matches = exactMatches;
+				if (matches2.Count > 0)
+					matches = matches2;
 				else
-					throw new Exception("Multiple matches for " + objectName);
+					matches = matches.Where(o => o.AttributeOrNull("ArgumentTypes") == null).ToList();
+
+				if (matches.Count > 1)
+				{
+					matches = matches.Except(matches.Where(o => o.Attribute("SourceObject").Value == "*")).ToList();	
+
+				}
 			}
+
+			if (matches.Count == 0)
+				return null;
 
 			var match = matches.Single();
 

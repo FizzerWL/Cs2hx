@@ -5,15 +5,28 @@ using System.Text;
 using System.Diagnostics;
 using Roslyn.Compilers.CSharp;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Cs2hx
 {
     public static class Utility
     {
+		public static string AttributeOrNull(this XElement element, string attrName)
+		{
+			var a = element.Attribute(attrName);
+			if (a == null)
+				return null;
+			else
+				return a.Value;
+		}
+
 		public static void Parallel<T>(List<T> list, Action<T> action)
 		{
-			//list.ForEach(action);
+#if true
 			System.Threading.Tasks.Parallel.ForEach(list, action);
+#else
+			list.ForEach(action);
+#endif
 		}
 
         public static T As<T>(this object o)

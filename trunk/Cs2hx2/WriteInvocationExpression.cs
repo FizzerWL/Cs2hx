@@ -14,7 +14,7 @@ namespace Cs2hx
 			var symbolInfo = TypeState.Instance.GetModel(invocationExpression).GetSymbolInfo(invocationExpression);
 			var methodSymbol = symbolInfo.Symbol.As<MethodSymbol>().UnReduce();
 
-			var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, methodSymbol.Name, methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name) as Method;
+			var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, methodSymbol.Name, methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name, string.Join(" ", methodSymbol.Parameters.ToList().Select(o => o.Type.ToString()))) as Method;
 			var memberReferenceExpressionOpt = invocationExpression.Expression as MemberAccessExpressionSyntax;
 			var returnTypeHaxe = TypeProcessor.ConvertType(methodSymbol.ReturnType);
 			var firstParameter = true;
@@ -123,15 +123,40 @@ namespace Cs2hx
 			else
 			{
 				//Check against lowercase toString since it gets replaced with the haxe name before we get here
-				if (memberReferenceExpressionOpt != null && methodName == "toString")
+				if (memberReferenceExpressionOpt != null)
 				{
 					var memberTypeHaxe = TypeProcessor.ConvertType(TypeState.Instance.GetModel(memberReferenceExpressionOpt).GetTypeInfo(memberReferenceExpressionOpt.Expression).Type);
 
-					if (memberTypeHaxe == "Int" || memberTypeHaxe == "Float")
+					//sort calls without any parameters need to get the default sort parameter
+					if (methodName == "sort" && invocationExpression.ArgumentList.Arguments.Count == 0)
+					{
+						Core.Write(writer, memberReferenceExpressionOpt.Expression);
+						writer.Write(".sort(");
+
+						switch (memberTypeHaxe)
+						{
+							case "Array<Int>":
+								writer.Write("Cs2Hx.SortInts");
+								break;
+							case "Array<Float>":
+								writer.Write("Cs2Hx.SortFloats");
+								break;
+							case "Array<String>":
+								writer.Write("Cs2Hx.SortStrings");
+								break;
+							default:
+								throw new Exception("Unknown default sort type: " + memberTypeHaxe + ".  " + Utility.Descriptor(invocationExpression));
+						}
+
+						writer.Write(")");
+						return;
+					}
+
+					if (methodName == "toString" && (memberTypeHaxe == "Int" || memberTypeHaxe == "Float"))
 					{
 						//ToString()'s on primitive types get replaced with Std.string
 						writer.Write("Std.string(");
-						Core.Write(writer, memberReferenceExpressionOpt.Expression); //TODO: What if this is null?
+						Core.Write(writer, memberReferenceExpressionOpt.Expression);
 						writer.Write(")");
 
 						if (invocationExpression.ArgumentList.Arguments.Count > 0)
@@ -151,6 +176,7 @@ namespace Cs2hx
 				writer.Write("(");
 			}
 
+
             foreach (var arg in TranslateParameters(translateOpt, invocationExpression.ArgumentList.Arguments, invocationExpression))
             {
                 if (firstParameter)
@@ -166,23 +192,7 @@ namespace Cs2hx
 		}
 
 
-		//else if (methodName == "sort" && invocationExpression.ArgumentList.Arguments.Count == 0)
-		//{
-		//	//Sorts without parameters need to get the default sort function added
-		//	Core.Write(writer, memberReferenceExpression.Expression);
-		//	writer.Write(".");
-
-		//	switch (varType)
-		//	{
-		//		case "Array<Int>":
-		//			writer.Write("sort(Cs2Hx.SortInts)");
-		//			break;
-		//		case "Array<Float>":
-		//			writer.Write("sort(Cs2Hx.SortFloats)");
-		//			break;
-		//		default:
-		//			throw new Exception("Unknown default sort type: " + varType + ".  " + Utility.Descriptor(invocationExpression));
-		//	}
+		//else 
 
 		//	return;
 		//}

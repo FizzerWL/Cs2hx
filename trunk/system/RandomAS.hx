@@ -6,7 +6,7 @@ class RandomAS
 	{
 	}
 	
-	public function Next(max:Int):Int
+	public function Next_Int32(max:Int):Int
 	{
 		return Std.random(max);
 	}

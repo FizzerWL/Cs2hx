@@ -85,9 +85,13 @@ namespace Cs2hx
                 writer.Write(";\r\n");
             }
 
-            if (ctorOpt != null && ctorOpt.Body != null)
-				foreach(var statement in ctorOpt.Body.As<BlockSyntax>().Statements)
+			if (ctorOpt != null && ctorOpt.Body != null)
+			{
+				foreach (var statement in ctorOpt.Body.As<BlockSyntax>().Statements)
 					Core.Write(writer, statement);
+
+				TriviaProcessor.ProcessTrivias(writer, ctorOpt.Body.DescendantTrivia());
+			}
 
             writer.WriteCloseBrace();
         }

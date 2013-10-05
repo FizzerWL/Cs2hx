@@ -11,7 +11,7 @@ class UTF8Encoding
 		return "";
 	}
 	
-	public function GetBytes(str:String):Bytes
+	public function GetBytes_String(str:String):Bytes
 	{
 		/*
 		//This works in flash on Windows and Mac, but not Linux.  Commented out until a solution can be found that works everywhere.

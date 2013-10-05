@@ -14,16 +14,21 @@ namespace Cs2hx
 		static ConcurrentHashSet<SyntaxTrivia> _triviaProcessed = new ConcurrentHashSet<SyntaxTrivia>();
 		public static void ProcessNode(HaxeWriter writer, SyntaxNode node)
 		{
+			ProcessTrivias(writer, node.GetLeadingTrivia());
+		}
+
+		public static void ProcessTrivias(HaxeWriter writer, IEnumerable<SyntaxTrivia> trivias)
+		{
 			bool literalCode = false; //if we encounter a #if CS2HX, we set this to true, which indicates that the next DisabledTextTrivia should be written as pure code.   
 
-			foreach (var trivia in node.GetLeadingTrivia())
+			foreach (var trivia in trivias)
 			{
-				if (_triviaProcessed.Add(trivia))
+				if (_triviaProcessed.Add(trivia)) //ensure we don't look at the same trivia multiple times
 				{
 
 					if (trivia.Kind == SyntaxKind.IfDirectiveTrivia)
 					{
-						var cond = trivia.ToString().Trim().RemoveFromStartOfString("#if ").Trim();
+						var cond = GetCondition(trivia, "#if ");
 						if (cond == "CS2HX")
 							literalCode = true;
 					}
@@ -34,6 +39,21 @@ namespace Cs2hx
 					}
 				}
 			}
+		}
+
+		private static string GetCondition(SyntaxTrivia trivia, string lineStart)
+		{
+			var str = trivia.ToString().Trim().RemoveFromStartOfString("#if ").Trim();
+
+			int i = str.IndexOf("//");
+			if (i != -1)
+				str = str.Substring(0, i).Trim();
+
+			i = str.IndexOf("/*");
+			if (i != -1)
+				str = str.Substring(0, i).Trim();
+
+			return str;
 		}
 
 		/// <summary>
@@ -72,7 +92,7 @@ namespace Cs2hx
 								if (elseCount > 0)
 									elseCount++;
 
-								var cond = trivia.ToString().Trim().RemoveFromStartOfString("#if ").Trim();
+								var cond = GetCondition(trivia, "#if ");
 
 								if (cond == "!CS2HX" && skipCount == 0)
 									skipCount = 1;

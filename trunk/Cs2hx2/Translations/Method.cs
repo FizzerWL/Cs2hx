@@ -14,6 +14,7 @@ namespace Cs2hx.Translations
         public List<ArgumentModifier> Arguments { get; set; }
         public string ExtensionNamespace { get; set; }
         public bool SkipExtensionParameter { get; set; }
+		public string ArgumentTypes { get; set; }
 
 		public bool HasComplexReplaceWith
 		{

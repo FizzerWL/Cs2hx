@@ -83,6 +83,9 @@ namespace Cs2hx
                 writer.WriteOpenBrace();
                 foreach (var statement in method.Body.Statements)
 					Core.Write(writer, statement);
+
+				TriviaProcessor.ProcessTrivias(writer, method.Body.DescendantTrivia());
+
                 writer.WriteCloseBrace();
             }
         }

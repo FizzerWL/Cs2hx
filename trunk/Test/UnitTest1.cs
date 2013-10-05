@@ -69,7 +69,7 @@ namespace Blargh
 #else
 			Console.WriteLine(""not1"");
 #endif
-#if CS2HX
+#if CS2HX //comment
 			Console.WriteLine(""cs2hx2"");
 #else
 
@@ -81,9 +81,9 @@ namespace Blargh
 #endif
 			Console.WriteLine(""outside"");
 
-//#if CS2HX //todo
-//			Console.WriteLine(""cs2hx3"");
-//#endif
+#if CS2HX
+			Console.WriteLine(""cs2hx3"");
+#endif
         }
     }
 }", @"
@@ -99,6 +99,7 @@ class SomeClass
 		Console.WriteLine(""cs2hx1"");
 		Console.WriteLine(""cs2hx2"");
 		Console.WriteLine(""outside"");
+		Console.WriteLine(""cs2hx3"");
     }
 }");
 		}
@@ -449,6 +450,7 @@ class Top
 			var haxe2 = @"
 package blargh;
 " + WriteImports.StandardImports + @"
+import blargh.Top;
 
 class Derived extends Top
 {
@@ -862,6 +864,8 @@ namespace Blargh
             Console.WriteLine(hash.Contains(999));
             foreach(int hashItem in hash)
                 Console.WriteLine(hashItem);
+
+			var vals = dict.Values;
         }
     }
 }", @"
@@ -897,6 +901,8 @@ class Utilities
         {
             Console.WriteLine_Int32(hashItem);
         }
+
+		var vals:Array<Int> = dict.Values;
     }
     public function new()
     {
@@ -992,6 +998,8 @@ class UnNumbered
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
+import blargh.MostlyNumbered;
+import blargh.UnNumbered;
 class Clazz
 {
     public static function Methodz():Void
@@ -1138,6 +1146,9 @@ namespace Blargh
         public static void OverOne()
         {
             OverOne(3);
+			Math.Max(3, 3);
+			Math.Max(4.0, 4.0);
+			Math.Max(5f, 5f);
         }
 
         public static void OverOne(int param)
@@ -1168,6 +1179,9 @@ class Utilities
 	public static function OverOne():Void
 	{
 		OverOne_Int32(3);
+		Cs2Hx.MaxInt(3, 3);
+		Math.max(4.0, 4.0);
+		Math.max(5, 5);
 	}
 	public static function OverOne_Int32(param:Int):Void
 	{
@@ -1346,6 +1360,8 @@ class TopLevel
     @"
 package blargh;
 " + WriteImports.StandardImports + @"
+import blargh.TopLevel;
+
 class Derived extends TopLevel
 {
     override public function AbstractMethod():Void
@@ -1519,6 +1535,7 @@ interface ITesting
   @"
 package blargh;
 " + WriteImports.StandardImports + @"
+import blargh.ITesting;
 
 class Pokable implements ITesting
 {
@@ -1703,6 +1720,7 @@ namespace Blargh
             list.Add(""Three"");
             list.RemoveAt(0);
             list.Insert(4, ""Seven"");
+			list.Sort();
 
             var stack = new Stack<int>();
             stack.Push(9);
@@ -1728,11 +1746,12 @@ class Utilities
         list.push(""Three"");
         list.splice(0, 1);
         list.insert(4, ""Seven"");
+		list.sort(Cs2Hx.SortStrings);
 
         var stack:Array<Int> = new Array<Int>();
         stack.push(9);
         stack.push(3);
-        Math.max(stack.pop(), stack.pop());
+        Cs2Hx.MaxInt(stack.pop(), stack.pop());
     }
     public function new()
     {

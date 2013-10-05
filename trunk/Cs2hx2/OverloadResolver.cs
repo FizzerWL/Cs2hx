@@ -39,22 +39,33 @@ namespace Cs2hx
 			
 			if (method == defaultOverloadOpt || method.ConstructedFrom == defaultOverloadOpt)
 				return method.Name; //as an optimization, the overload that takes the fewest parameters gets its default name, as long as there's only one with that number
+
+			var typelessName = ExpandedMethodName(method, false);
+
+			//if (method.TypeArguments.Count == 0)
+				return typelessName;
+
+
+		}
+
+		private static string ExpandedMethodName(MethodSymbol method, bool includeTypes)
+		{
 			
 			var ret = new StringBuilder(20);
 
 			ret.Append(method.Name);
 			ret.Append("_");
 
-			//if (method.TypeArguments.Count > 0)
-			//{
-			//	foreach (var typeArg in method.TypeArguments)
-			//	{
-			//		ret.Append(typeArg.Name);
-			//		ret.Append("_");
-			//	}
+			if (includeTypes && method.TypeArguments.Count > 0)
+			{
+				foreach (var typeArg in method.TypeArguments)
+				{
+					ret.Append(typeArg.Name);
+					ret.Append("_");
+				}
 
-			//	ret.Append("_");
-			//}
+				ret.Append("_");
+			}
 
 			foreach (var param in method.Parameters)
 			{

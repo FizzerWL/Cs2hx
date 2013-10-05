@@ -100,7 +100,7 @@ class Linq
 	}
 	
 	
-	public static function FirstWhere<T>(a:Array<T>, match:T -> Bool):T
+	public static function First_IEnumerable_Func<T>(a:Array<T>, match:T -> Bool):T
 	{
 		for(i in a)
 			if (match(i))
@@ -145,7 +145,7 @@ class Linq
 
 		return ret;
 	}
-	public static function CountWhere<T>(a:Array<T>, match:T -> Bool):Int
+	public static function Count_IEnumerable_Func<T>(a:Array<T>, match:T -> Bool):Int
 	{
 		var i:Int = 0;
 		for(e in a)
@@ -170,7 +170,7 @@ class Linq
 		return ret;
 	}
 	
-	public static function All(a:Array<Bool>):Bool
+	public static function AllTrue(a:Array<Bool>):Bool //TODO: What should this be named?
 	{
 		for (v in a)
 			if (!v)
@@ -178,7 +178,7 @@ class Linq
 		return true;
 	}
 	
-	public static function AllWhere<T>(a:Array<T>, evalItem:T -> Bool):Bool
+	public static function All<T>(a:Array<T>, evalItem:T -> Bool):Bool
 	{
 		for (v in a)
 			if (!evalItem(v))
@@ -208,7 +208,7 @@ class Linq
 		return ret;
 	}
 	
-	public static function FirstOrDefault<T>(a:Array<T>, where:T -> Bool):T
+	public static function FirstOrDefault_IEnumerable_Func<T>(a:Array<T>, where:T -> Bool):T
 	{
 		for (i in a)
 			if (where(i))
@@ -244,7 +244,7 @@ class Linq
 		return item;
 	}
 	
-	public static function SingleWhere<T>(a:Array<T>, where:T -> Bool):T
+	public static function Single_IEnumerable_Func<T>(a:Array<T>, where:T -> Bool):T
 	{
 		var item:T = null;
 		for (val in a)
@@ -343,7 +343,7 @@ class Linq
 		return ret;
 	}
 	
-	public static function Max(a:Array<Float>):Float
+	public static function Max_Float(a:Array<Float>):Float
 	{
 		var ret:Float = First(a);
 		for (i in a)
@@ -352,7 +352,7 @@ class Linq
 				
 		return ret;
 	}
-	public static function MaxInt(a:Array<Int>):Int
+	public static function Max(a:Array<Int>):Int
 	{
 		var ret:Int = First(a);
 		for (i in a)
@@ -362,7 +362,7 @@ class Linq
 		return ret;
 	}
 	
-	public static function MaxDate(a:Array<DateTime>):DateTime
+	public static function Max_IEnumerable(a:Array<DateTime>):DateTime
 	{
 		var ret:DateTime = First(a);
 		for (i in a)
@@ -370,18 +370,22 @@ class Linq
 				ret = i;
 		return ret;
 	}
-	public static function Min(a:Array<Float>):Float
+	public static function Min(a:Array<Int>):Int
 	{
-		var ret:Float = First(a);
+		var ret:Int = First(a);
 		for (i in a)
 			if (i < ret)
 				ret = i;
 				
 		return ret;
 	}
-	public static function MinInt(a:Array<Int>):Int
+	public static function Min_IEnumerable(a:Array<Int>):Int //alias for Min that takes bytes
 	{
-		var ret:Int = First(a);
+		return Min(a);
+	}
+	public static function Min_Float(a:Array<Float>):Float //TODO: What should this be named?
+	{
+		var ret:Float = First(a);
 		for (i in a)
 			if (i < ret)
 				ret = i;

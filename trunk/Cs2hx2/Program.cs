@@ -50,6 +50,8 @@ namespace Cs2hx
 
 			var allTypes = typesGroupedByNamespace.SelectMany(o => o).ToList();
 
+			WriteImports.Init(allTypes.Select(o => o.Partials.First()));
+
 			
 			Utility.Parallel(allTypes, type =>
 				{
@@ -71,7 +73,6 @@ namespace Cs2hx
 					TypeState.Instance.Compilation = compilation;
 					TypeState.Instance.TypeName = type.TypeName;
 					TypeState.Instance.Partials = type.Partials.Where(o => !DoNotWrite.ContainsKey(o)).ToList();
-					TypeState.Instance.GetTypesInNamespace = t => allNamespaces.Where(o => o.NamespaceName == t).SelectMany(o => o.Namespaces).SelectMany(o => o.Members.OfType<TypeDeclarationSyntax>());
 
 					if (TypeState.Instance.Partials.Count > 0)
 						WriteType.Go(outDir);

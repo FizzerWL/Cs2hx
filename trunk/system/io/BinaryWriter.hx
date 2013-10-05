@@ -37,7 +37,7 @@ class BinaryWriter
 		#end
 	}
 	
-	public function WriteByteArray(data:Bytes):Void
+	public function Write_(data:Bytes):Void //TODO: Fix the overload resolution so this can have a better name
 	{
 		#if flash
 		writer.writeBytes(data.getData(), 0, data.length);

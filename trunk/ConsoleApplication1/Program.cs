@@ -12,7 +12,7 @@ namespace ConsoleApplication1
 		{
 			var t = new UnitTestProject1.UnitTest1();
 
-			t.PreprocessorDirectives();
+			t.NullableTypes();
 
 			//foreach (var m in t.GetType().GetMethods().Where(o => o.GetParameters().Length == 0))				m.Invoke(t, new object[] { });
 		}

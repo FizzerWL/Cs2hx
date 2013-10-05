@@ -3,6 +3,20 @@ import system.Exception;
 
 class Cs2Hx
 {
+	public static function ToArray<T>(a:Array<T>):Array<T>
+	{
+		return a;
+	}
+	
+	public static function Split(s:String, chars:Array<Int>):Array<String>
+	{
+		var charString:String = "";
+		
+		for (c in chars)
+			charString += String.fromCharCode(c);
+		return s.split(charString);
+	}
+	
 	public static function Join(sep:String, a:Array<String>):String
 	{
 		return a.join(sep);
@@ -74,6 +88,21 @@ class Cs2Hx
 		return CharToHex(Std.int(i / 16)) + CharToHex(i % 16);
 	}
 	
+	public static inline function AbsInt(i:Int):Int
+	{
+		return i >= 0 ? i : -i;
+	}
+	
+	public static inline function MinInt(f:Int, s:Int):Int
+	{
+		return f < s ? f : s;
+	}
+
+	public static inline function MaxInt(f:Int, s:Int):Int
+	{
+		return f > s ? f : s;
+	}
+
 	public static function CharToHex(i:Int):String
 	{
 		switch (i)
