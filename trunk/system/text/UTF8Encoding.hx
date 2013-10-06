@@ -25,9 +25,9 @@ class UTF8Encoding
 	
 	private function new() { }
 	
-	public static var UTF8(getInstance, never):UTF8Encoding;
+	public static var UTF8(get, never):UTF8Encoding;
 	
-	private static function getInstance():UTF8Encoding
+	private static function get_UTF8():UTF8Encoding
 	{
 		return new UTF8Encoding();
 	}

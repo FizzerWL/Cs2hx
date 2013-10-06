@@ -1,6 +1,5 @@
 package system.io;
 
-import haxe.Int32;
 import haxe.io.BytesInput;
 import haxe.io.Bytes;
 import system.text.StringBuilder;

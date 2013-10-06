@@ -4,8 +4,8 @@ import system.Exception;
 
 class Nullable_TimeSpan
 {
-	public var HasValue(HasValueGetter,null):Bool;
-	public var Value(ValueGetter,null):TimeSpan;
+	public var HasValue(get,null):Bool;
+	public var Value(get,null):TimeSpan;
 	private var val:TimeSpan;
 
 	public function new(initial:TimeSpan = null)
@@ -13,7 +13,7 @@ class Nullable_TimeSpan
 		val = initial;
 	}
 	
-	public function ValueGetter():TimeSpan
+	public function get_Value():TimeSpan
 	{
 		if (!HasValue)
 			throw new Exception("Tried to access the value of a null Nullable_TimeSpan");
@@ -21,7 +21,7 @@ class Nullable_TimeSpan
 		return val;
 	}
 	
-	public function HasValueGetter():Bool
+	public function get_HasValue():Bool
 	{
 		return val != null;
 	}

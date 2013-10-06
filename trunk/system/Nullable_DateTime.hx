@@ -4,8 +4,8 @@ import system.Exception;
 
 class Nullable_DateTime
 {
-	public var HasValue(HasValueGetter,null):Bool;
-	public var Value(ValueGetter,null):DateTime;
+	public var HasValue(get,null):Bool;
+	public var Value(get,null):DateTime;
 	private var val:DateTime;
 
 	public function new(initial:DateTime = null)
@@ -13,7 +13,7 @@ class Nullable_DateTime
 		val = initial;
 	}
 	
-	public function ValueGetter():DateTime
+	public function get_Value():DateTime
 	{
 		if (!HasValue)
 			throw new Exception("Tried to access the value of a null Nullable_DateTime");
@@ -21,7 +21,7 @@ class Nullable_DateTime
 		return val;
 	}
 	
-	public function HasValueGetter():Bool
+	public function get_HasValue():Bool
 	{
 		return val != null;
 	}

@@ -26,23 +26,21 @@ namespace Cs2hx
 					//Print usage
 					Console.WriteLine(
 @"
-CS2HX can derive your C# source files and pre-processor definitions from a .csproj file or you 
-can specify them yourself.
 
-Usage 1:
+Usage:
     cs2hx.exe  /sln:<path to solution file> [options] 
 
 
 Options available:
 
 	/out:<output directory>
-		If not specified, output will be written to the current working directory.
+		Directory to write haxe files to.  If not specified, output will be written to the current working directory.
 
 	/config:<configuration>
-		The configuration within the passed solution file to use.
+		The configuration within the passed solution file to use. (Debug, Release, etc.)
 
 	/projects:<comma-delimited list of project names>
-		If you don't want to process all projects in the passed solution, you can provide a list of project names.  Only the projects named here will be converted.
+		If you don't want to convert all projects in the passed solution, you can provide a list of project names.  Only the projects named here will be converted.
 
     /extraTranslation:<path to xml file>
         Defines extra conversion parameters for use with this project.  See Translations.xml for examples.");

@@ -59,7 +59,7 @@ class Linq
 	
 	public static function Union<T>(a:Array<T>, union:Array<T>):Array<T>
 	{
-		var keys:Hash<Int> = new Hash<Int>();
+		var keys:Map<String, Int> = new Map<String, Int>();
 		var ret = new Array<T>();
 			
 		for (val in a)
@@ -78,7 +78,7 @@ class Linq
 	public static function Except<T>(a:Array<T>, except:Array<T>):Array<T>
 	{
 		//Convert except to keys
-		var keys:Hash<Int> = new Hash<Int>();
+		var keys:Map<String, Int> = new Map<String, Int>();
 		for (e in except)
 			keys.set(Cs2Hx.Hash(e), 1);
 			
@@ -157,7 +157,7 @@ class Linq
 	
 	public static function Intersect<T>(a:Array<T>, b:Array<T>):Array<T>
 	{
-		var dict:Hash<Int> = new Hash<Int>();
+		var dict:Map<String, Int> = new Map<String, Int>();
 		for (i in a)
 			dict.set(Cs2Hx.Hash(i), 1);
 			
@@ -307,7 +307,7 @@ class Linq
 	public static function Distinct<T>(a:Array<T>):Array<T>
 	{
 		var ret = new Array<T>();
-		var hash:Hash<Int> = new Hash<Int>();
+		var hash:Map<String, Int> = new Map<String, Int>();
 		
 		for (i in a)
 		{
@@ -322,7 +322,7 @@ class Linq
 	}
 	public static function GroupBy<T, K>(a:Array<T>, func:T -> K):Array<IGrouping<K, T>>
 	{
-		var dict = new Hash<IGrouping<K,T>>();
+		var dict = new Map<String, IGrouping<K,T>>();
 		var ret = new Array < IGrouping < K, T >> ();
 		
 		for (i in a)

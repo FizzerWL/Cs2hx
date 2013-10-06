@@ -4,8 +4,8 @@ import system.Exception;
 
 class Nullable_Int
 {
-	public var HasValue(HasValueGetter,null):Bool;
-	public var Value(ValueGetter,null):Int;
+	public var HasValue(get,null):Bool;
+	public var Value(get,null):Int;
 	private var val:Int;
 	private static var nullValue:Int = -2147483647; 
 
@@ -14,7 +14,7 @@ class Nullable_Int
 		val = initial;
 	}
 	
-	public function ValueGetter():Int
+	public function get_Value():Int
 	{
 		if (!HasValue)
 			throw new Exception("Tried to access the value of a null Nullable_Int");
@@ -22,7 +22,7 @@ class Nullable_Int
 		return val;
 	}
 	
-	public function HasValueGetter():Bool
+	public function get_HasValue():Bool
 	{
 		return val != nullValue;
 	}

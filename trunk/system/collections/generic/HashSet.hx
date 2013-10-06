@@ -3,12 +3,12 @@ import system.Cs2Hx;
 
 class HashSet<T>
 {
-	private var store:Hash<Int>;
+	private var store:Map<String, Int>;
 	private var keys:Array<T>;
 	
 	public function new()
 	{
-		store = new Hash<Int>();
+		store = new Map<String, Int>();
 		keys = new Array<T>();
 	}
 	

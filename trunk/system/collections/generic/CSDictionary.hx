@@ -6,12 +6,12 @@ import system.Exception;
 
 class CSDictionary<K, V>
 {
-	private var store:Hash<V>;
+	private var store:Map<String, V>;
 	private var keys:Array<K>;
 	
 	public function new(unused:Dynamic = null)
 	{
-		store = new Hash<V>();
+		store = new Map<String, V>();
 		keys = new Array<K>();
 	}
 	
@@ -71,8 +71,8 @@ class CSDictionary<K, V>
 			return null;
 	}
 	
-	public var Values(getValues, never):Array<V>;
-	public function getValues():Array<V>
+	public var Values(get, never):Array<V>;
+	public function get_Values():Array<V>
 	{
 		var ret = new Array<V>();
 		var i:Int = 0;
@@ -98,7 +98,7 @@ class CSDictionary<K, V>
 	public function Clear():Void
 	{
 		keys = new Array<K>();
-		store = new Hash<V>();
+		store = new Map<String, V>();
 	}
 	
 	public function Clone():CSDictionary<K,V>

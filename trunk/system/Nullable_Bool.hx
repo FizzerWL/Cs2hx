@@ -6,8 +6,8 @@ class Nullable_Bool
 {
 	private var val:Int; //-1 for null, 0 for false, 1 for true
 	
-	public var HasValue(HasValueGetter,null):Bool;
-	public var Value(ValueGetter,null):Bool;
+	public var HasValue(get,null):Bool;
+	public var Value(get,null):Bool;
 
 	public function new(initial:Dynamic = null)
 	{
@@ -17,7 +17,7 @@ class Nullable_Bool
 			val = initial ? 1 : 0;
 	}
 	
-	public function ValueGetter():Bool
+	public function get_Value():Bool
 	{
 		if (!HasValue)
 			throw new Exception("Tried to access the value of a null Nullable_Bool");
@@ -25,7 +25,7 @@ class Nullable_Bool
 		return val == 1;
 	}
 	
-	public function HasValueGetter():Bool
+	public function get_HasValue():Bool
 	{
 		return val != -1;
 	}

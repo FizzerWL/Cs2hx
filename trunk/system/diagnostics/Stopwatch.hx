@@ -17,18 +17,18 @@ class Stopwatch
 	
 	public function get_Elapsed():TimeSpan
 	{
-		var now = Environment.GetTickCount();
+		var now = Environment.TickCount;
 		return TimeSpan.FromMilliseconds(now - _started);
 	}
 	
 	public function Restart():Void
 	{
-		_started = Environment.GetTickCount();
+		_started = Environment.TickCount;
 	}
 
 	private function new() 
 	{
-		_started = Environment.GetTickCount(); //This always returns milliseconds
+		_started = Environment.TickCount; //This always returns milliseconds
 	}
 	
 }

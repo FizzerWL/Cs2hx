@@ -23,12 +23,12 @@ class DateTime
 	
 	public function Add(span:TimeSpan):DateTime
 	{
-		return new DateTime(date.getTime() + span.TicksGetter());
+		return new DateTime(date.getTime() + span.Ticks);
 	}
 	
 	public function AddDays(days:Int):DateTime
 	{
-		return new DateTime(date.getTime() + TimeSpan.FromDays(days).TicksGetter());
+		return new DateTime(date.getTime() + TimeSpan.FromDays(days).Ticks);
 	}
 	
 	public inline function toString():String

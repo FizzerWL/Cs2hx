@@ -2,19 +2,19 @@ package system;
 
 class TimeSpan
 {
-	public static var Zero(ZeroGetter,null):TimeSpan;
+	public static var Zero(get,null):TimeSpan;
 
-	public var Milliseconds(MillisecondsGetter,null):Int;
-	public var Minutes(MinutesGetter,null):Int;
-	public var Ticks(TicksGetter,null):Float;
-	public var TotalMilliseconds(TotalMillisecondsGetter,null):Float;
-	public var Days(DaysGetter,null):Int;
-	public var Hours(HoursGetter,null):Int;
-	public var Seconds(SecondsGetter,null):Int;
-	public var TotalSeconds(TotalSecondsGetter,null):Float;
-	public var TotalDays(TotalDaysGetter,null):Float;
-	public var TotalHours(TotalHoursGetter,null):Float;
-	public var TotalMinutes(TotalMinutesGetter,null):Float;
+	public var Milliseconds(get,null):Int;
+	public var Minutes(get,null):Int;
+	public var Ticks(get,null):Float;
+	public var TotalMilliseconds(get,null):Float;
+	public var Days(get,null):Int;
+	public var Hours(get,null):Int;
+	public var Seconds(get,null):Int;
+	public var TotalSeconds(get,null):Float;
+	public var TotalDays(get,null):Float;
+	public var TotalHours(get,null):Float;
+	public var TotalMinutes(get,null):Float;
 	private var _totalMilliseconds : Float;
 	
 	public static var MaxValue:TimeSpan;
@@ -36,7 +36,7 @@ class TimeSpan
 		_totalMilliseconds = Math.floor(milliseconds);
 	}
 	
-	public static inline function ZeroGetter():TimeSpan
+	public static inline function get_Zero():TimeSpan
 	{
 		return new TimeSpan(0);
 	}
@@ -48,51 +48,51 @@ class TimeSpan
 	
 	public inline function Subtract(other:TimeSpan):TimeSpan
 	{
-		return TimeSpan.FromTicks(this.TicksGetter() - other.TicksGetter());
+		return TimeSpan.FromTicks(this.Ticks - other.Ticks);
 	}
 	
-	public inline function TicksGetter() : Float
+	public inline function get_Ticks() : Float
 	{
 		return _totalMilliseconds;
 	}
 	
-	public inline function DaysGetter() : Int
+	public inline function get_Days() : Int
 	{
 		 return Std.int(_totalMilliseconds / MILLISECONDS_IN_DAY);
 	}
-	public inline function HoursGetter() : Int
+	public inline function get_Hours() : Int
 	{
 		 return Std.int(_totalMilliseconds / MILLISECONDS_IN_HOUR) % 24;
 	}
-	public inline function MinutesGetter() : Int
+	public inline function get_Minutes() : Int
 	{
 		return Std.int(_totalMilliseconds / MILLISECONDS_IN_MINUTE) % 60; 
 	}
-	public inline function SecondsGetter() : Int
+	public inline function get_Seconds() : Int
 	{
 		return Std.int(_totalMilliseconds / MILLISECONDS_IN_SECOND) % 60;
 	}
-	public inline function MillisecondsGetter() : Int
+	public inline function get_Milliseconds() : Int
 	{
 		return Std.int(_totalMilliseconds) % 1000;
 	}
-	public inline function TotalDaysGetter() : Float
+	public inline function get_TotalDays() : Float
 	{
 		return _totalMilliseconds / MILLISECONDS_IN_DAY;
 	}
-	public inline function TotalHoursGetter() : Float
+	public inline function get_TotalHours() : Float
 	{
 		return _totalMilliseconds / MILLISECONDS_IN_HOUR;
 	}
-	public inline function TotalMinutesGetter() : Float
+	public inline function get_TotalMinutes() : Float
 	{
 		return _totalMilliseconds / MILLISECONDS_IN_MINUTE;
 	}
-	public inline function TotalSecondsGetter() : Float
+	public inline function get_TotalSeconds() : Float
 	{
 		return _totalMilliseconds / MILLISECONDS_IN_SECOND;
 	}
-	public inline function TotalMillisecondsGetter() : Float
+	public inline function get_TotalMilliseconds() : Float
 	{
 		return _totalMilliseconds;
 	}

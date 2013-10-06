@@ -74,16 +74,9 @@ namespace Cs2hx
 						writer.Write(">");
 					}
 
-
-					writer.Write(" ");
-
-					var firstExtends = true;
 					foreach (var baseType in bases)
 					{
-						if (firstExtends)
-							firstExtends = false;
-						else
-							writer.Write(", ");
+						writer.Write(" ");
 
 						if (baseType.TypeKind == TypeKind.Interface)
 						{

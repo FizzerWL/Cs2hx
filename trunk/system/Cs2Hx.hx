@@ -22,9 +22,9 @@ class Cs2Hx
 		return a.join(sep);
 	}
 	
-	private static function MakeMap(str:String):IntHash<Bool>
+	private static function MakeMap(str:String):Map<Int, Bool>
 	{
-		var hash:IntHash<Bool> = new IntHash<Bool>();
+		var hash:Map<Int, Bool> = new Map<Int, Bool>();
 		
 		var i = 0;
 		while (i < str.length)
@@ -32,7 +32,7 @@ class Cs2Hx
 		return hash;
 	}
 	
-	static var charOrDigitMap:IntHash<Bool>;
+	static var charOrDigitMap:Map<Int, Bool>;
 	public static function IsLetterOrDigit(ch:Int):Bool  //TODO: This differs from char.IsLetterOrDigit since it only recognizes ascii characters.
 	{
 		if (charOrDigitMap == null)
@@ -49,7 +49,7 @@ class Cs2Hx
 		return -1;
 	}
 	
-	static var digitMap:IntHash<Bool>;
+	static var digitMap:Map<Int, Bool>;
 	public static function IsDigit(ch:Int):Bool
 	{
 		if (digitMap == null)

@@ -39,19 +39,19 @@
   <ItemGroup>
     <Reference Include="Roslyn.Compilers, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Roslyn\v1.2\Roslyn.Compilers.dll</HintPath>
+      <HintPath>..\ref\Roslyn.Compilers.dll</HintPath>
     </Reference>
     <Reference Include="Roslyn.Compilers.CSharp, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Roslyn\v1.2\Roslyn.Compilers.CSharp.dll</HintPath>
+      <HintPath>..\ref\Roslyn.Compilers.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Roslyn.Services, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Roslyn\v1.2\Roslyn.Services.dll</HintPath>
+      <HintPath>..\ref\Roslyn.Services.dll</HintPath>
     </Reference>
     <Reference Include="Roslyn.Services.CSharp, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Roslyn\v1.2\Roslyn.Services.CSharp.dll</HintPath>
+      <HintPath>..\ref\Roslyn.Services.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

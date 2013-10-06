@@ -69,13 +69,13 @@ class XContainer extends XObject
 		return _x.toString();
 	}
 	
-	public var Value(getValue, setValue):String;
+	public var Value(get, set):String;
 	
-	public function getValue():String
+	public function get_Value():String
 	{
 		return _x.nodeValue;
 	}
-	public function setValue(s:String):String
+	public function set_Value(s:String):String
 	{
 		_x.nodeValue = s;
 		return s;
