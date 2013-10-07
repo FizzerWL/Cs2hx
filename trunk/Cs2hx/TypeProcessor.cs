@@ -12,8 +12,8 @@ namespace Cs2hx
 {
     static class TypeProcessor
     {
-        public static string DefaultValue(TypeSyntax type)
-        {
+		public static string DefaultValue(TypeSyntax type)
+		{
 			var t = TypeState.Instance.GetModel(type).GetTypeInfo(type).Type;
 			if (t.IsValueType == false || t.Name == "Nullable")
 				return "null";
@@ -21,7 +21,7 @@ namespace Cs2hx
 				return "false";
 			else
 				return "0";
-        }
+		}
 
 		public static string TryConvertType(SyntaxNode node)
 		{

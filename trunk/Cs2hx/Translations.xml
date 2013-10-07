@@ -44,6 +44,7 @@
   <Property SourceObject="System.Collections.Generic.List" Match="Count" ReplaceWith="length" />
   <Property SourceObject="System.Collections.Generic.IList" Match="Count" ReplaceWith="length" />
   <Method SourceObject="System.Collections.Generic.List" Match="Reverse" ReplaceWith="reverse" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Contains" ReplaceWith="Contains" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="ToArray" ReplaceWith="ToArray" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="Add" ReplaceWith="push" />
   <Method SourceObject="System.Collections.Generic.List" Match="Clear" ReplaceWith="splice">
@@ -67,6 +68,8 @@
   <Method SourceObject="System.Collections.Generic.Stack" Match=".ctor">
     <Argument Location="0" Action="DeleteIfPresent" />
   </Method>
+
+  <Method SourceObject="System.Linq.Enumerable" Match="Contains" ReplaceWith="Contains" ExtensionNamespace="system.Cs2Hx" />
 
   <Method SourceObject="System.Linq.Enumerable" Match="OfType">
     <Argument Location="0" Action="Insert {genericType}" />

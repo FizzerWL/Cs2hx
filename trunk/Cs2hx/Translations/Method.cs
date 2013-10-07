@@ -98,10 +98,10 @@ namespace Cs2hx.Translations
 		}
 
 
-		internal IEnumerable<ExpressionOrString> TranslateParameters(IEnumerable<ExpressionSyntax> args, ExpressionSyntax expression)
+		internal IEnumerable<TransformedArgument> TranslateParameters(IEnumerable<ArgumentSyntax> args, ExpressionSyntax expression)
 		{
 			//Copy it
-			var list = args.Select(o => new ExpressionOrString { Expression = o }).ToList();
+			var list = args.Select(o => new TransformedArgument(o)).ToList();
 
 			foreach (var arg in Arguments)
 			{
@@ -119,7 +119,7 @@ namespace Cs2hx.Translations
 					list.Insert(int.Parse(arg.Action.Substring(7)), item);
 				}
 				else if (arg.Action.StartsWith("Insert "))
-					list.Insert(arg.Location, new ExpressionOrString { String = ReplaceSpecialIndicators(arg.Action.Substring(7), expression)});
+					list.Insert(arg.Location, new TransformedArgument(ReplaceSpecialIndicators(arg.Action.Substring(7), expression)));
 				else
 					throw new Exception("Need handler for " + arg.Action);
 			}

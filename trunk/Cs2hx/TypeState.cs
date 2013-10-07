@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,8 @@ namespace Cs2hx
 {
 	class TypeState
 	{
+		private static ConcurrentDictionary<SyntaxTree, SemanticModel> _models = new ConcurrentDictionary<SyntaxTree, SemanticModel>();
+
 		[ThreadStatic]
 		public static TypeState Instance;
 
@@ -17,7 +20,6 @@ namespace Cs2hx
 		public string TypeName;
 		public Compilation Compilation;
 
-		private Dictionary<SyntaxTree, SemanticModel> _models = new Dictionary<SyntaxTree, SemanticModel>();
 		public bool DerivesFromObject;
 		public List<VariableDeclaratorSyntax> InstanceFieldsNeedingInitialization;
 		public List<VariableDeclaratorSyntax> StaticFieldsNeedingInitialization;
@@ -32,7 +34,7 @@ namespace Cs2hx
 
 			ret = Compilation.GetSemanticModel(tree);
 
-			_models.Add(tree, ret);
+			_models.TryAdd(tree, ret);
 
 			return ret;
 		}

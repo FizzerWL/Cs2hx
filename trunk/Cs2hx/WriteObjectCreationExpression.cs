@@ -28,18 +28,18 @@ namespace Cs2hx
 				else
 					writer.Write(", ");
 
-				Core.Write(writer, param.Expression);
+				param.Write(writer);
 			}
 
 			writer.Write(")");
 		}
 
-		private static IEnumerable<ExpressionOrString> TranslateParameters(Translation translateOpt, SeparatedSyntaxList<ArgumentSyntax> list, ObjectCreationExpressionSyntax invoke)
+		private static IEnumerable<TransformedArgument> TranslateParameters(Translation translateOpt, SeparatedSyntaxList<ArgumentSyntax> list, ObjectCreationExpressionSyntax invoke)
 		{
 			if (translateOpt == null)
-				return list.Select(o => new ExpressionOrString { Expression = o.Expression });
+				return list.Select(o => new TransformedArgument(o));
 			else if (translateOpt is Method)
-				return translateOpt.As<Method>().TranslateParameters(list.Select(o => o.Expression), invoke);
+				return translateOpt.As<Method>().TranslateParameters(list, invoke);
 			else
 				throw new Exception("Need handler for " + translateOpt.GetType().Name);
 		}

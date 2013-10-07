@@ -3,6 +3,25 @@ import system.Exception;
 
 class Cs2Hx
 {
+	
+	public static function Contains<T>(a:Array<T>, item:T):Bool
+	{
+		return IndexOf(a, item) != -1;
+	}
+	
+
+	public static function ParseBool(str:String):Bool
+	{
+		switch (str.toLowerCase())
+		{
+			case "true": return true;
+			case "false": return false;
+			default:
+				throw new Exception("parseBool passed " + str);
+		}
+	}
+	
+
 	public static function ToArray<T>(a:Array<T>):Array<T>
 	{
 		return a;

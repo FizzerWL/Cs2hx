@@ -345,7 +345,7 @@ class KeyValueList<K, V> implements IEquatable<K>
     }
 	public function Equals(other:K):Bool
 	{
-		throw new NotImplementedException();
+		return throw new NotImplementedException();
 	}
     public function new()
     {
@@ -496,7 +496,7 @@ package someclassnamespace;
 import someinterfacenamespace.ISomeInterface;
 import system.IDisposable;
 
-class SomeClass implements ISomeInterface, implements IDisposable
+class SomeClass implements ISomeInterface implements IDisposable
 {
     public function SomeClassMethod():Void
     {
@@ -839,6 +839,7 @@ class Utilities
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Blargh
@@ -856,6 +857,10 @@ namespace Blargh
                 Console.WriteLine(key);
             foreach(int val in dict.Values)
                 Console.WriteLine(val);
+			foreach(var kv in dict)
+				Console.WriteLine(kv.Key + "" "" + kv.Value);
+			var dict2 = dict.ToDictionary(o => o.Key, o => o.Value);
+			var vals = dict.Values;
             
             HashSet<int> hash = new HashSet<int>();
             hash.Add(999);
@@ -864,8 +869,8 @@ namespace Blargh
             Console.WriteLine(hash.Contains(999));
             foreach(int hashItem in hash)
                 Console.WriteLine(hashItem);
-
-			var vals = dict.Values;
+			var z = hash.Select(o => 3).ToArray();
+			var g = hash.GroupBy(o => o).Select(o => o.Count()).Min();
         }
     }
 }", @"
@@ -873,6 +878,9 @@ package blargh;
 " + WriteImports.StandardImports + @"
 import system.collections.generic.CSDictionary;
 import system.collections.generic.HashSet;
+import system.collections.generic.KeyValuePair;
+import system.linq.IGrouping;
+import system.linq.Linq;
 
 class Utilities
 {
@@ -891,6 +899,12 @@ class Utilities
         {
             Console.WriteLine_Int32(val);
         }
+		for (kv in dict.KeyValues())
+		{
+			Console.WriteLine(kv.Key + "" "" + kv.Value);
+		}
+		var dict2:CSDictionary<Int, Int> = Linq.ToDictionary(dict.KeyValues(), function (o:KeyValuePair<Int, Int>):Int { return o.Key; } , function (o:KeyValuePair<Int, Int>):Int { return o.Value; } );
+		var vals:Array<Int> = dict.Values;
         
         var hash:HashSet<Int> = new HashSet<Int>();
         hash.Add(999);
@@ -901,8 +915,9 @@ class Utilities
         {
             Console.WriteLine_Int32(hashItem);
         }
+		var z:Array<Int> = Linq.ToArray(Linq.Select(hash.Values(), function (o:Int):Int { return 3; } ));
+		var g:Int = Linq.Min(Linq.Select(Linq.GroupBy(hash.Values(), function (o:Int):Int { return o; } ), function (o:IGrouping<Int, Int>):Int { return Linq.Count(o.Values()); } ));
 
-		var vals:Array<Int> = dict.Values;
     }
     public function new()
     {
@@ -1333,8 +1348,7 @@ class TopLevel
 	
     public function get_AbstractProperty():String
     {
-    	throw new Exception(""Abstract item called"");
-		return null;
+    	return throw new Exception(""Abstract item called"");
     }
 
     public function VirtualMethod():Void
@@ -1592,6 +1606,11 @@ namespace Blargh
 
             throw new InvalidOperationException(""err"");
         }
+
+		public static string ReturnsSomething()
+		{
+			throw new Exception();
+		}
     }
 }", @"
 package blargh;
@@ -1631,6 +1650,10 @@ class Utilities
 
         throw new InvalidOperationException(""err"");
     }
+	public static function ReturnsSomething():String
+	{
+		return throw new Exception();
+	}
     public function new()
     {
     }

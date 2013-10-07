@@ -65,7 +65,7 @@
   <ItemGroup>
     <Compile Include="Core.cs" />
     <Compile Include="EntryPoint.cs" />
-    <Compile Include="ExpressionOrString.cs" />
+    <Compile Include="TransformedArgument.cs" />
     <Compile Include="OverloadResolver.cs" />
     <Compile Include="TriviaProcessor.cs" />
     <Compile Include="WriteArrayCreationExpression.cs" />

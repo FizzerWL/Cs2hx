@@ -34,7 +34,7 @@ namespace Cs2hx
 						if (t == "Bool")
 						{
 							methodName = "ParseBool";
-							extensionNamespace = "HaxeUtility";
+							extensionNamespace = "Cs2Hx";
 						}
 						else if (t == "Int" || t == "Float")
 						{
@@ -118,6 +118,9 @@ namespace Cs2hx
 				{
 					firstParameter = false;
 					Core.Write(writer, subExpressionOpt);
+
+					if (methodSymbol.IsExtensionMethod)
+						WriteForEachStatement.CheckEnumeratorSuffix(writer, subExpressionOpt);
 				}
 			}
 			else
@@ -125,7 +128,8 @@ namespace Cs2hx
 				//Check against lowercase toString since it gets replaced with the haxe name before we get here
 				if (memberReferenceExpressionOpt != null)
 				{
-					var memberTypeHaxe = TypeProcessor.ConvertType(TypeState.Instance.GetModel(memberReferenceExpressionOpt).GetTypeInfo(memberReferenceExpressionOpt.Expression).Type);
+					var memberType = TypeState.Instance.GetModel(memberReferenceExpressionOpt).GetTypeInfo(memberReferenceExpressionOpt.Expression).Type;
+					var memberTypeHaxe = TypeProcessor.ConvertType(memberType);
 
 					//sort calls without any parameters need to get the default sort parameter
 					if (methodName == "sort" && invocationExpression.ArgumentList.Arguments.Count == 0)
@@ -152,7 +156,7 @@ namespace Cs2hx
 						return;
 					}
 
-					if (methodName == "toString" && (memberTypeHaxe == "Int" || memberTypeHaxe == "Float"))
+					if (methodName == "toString" && (memberTypeHaxe == "Int" || memberTypeHaxe == "Float" || memberTypeHaxe == "Bool" || memberType.TypeKind == TypeKind.TypeParameter))
 					{
 						//ToString()'s on primitive types get replaced with Std.string
 						writer.Write("Std.string(");
@@ -185,34 +189,20 @@ namespace Cs2hx
                     writer.Write(", ");
 
 				arg.Write(writer);
+				if (arg.ArgumentOpt != null)
+					WriteForEachStatement.CheckEnumeratorSuffix(writer, arg.ArgumentOpt.Expression);
             }
 
 
             writer.Write(")");
 		}
 
-
-		//else 
-
-		//	return;
-		//}
-		//else if (methodName == "split" && varType == "String" && invocationExpression.Arguments.Count == 1 && invocationExpression.Arguments.Single() is PrimitiveExpression)
-		//{
-		//	//C# split takes a char, but haXe split takes a string.
-		//	Core.Write(writer, memberReferenceExpression.Expression);
-		//	writer.Write(".split(");
-		//	writer.Write(invocationExpression.Arguments.Single().As<PrimitiveExpression>().StringValue);
-		//	writer.Write(")");
-		//	return;
-		//}
-		//else
-
-		private static IEnumerable<ExpressionOrString> TranslateParameters(Translations.Translation translateOpt, SeparatedSyntaxList<ArgumentSyntax> list, InvocationExpressionSyntax invoke)
+		private static IEnumerable<TransformedArgument> TranslateParameters(Translations.Translation translateOpt, SeparatedSyntaxList<ArgumentSyntax> list, InvocationExpressionSyntax invoke)
 		{
 			if (translateOpt == null)
-				return list.Select(o => new ExpressionOrString { Expression = o.Expression });
+				return list.Select(o => new TransformedArgument(o));
 			else if (translateOpt is Translations.Method)
-				return translateOpt.As<Translations.Method>().TranslateParameters(list.Select(o => o.Expression), invoke.Expression);
+				return translateOpt.As<Translations.Method>().TranslateParameters(list, invoke.Expression);
 			else
 				throw new Exception("Need handler for " + translateOpt.GetType().Name);
 		}

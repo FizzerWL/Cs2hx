@@ -122,9 +122,27 @@ import system.Exception;";
 			var typesReferenced = allNodes.OfType<TypeSyntax>()
 				.Select(o => TypeProcessor.TryConvertType(o))
 				.Where(o => o != null)
+				.Distinct()
 				.SelectMany(SplitGenericTypes)
 				//.Concat(typeObjects.Select(o => o.Type))
 				.ToHashSet(false);
+
+			//Lambda return types and argument types get printed out, but since Roslyn doesn't include them as TypeSyntax nodes the above statement won't see them.  Add them in here.
+			Func<MethodSymbol, IEnumerable<TypeSymbol>> allTypes = method =>
+				{
+					var t = method.Parameters.ToList().Select(o => o.Type).Concat(method.TypeArguments.ToList());
+					if (!method.ReturnsVoid)
+						t = t.Concat(method.ReturnType);
+					return t;
+				};
+			foreach (var name in allNodes.Where(o => o is ParenthesizedLambdaExpressionSyntax || o is SimpleLambdaExpressionSyntax)
+				.Select(o => TypeState.Instance.GetModel(o).GetTypeInfo((ExpressionSyntax)o).ConvertedType.As<NamedTypeSymbol>().DelegateInvokeMethod.As<MethodSymbol>())
+				.SelectMany(allTypes)
+				.Select(TypeProcessor.ConvertType)
+				.SelectMany(SplitGenericTypes))
+				typesReferenced.Add(name);
+
+
 
 			//Add in static references.  Any MemberAccess where the expression is a simple identifier means it's the root of a static call
 			foreach (var symbol in allNodes.OfType<MemberAccessExpressionSyntax>()
@@ -134,6 +152,7 @@ import system.Exception;";
 				.OfType<NamedTypeSymbol>()
 				.Where(o => o.Kind == SymbolKind.NamedType))
 				typesReferenced.Add(symbol.Name);
+
 
 			//Add in extension methods.
 			foreach (var symbol in allNodes.OfType<InvocationExpressionSyntax>()

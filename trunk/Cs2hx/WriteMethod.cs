@@ -70,9 +70,12 @@ namespace Cs2hx
             {
                 writer.WriteLine();
                 writer.WriteOpenBrace();
-                writer.WriteLine("throw new Exception(\"Abstract item called\");");
-                if (method.ReturnType.ToString() != "void")
-                    writer.WriteLine("return " + TypeProcessor.DefaultValue(method.ReturnType) + ";");
+				writer.WriteIndent();
+
+				if (method.ReturnType.ToString() != "void")
+					writer.Write("return "); //"return" the throw statement to work around haxe limitations
+
+                writer.Write("throw new Exception(\"Abstract item called\");\r\n");
                 writer.WriteCloseBrace();
             }
             else if (method.Body == null)

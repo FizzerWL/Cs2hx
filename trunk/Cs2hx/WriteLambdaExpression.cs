@@ -38,8 +38,8 @@ namespace Cs2hx
 					writer.Write(TypeProcessor.ConvertTypeWithColon(methodSymbol.Parameters[pi].Type));
 			}
 
-			writer.Write("):");
-			writer.Write(TypeProcessor.ConvertType(methodSymbol.ReturnType));
+			writer.Write(")");
+			writer.Write(TypeProcessor.ConvertTypeWithColon(methodSymbol.ReturnType));
 
 			if (body is BlockSyntax)
 			{

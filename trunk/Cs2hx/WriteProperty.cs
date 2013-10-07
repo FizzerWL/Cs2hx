@@ -39,9 +39,7 @@ namespace Cs2hx
 
                 if (property.Modifiers.Any(SyntaxKind.AbstractKeyword))
                 {
-                    writer.WriteLine("throw new Exception(\"Abstract item called\");");
-                    if (property.Type.ToString() != "void")
-                        writer.WriteLine("return " + TypeProcessor.DefaultValue(property.Type) + ";");
+                    writer.WriteLine("return throw new Exception(\"Abstract item called\");");
                 }
                 else
                 {
