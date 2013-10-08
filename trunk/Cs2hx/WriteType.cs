@@ -103,8 +103,23 @@ namespace Cs2hx
 
 					var fields = allChildren.OfType<FieldDeclarationSyntax>().Where(o => !Program.DoNotWrite.ContainsKey(o));
 					var staticFields = fields.Where(o => o.Modifiers.Any(m => m.ValueText == "static"));
-					TypeState.Instance.StaticFieldsNeedingInitialization = staticFields.SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer)).ToList();
-					TypeState.Instance.InstanceFieldsNeedingInitialization = fields.Except(staticFields).SelectMany(o => o.Declaration.Variables).Where(o => o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer)).ToList();
+					TypeState.Instance.StaticFieldsNeedingInitialization = staticFields
+						.SelectMany(o => o.Declaration.Variables)
+						.Where(o => 
+							(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer))
+							||
+							(o.Initializer == null && TypeProcessor.ValueToReference(o.Parent.As<VariableDeclarationSyntax>().Type)))
+						.ToList();
+
+					TypeState.Instance.InstanceFieldsNeedingInitialization = 
+						fields
+						.Except(staticFields)
+						.SelectMany(o => o.Declaration.Variables)
+						.Where(o => 
+							(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer))
+							||
+							(o.Initializer == null && TypeProcessor.ValueToReference(o.Parent.As<VariableDeclarationSyntax>().Type)))
+						.ToList();
 
 
 					foreach (var partial in partials)

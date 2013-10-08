@@ -23,7 +23,7 @@ namespace Cs2hx
 		public bool DerivesFromObject;
 		public List<VariableDeclaratorSyntax> InstanceFieldsNeedingInitialization;
 		public List<VariableDeclaratorSyntax> StaticFieldsNeedingInitialization;
-
+		
 		public SemanticModel GetModel(SyntaxNode node)
 		{
 			var tree = node.SyntaxTree;

@@ -40,15 +40,15 @@ namespace Cs2hx
 
             writer.Write("(");
 
-            var parameterNumber = 0;
+			var firstParam = true;
             foreach (var parameter in method.ParameterList.Parameters)
             {
-                if (parameter.Modifiers.Any(SyntaxKind.OutKeyword))
-                    throw new Exception("out is not supported: " + Utility.Descriptor(method));
-                if (parameter.Modifiers.Any(SyntaxKind.RefKeyword))
-                    throw new Exception("ref is not supported: " + Utility.Descriptor(method));
+				if (parameter.Modifiers.Any(SyntaxKind.OutKeyword) || parameter.Modifiers.Any(SyntaxKind.RefKeyword))
+					throw new Exception("Ref and Out are not supported.  " + Utility.Descriptor(method));
 
-                if (parameterNumber > 0)
+				if (firstParam)
+					firstParam = false;
+				else
                     writer.Write(", ");
 
                 writer.Write(parameter.Identifier.ValueText);
@@ -59,8 +59,6 @@ namespace Cs2hx
 					writer.Write(" = ");
 					Core.Write(writer, parameter.Default.Value);
 				}
-
-                parameterNumber++;
             }
 
             writer.Write(")");

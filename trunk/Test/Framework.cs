@@ -71,8 +71,18 @@ namespace Test
                     Console.WriteLine("---------------Actual----------------");
                     Console.WriteLine(haxeFilesFromDisk[i]);
 
+					var at = DifferentAt(expectedOutputStripped[i], haxeFilesFromDisk[i]);
+					Console.WriteLine("Different at " + at);
 
-					Console.WriteLine("Different at " + DifferentAt(expectedOutputStripped[i], haxeFilesFromDisk[i]));
+					var sub = at - 15;
+					if (sub > 0)
+					{
+
+						Console.WriteLine("---------------Expected after " + sub + "----------------");
+						Console.WriteLine(expectedOutputStripped[i].Substring(sub));
+						Console.WriteLine("---------------Actual after " + sub + "----------------");
+						Console.WriteLine(haxeFilesFromDisk[i].Substring(sub));
+					}
                 }
 
                 Assert.AreEqual(expectedOutputStripped[i], haxeFilesFromDisk[i]);

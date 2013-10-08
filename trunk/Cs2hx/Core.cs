@@ -34,7 +34,7 @@ namespace Cs2hx
 			else if (node is LiteralExpressionSyntax)
 				WriteLiteralExpression.Go(writer, node.As<LiteralExpressionSyntax>());
 			else if (node is IdentifierNameSyntax)
-				writer.Write(node.ToString());
+				WriteIdentifierName.Go(writer, node.As<IdentifierNameSyntax>());
 			else if (node is ImplicitArrayCreationExpressionSyntax)
 				WriteArrayCreationExpression.Go(writer, node.As<ImplicitArrayCreationExpressionSyntax>());
 			else if (node is ArrayCreationExpressionSyntax)
@@ -97,6 +97,8 @@ namespace Cs2hx
 				WriteContinueStatement.Go(writer, node.As<ContinueStatementSyntax>());
 			else if (node is TypeOfExpressionSyntax)
 				WriteTypeOfExpression.Go(writer, node.As<TypeOfExpressionSyntax>());
+			else if (node is AnonymousObjectCreationExpressionSyntax)
+				WriteAnonymousObjectCreationExpression.Go(writer, node.As<AnonymousObjectCreationExpressionSyntax>());
 			else if (node is EmptyStatementSyntax)
 				return; //ignore empty statements
 			else if (node is DelegateDeclarationSyntax)

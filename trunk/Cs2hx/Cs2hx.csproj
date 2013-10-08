@@ -65,9 +65,11 @@
   <ItemGroup>
     <Compile Include="Core.cs" />
     <Compile Include="EntryPoint.cs" />
+    <Compile Include="RefAndOut.cs" />
     <Compile Include="TransformedArgument.cs" />
     <Compile Include="OverloadResolver.cs" />
     <Compile Include="TriviaProcessor.cs" />
+    <Compile Include="WriteAnonymousObjectCreationExpression.cs" />
     <Compile Include="WriteArrayCreationExpression.cs" />
     <Compile Include="WriteBaseExpression.cs" />
     <Compile Include="WriteBinaryExpression.cs" />
@@ -83,6 +85,7 @@
     <Compile Include="WriteField.cs" />
     <Compile Include="WriteForEachStatement.cs" />
     <Compile Include="WriteForStatement.cs" />
+    <Compile Include="WriteIdentifierName.cs" />
     <Compile Include="WriteIfStatement.cs" />
     <Compile Include="WriteLambdaExpression.cs" />
     <Compile Include="WriteLiteralExpression.cs" />

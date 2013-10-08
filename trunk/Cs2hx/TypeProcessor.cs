@@ -91,6 +91,8 @@ namespace Cs2hx
 
 		private static string ConvertTypeUncached(TypeSymbol typeInfo)
 		{
+			if (typeInfo.IsAnonymousType)
+				return null; //leave these blank so haxe can infer
 
 			var array = typeInfo as ArrayTypeSymbol;
 
@@ -251,7 +253,7 @@ namespace Cs2hx
         }
 
 
-		public static string GenericTypeName(ITypeSymbol typeSymbol)
+		public static string GenericTypeName(TypeSymbol typeSymbol)
 		{
 			if (typeSymbol == null)
 				return null;
@@ -289,6 +291,29 @@ namespace Cs2hx
 				return haxeType;
 			else
 				return haxeType.Substring(0, i);
+		}
+
+		/// <summary>
+		/// Returns true if this is a value type in C# but a reference type in haxe.  We try to avoid this where possible, but haxe doesn't let us define our own value types.
+		/// </summary>
+		/// <param name="type"></param>
+		/// <returns></returns>
+		public static bool ValueToReference(TypeSyntax type)
+		{
+			var typeSymbol = TypeState.Instance.GetModel(type).GetTypeInfo(type);
+			if (typeSymbol.Type.IsValueType == false)
+				return false;
+
+			switch (ConvertType(typeSymbol.Type))
+			{
+				case "Int":
+				case "Float":
+				case "Bool":
+				case "String":
+					return false;
+				default:
+					return true;
+			}
 		}
 	}
 }

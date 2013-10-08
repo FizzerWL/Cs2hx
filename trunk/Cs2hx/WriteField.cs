@@ -19,15 +19,13 @@ namespace Cs2hx
         {
             writer.WriteIndent();
 
-            var mods = modifiers.Select(o => o.ValueText).ToHashSet(true);
-
 			var isConst = IsConst(modifiers, initializerOpt);
 
-            if (mods.Contains("public") || mods.Contains("protected") || mods.Contains("internal"))
+            if (modifiers.Any(SyntaxKind.PublicKeyword) || modifiers.Any(SyntaxKind.ProtectedKeyword) || modifiers.Any(SyntaxKind.InternalKeyword))
                 writer.Write("public ");
-            if (mods.Contains("private"))
+            if (modifiers.Any(SyntaxKind.PrivateKeyword))
                 writer.Write("private ");
-            if (mods.Contains("static") || mods.Contains("const"))
+            if (modifiers.Any(SyntaxKind.StaticKeyword) || modifiers.Any(SyntaxKind.ConstKeyword))
                 writer.Write("static ");
 			if (isConst)
 				writer.Write("inline ");
@@ -49,9 +47,7 @@ namespace Cs2hx
 
 		public static bool IsConst(SyntaxTokenList modifiers, EqualsValueClauseSyntax initializerOpt)
 		{
-			var mods = modifiers.Select(o => o.ValueText).ToHashSet(true);
-
-			return mods.Contains("const") || (mods.Contains("readonly") && mods.Contains("static") && initializerOpt != null);
+			return modifiers.Any(SyntaxKind.ConstKeyword) || (modifiers.Any(SyntaxKind.ReadOnlyKeyword) && modifiers.Any(SyntaxKind.StaticKeyword) && initializerOpt != null);
 		}
     }
 }

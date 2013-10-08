@@ -188,7 +188,21 @@ namespace Cs2hx
                 else
                     writer.Write(", ");
 
+				/*
+				var isRefField = arg.ArgumentOpt != null 
+					&& arg.ArgumentOpt.RefOrOutKeyword != null
+					&& TypeState.Instance.GetModel(invocationExpression).GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is FieldSymbol;
+
+				if (isRefField)
+					writer.Write("new CsRef<" + TypeProcessor.ConvertType(TypeState.Instance.GetModel(invocationExpression).GetTypeInfo(arg.ArgumentOpt.Expression).Type) + ">(");*/
+
 				arg.Write(writer);
+
+				/*
+				if (isRefField)
+					writer.Write(")");
+				 */ 
+
 				if (arg.ArgumentOpt != null)
 					WriteForEachStatement.CheckEnumeratorSuffix(writer, arg.ArgumentOpt.Expression);
             }

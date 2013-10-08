@@ -31,7 +31,7 @@ class TimeSpan
 		return Std.string(this.Ticks);
 	}
 	
-	public function new(milliseconds : Float)
+	public function new(milliseconds:Float = 0)
 	{
 		_totalMilliseconds = Math.floor(milliseconds);
 	}

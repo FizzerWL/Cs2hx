@@ -81,7 +81,19 @@ namespace Cs2hx
                 writer.WriteIndent();
                 writer.Write(field.Identifier.ValueText);
                 writer.Write(" = ");
-                Core.Write(writer, field.Initializer.Value);
+
+				if (field.Initializer == null)
+				{
+					//The only way to get here with a null initializer is for a TypeProcess.ValueToReference field.
+					writer.Write("new ");
+					writer.Write(TypeProcessor.ConvertType(field.Parent.As<VariableDeclarationSyntax>().Type));
+					writer.Write("()");
+				}
+				else
+				{
+					Core.Write(writer, field.Initializer.Value);
+				}
+
                 writer.Write(";\r\n");
             }
 
@@ -111,7 +123,18 @@ namespace Cs2hx
                 writer.WriteIndent();
                 writer.Write(field.Identifier.ValueText);
 				writer.Write(" = ");
-				Core.Write(writer, field.Initializer.As<EqualsValueClauseSyntax>().Value);
+
+				if (field.Initializer == null)
+				{
+					//The only way to get here without an initializer is if it's a TypeProcessor.ValueToReference.
+					writer.Write("new ");
+					writer.Write(TypeProcessor.ConvertType(field.Parent.As<VariableDeclarationSyntax>().Type));
+					writer.Write("()");
+				}
+				else
+				{
+					Core.Write(writer, field.Initializer.As<EqualsValueClauseSyntax>().Value);
+				}
 				writer.Write(";\r\n");
             }
 
