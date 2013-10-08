@@ -91,7 +91,6 @@
     <Compile Include="WriteLiteralExpression.cs" />
     <Compile Include="WriteMethod.cs" />
     <Compile Include="WriteObjectCreationExpression.cs" />
-    <Compile Include="WriteOperatorExpression.cs" />
     <Compile Include="WriteParenthesizedExpression.cs" />
     <Compile Include="WriteSwitchStatement.cs" />
     <Compile Include="WriteTryStatement.cs" />

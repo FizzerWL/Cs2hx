@@ -66,26 +66,30 @@ namespace Test
             {
                 if (expectedOutputStripped[i] != haxeFilesFromDisk[i])
                 {
-                    Console.WriteLine("---------------Expected----------------");
-                    Console.WriteLine(expectedOutputStripped[i]);
-                    Console.WriteLine("---------------Actual----------------");
-                    Console.WriteLine(haxeFilesFromDisk[i]);
+					var err = new StringBuilder();
+
+					err.AppendLine("Code different");
+                    err.AppendLine("---------------Expected----------------");
+                    err.AppendLine(expectedOutputStripped[i]);
+                    err.AppendLine("---------------Actual----------------");
+                    err.AppendLine(haxeFilesFromDisk[i]);
 
 					var at = DifferentAt(expectedOutputStripped[i], haxeFilesFromDisk[i]);
-					Console.WriteLine("Different at " + at);
+					err.AppendLine("Different at " + at);
 
 					var sub = at - 15;
 					if (sub > 0)
 					{
 
-						Console.WriteLine("---------------Expected after " + sub + "----------------");
-						Console.WriteLine(expectedOutputStripped[i].Substring(sub));
-						Console.WriteLine("---------------Actual after " + sub + "----------------");
-						Console.WriteLine(haxeFilesFromDisk[i].Substring(sub));
+						err.AppendLine("---------------Expected after " + sub + "----------------");
+						err.AppendLine(expectedOutputStripped[i].Substring(sub, 100));
+						err.AppendLine("---------------Actual after " + sub + "----------------");
+						err.AppendLine(haxeFilesFromDisk[i].Substring(sub, 100));
 					}
+					throw new Exception(err.ToString());
                 }
 
-                Assert.AreEqual(expectedOutputStripped[i], haxeFilesFromDisk[i]);
+                //Assert.AreEqual(expectedOutputStripped[i], haxeFilesFromDisk[i]);
             }
         }
 

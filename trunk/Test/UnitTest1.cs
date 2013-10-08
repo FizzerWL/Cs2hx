@@ -620,7 +620,7 @@ class Box
 		[ExpectedException(typeof(Exception), "C# 3.5 object initialization syntax is not supported")]
 		public void ObjectInitilization()
 		{
-			TestFramework.TestCode("test", @"
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 namespace Blargh
 {
     public static class Utilities
@@ -975,6 +975,10 @@ namespace Blargh
             Console.WriteLine(nullableInt.HasValue);
             int? withValue = new Nullable<int>(8);
             Console.WriteLine(withValue.Value);
+			int? implicitNull = null;
+			implicitNull = null;
+			int? implicitValue = 5;
+			implicitValue = 8;
         }
     }
 }", @"
@@ -990,11 +994,36 @@ class Utilities
         Console.WriteLine_Boolean(nullableInt.HasValue);
         var withValue:Nullable_Int = new Nullable_Int(8);
         Console.WriteLine_Int32(withValue.Value);
+		var implicitNull:Nullable_Int = new Nullable_Int();
+		implicitNull = new Nullable_Int();
+		var implicitValue:Nullable_Int = new Nullable_Int(5);
+		implicitValue = new Nullable_Int(8);
     }
     public function new()
     {
     }
 }");
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(AggregateException), "When using nullable types, you must use the .Value and .HasValue properties instead of the object directly")]
+		public void MustUseNullableProperties()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction()
+        {
+            int? i = 5;
+			if (i == null)
+			{
+			}
+
+        }
+    }
+}", "");
 		}
 
 		[TestMethod]

@@ -45,8 +45,6 @@ namespace Cs2hx
 				WriteLambdaExpression.Go(writer, node.As<ParenthesizedLambdaExpressionSyntax>());
 			else if (node is SimpleLambdaExpressionSyntax)
 				WriteLambdaExpression.Go(writer, node.As<SimpleLambdaExpressionSyntax>());
-			else if (node is BinaryExpressionSyntax)
-				WriteOperatorExpression.Go(writer, node.As<BinaryExpressionSyntax>());
 			else if (node is ReturnStatementSyntax)
 				WriteReturnStatement.Go(writer, node.As<ReturnStatementSyntax>());
 			else if (node is ObjectCreationExpressionSyntax)

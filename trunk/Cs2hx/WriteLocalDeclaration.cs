@@ -19,7 +19,7 @@ namespace Cs2hx
 				if (variable.Initializer != null)
 				{
 					writer.Write(" = ");
-					Core.Write(writer, variable.Initializer.As<EqualsValueClauseSyntax>().Value);
+					WriteBinaryExpression.WriteAssignment(writer, variable.Initializer.As<EqualsValueClauseSyntax>().Value);
 				}
 
 				writer.Write(";\r\n");
