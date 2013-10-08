@@ -9,6 +9,61 @@ namespace UnitTestProject1
 	[TestClass]
 	public class UnitTest1
 	{
+		[TestMethod]
+		public void NestedClasses()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Text;
+
+namespace Blargh
+{
+
+    public class Outer
+    {
+		public class Inner
+		{
+			public int InnerField;
+			public Inner()
+			{
+				InnerField = 0;
+			}
+		}
+
+		public Outer()
+		{
+			var i = new Inner();
+			i.InnerField = 4;
+		}
+    }
+}", new[] { @"
+package blargh;
+" + WriteImports.StandardImports + @"
+import blargh.Outer_Inner;
+
+class Outer
+{
+    public function new()
+    {
+		var i:Outer_Inner = new Outer_Inner();
+		i.InnerField = 4;
+    }
+}",
+  @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Outer_Inner
+{
+	public var InnerField:Int;
+    public function new()
+    {
+		InnerField = 0;
+    }
+}"
+  
+  });
+		}
 
 		[TestMethod]
 		public void AnonymousTypes()

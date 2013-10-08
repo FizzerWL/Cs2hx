@@ -11,6 +11,14 @@ namespace Cs2hx
 {
     public static class Utility
     {
+		public static string FullName(this NamespaceSymbol ns)
+		{
+			if (ns.IsGlobalNamespace)
+				return "";
+			else
+				return ns.ToString();
+		}
+
 		public static string AttributeOrNull(this XElement element, string attrName)
 		{
 			var a = element.Attribute(attrName);
@@ -33,6 +41,14 @@ namespace Cs2hx
         {
             return (T)o;
         }
+
+		public static string SubstringSafe(this string s, int startAt, int length)
+		{
+			if (s.Length < startAt + length)
+				return s.Substring(startAt);
+			else
+				return s.Substring(startAt, length);
+		}
 
 		public static bool None<T>(this IEnumerable<T> a, Func<T, bool> pred)
 		{

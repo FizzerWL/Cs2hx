@@ -14,7 +14,7 @@ namespace Cs2hx
     {
 		public static string DefaultValue(TypeSyntax type)
 		{
-			var t = TypeState.Instance.GetModel(type).GetTypeInfo(type).Type;
+			var t = Program.GetModel(type).GetTypeInfo(type).Type;
 			if (t.IsValueType == false || t.Name == "Nullable")
 				return "null";
 			else if (t.SpecialType == SpecialType.System_Boolean)
@@ -32,7 +32,7 @@ namespace Cs2hx
 			if (attrs.ContainsKey("ReplaceWithType"))
 				return attrs["ReplaceWithType"];
 
-			var typeInfo = TypeState.Instance.GetModel(node).As<ISemanticModel>().GetTypeInfo(node).ConvertedType;
+			var typeInfo = Program.GetModel(node).As<ISemanticModel>().GetTypeInfo(node).ConvertedType;
 
 			if (typeInfo == null || typeInfo is ErrorTypeSymbol)
 			{
@@ -184,6 +184,9 @@ namespace Cs2hx
 					if (trans != null)
 						return trans.As<Translations.Type>().ReplaceWith;
 
+					if (named != null)
+						return WriteType.TypeName(named);
+
 					//This type does not get translated and gets used as-is
 					return typeInfo.Name;
 				
@@ -210,37 +213,6 @@ namespace Cs2hx
 			return named.TypeArguments.ToList();
 		}
 
-		//public static string ConvertRawType(TypeSyntax type, bool ignoreGenericArguments = false)
-		//{
-            //Check for the Cs2Hx attribute which could have a directive that tells us what type to use
-            
-
-            //var translation = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Type, type.Type, type) as Translations.Type;
-
-            //string genericSuffix;
-            //if (type.GenericTypes.Count > 0 && !ignoreGenericArguments)
-            //    genericSuffix = "<" + string.Join(", ", type.GenericTypes.Select(o => ConvertRawType(o)).ToArray()) + ">";
-            //else
-            //    genericSuffix = string.Empty;
-
-            //if (translation != null)
-            //    return translation.ReplaceWith + genericSuffix;
-
-            ////Handle generic types that we can convert
-            //switch (type.Type)
-            //{
-            //    case "IEnumerable":
-            //        //return "Iterable" + genericSuffix; I'd love to use Iterable here, but ActionScript can't enumerate on an iterable when using haxe with -as3.    Array also gives a lot more perf since Iterable gets converted to * when using -as3.
-            //        return "Array" + genericSuffix;
-            //    case "KeyValuePair":
-            //        return "KeyValuePair" + genericSuffix;
-            //    case "System.Nullable":
-            //    case "Nullable":
-            //        return "Nullable_" + ConvertRawType(type.GenericTypes.Single());
-            //}
-
-
-        //}
 
         public static string HaxeLiteral(this SyntaxNode literal)
         {
@@ -300,7 +272,7 @@ namespace Cs2hx
 		/// <returns></returns>
 		public static bool ValueToReference(TypeSyntax type)
 		{
-			var typeSymbol = TypeState.Instance.GetModel(type).GetTypeInfo(type);
+			var typeSymbol = Program.GetModel(type).GetTypeInfo(type);
 			if (typeSymbol.Type.IsValueType == false)
 				return false;
 

@@ -11,7 +11,7 @@ namespace Cs2hx
     {
         public static void Go(HaxeWriter writer, InvocationExpressionSyntax invocationExpression)
         {
-			var symbolInfo = TypeState.Instance.GetModel(invocationExpression).GetSymbolInfo(invocationExpression);
+			var symbolInfo = Program.GetModel(invocationExpression).GetSymbolInfo(invocationExpression);
 			var methodSymbol = symbolInfo.Symbol.As<MethodSymbol>().UnReduce();
 
 			var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, methodSymbol.Name, methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name, string.Join(" ", methodSymbol.Parameters.ToList().Select(o => o.Type.ToString()))) as Method;
@@ -94,7 +94,7 @@ namespace Cs2hx
 
 
 			//Determine if it's an extension method called in a non-extension way.  In this case, just pretend it's not an extension method
-			if (extensionNamespace != null && subExpressionOpt != null && TypeState.Instance.GetModel(subExpressionOpt).GetTypeInfo(subExpressionOpt).ConvertedType.ToString() == methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name)
+			if (extensionNamespace != null && subExpressionOpt != null && Program.GetModel(subExpressionOpt).GetTypeInfo(subExpressionOpt).ConvertedType.ToString() == methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name)
 				extensionNamespace = null;
 
 			if (translateOpt != null && !string.IsNullOrEmpty(translateOpt.ExtensionNamespace))
@@ -128,7 +128,7 @@ namespace Cs2hx
 				//Check against lowercase toString since it gets replaced with the haxe name before we get here
 				if (memberReferenceExpressionOpt != null)
 				{
-					var memberType = TypeState.Instance.GetModel(memberReferenceExpressionOpt).GetTypeInfo(memberReferenceExpressionOpt.Expression).Type;
+					var memberType = Program.GetModel(memberReferenceExpressionOpt).GetTypeInfo(memberReferenceExpressionOpt.Expression).Type;
 					var memberTypeHaxe = TypeProcessor.ConvertType(memberType);
 
 					//sort calls without any parameters need to get the default sort parameter
@@ -191,10 +191,10 @@ namespace Cs2hx
 				/*
 				var isRefField = arg.ArgumentOpt != null 
 					&& arg.ArgumentOpt.RefOrOutKeyword != null
-					&& TypeState.Instance.GetModel(invocationExpression).GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is FieldSymbol;
+					&& Program.GetModel(invocationExpression).GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is FieldSymbol;
 
 				if (isRefField)
-					writer.Write("new CsRef<" + TypeProcessor.ConvertType(TypeState.Instance.GetModel(invocationExpression).GetTypeInfo(arg.ArgumentOpt.Expression).Type) + ">(");*/
+					writer.Write("new CsRef<" + TypeProcessor.ConvertType(Program.GetModel(invocationExpression).GetTypeInfo(arg.ArgumentOpt.Expression).Type) + ">(");*/
 
 				arg.Write(writer);
 

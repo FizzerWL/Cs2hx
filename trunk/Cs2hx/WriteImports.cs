@@ -16,7 +16,7 @@ namespace Cs2hx
 	{
 		static Dictionary<string, string> _allTypes;
 
-		public static void Init(IEnumerable<BaseTypeDeclarationSyntax> codeTypes)
+		public static void Init(IEnumerable<KeyValuePair<string, string>> codeTypes)
 		{
 			//Start with all system files
 			_allTypes = SystemImports.ToDictionary(o => o.SubstringAfterLast('.'), o => o);
@@ -29,7 +29,7 @@ namespace Cs2hx
 			_allTypes.Add("Bytes", "haxe.io.Bytes");
 
 			foreach (var codeType in codeTypes)
-				_allTypes.Add(codeType.Identifier.ValueText, codeType.Parent.As<NamespaceDeclarationSyntax>().Name.ToString().ToLower() + "." + codeType.Identifier.ValueText);
+				_allTypes.Add(codeType.Value, codeType.Key.Length == 0 ? codeType.Value : (codeType.Key.ToLower() + "." + codeType.Value));
 		}
 
 		#region Standard imports
@@ -118,7 +118,7 @@ import system.Exception;";
 			//Standard ones are always present, since we can't easily determine if it should be filtered
 			writer.WriteLine(StandardImports);
 
-			var allNodes = partials.SelectMany(classType => DescendantNodes(classType));
+			var allNodes = partials.SelectMany(classType => DescendantNodes(classType.Syntax));
 			var typesReferenced = allNodes.OfType<TypeSyntax>()
 				.Select(o => TypeProcessor.TryConvertType(o))
 				.Where(o => o != null)
@@ -136,7 +136,7 @@ import system.Exception;";
 					return t;
 				};
 			foreach (var name in allNodes.Where(o => o is ParenthesizedLambdaExpressionSyntax || o is SimpleLambdaExpressionSyntax)
-				.Select(o => TypeState.Instance.GetModel(o).GetTypeInfo((ExpressionSyntax)o).ConvertedType.As<NamedTypeSymbol>().DelegateInvokeMethod.As<MethodSymbol>())
+				.Select(o => Program.GetModel(o).GetTypeInfo((ExpressionSyntax)o).ConvertedType.As<NamedTypeSymbol>().DelegateInvokeMethod.As<MethodSymbol>())
 				.SelectMany(allTypes)
 				.Select(TypeProcessor.ConvertType)
 				.SelectMany(SplitGenericTypes))
@@ -148,7 +148,7 @@ import system.Exception;";
 			foreach (var symbol in allNodes.OfType<MemberAccessExpressionSyntax>()
 				.Select(o => o.Expression)
 				.OfType<IdentifierNameSyntax>()
-				.Select(o => TypeState.Instance.GetModel(o).GetSymbolInfo(o).Symbol)
+				.Select(o => Program.GetModel(o).GetSymbolInfo(o).Symbol)
 				.OfType<NamedTypeSymbol>()
 				.Where(o => o.Kind == SymbolKind.NamedType))
 				typesReferenced.Add(symbol.Name);
@@ -156,7 +156,7 @@ import system.Exception;";
 
 			//Add in extension methods.
 			foreach (var symbol in allNodes.OfType<InvocationExpressionSyntax>()
-				.Select(o => TypeState.Instance.GetModel(o).GetSymbolInfo(o).Symbol.As<MethodSymbol>().UnReduce())
+				.Select(o => Program.GetModel(o).GetSymbolInfo(o).Symbol.As<MethodSymbol>().UnReduce())
 				.Where(o => o.IsExtensionMethod))
 				typesReferenced.Add(Translation.ExtensionName(symbol.ContainingType));
 

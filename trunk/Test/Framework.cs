@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Roslyn.Compilers.CSharp;
 using Roslyn.Compilers.Common;
 using Roslyn.Compilers;
+using Cs2hx;
 
 namespace Test
 {
@@ -82,9 +83,9 @@ namespace Test
 					{
 
 						err.AppendLine("---------------Expected after " + sub + "----------------");
-						err.AppendLine(expectedOutputStripped[i].Substring(sub, 100));
+						err.AppendLine(expectedOutputStripped[i].SubstringSafe(sub, 100));
 						err.AppendLine("---------------Actual after " + sub + "----------------");
-						err.AppendLine(haxeFilesFromDisk[i].Substring(sub, 100));
+						err.AppendLine(haxeFilesFromDisk[i].SubstringSafe(sub, 100));
 					}
 					throw new Exception(err.ToString());
                 }

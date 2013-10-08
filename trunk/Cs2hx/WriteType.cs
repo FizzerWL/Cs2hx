@@ -17,19 +17,19 @@ namespace Cs2hx
 			var partials = TypeState.Instance.Partials;
 			var first = partials.First();
 
-			var typeNamespace = first.Parent.As<NamespaceDeclarationSyntax>();
+			var typeNamespace = first.Symbol.ContainingNamespace.FullName().ToLower();
 
-			var dir = Path.Combine(outDir, typeNamespace.Name.ToString().Replace(".", Path.DirectorySeparatorChar.ToString())).ToLower();
+			var dir = Path.Combine(outDir, typeNamespace.Replace(".", Path.DirectorySeparatorChar.ToString()));
 			if (!Directory.Exists(dir))
 				Directory.CreateDirectory(dir);
 
 			using (var writer = new HaxeWriter(Path.Combine(dir, TypeState.Instance.TypeName + ".hx")))
 			{
 				var bases = partials
-					.Select(o => o.BaseList)
+					.Select(o => o.Syntax.BaseList)
 					.Where(o => o != null)
 					.SelectMany(o => o.Types)
-					.Select(o => (TypeSymbol)TypeState.Instance.GetModel(o).GetTypeInfo(o).ConvertedType)
+					.Select(o => (TypeSymbol)Program.GetModel(o).GetTypeInfo(o).ConvertedType)
 					.Distinct()
 					.ToList();
 
@@ -37,11 +37,11 @@ namespace Cs2hx
 
 				TypeState.Instance.DerivesFromObject = bases.Count == interfaces.Count;
 
-				writer.WriteLine("package " + typeNamespace.Name.ToString().ToLower() + @";");
+				writer.WriteLine("package " + typeNamespace + @";");
 
 				WriteImports.Go(writer);
 
-				switch (first.Kind)
+				switch (first.Syntax.Kind)
 				{
 					case SyntaxKind.ClassDeclaration:
 					case SyntaxKind.StructDeclaration:
@@ -52,21 +52,23 @@ namespace Cs2hx
 						writer.Write("interface ");
 						break;
 					default:
-						throw new Exception(first.Kind.ToString());
+						throw new Exception(first.Syntax.Kind.ToString());
 				}
 				
 				writer.Write(TypeState.Instance.TypeName);
 
 
 
-				if (first is TypeDeclarationSyntax)
+				if (first.Syntax is TypeDeclarationSyntax)
 				{
 					//Look for generic arguments 
 					var genericArgs = partials
+						.Select(o => o.Syntax)
 						.Cast<TypeDeclarationSyntax>()
 						.Where(o => o.TypeParameterList != null)
 						.SelectMany(o => o.TypeParameterList.Parameters)
 						.ToList();
+
 					if (genericArgs.Count > 0)
 					{
 						writer.Write("<");
@@ -95,11 +97,11 @@ namespace Cs2hx
 
 				writer.WriteOpenBrace();
 
-				if (first is EnumDeclarationSyntax)
-					WriteEnumBody.Go(writer, TypeState.Instance.Partials.Cast<EnumDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)));
+				if (first.Syntax is EnumDeclarationSyntax)
+					WriteEnumBody.Go(writer, TypeState.Instance.Partials.Select(o => o.Syntax).Cast<EnumDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)));
 				else
 				{
-					var allChildren = partials.Cast<TypeDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)).ToList();
+					var allChildren = partials.Select(o => o.Syntax).Cast<TypeDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)).ToList();
 
 					var fields = allChildren.OfType<FieldDeclarationSyntax>().Where(o => !Program.DoNotWrite.ContainsKey(o));
 					var staticFields = fields.Where(o => o.Modifiers.Any(m => m.ValueText == "static"));
@@ -124,16 +126,14 @@ namespace Cs2hx
 
 					foreach (var partial in partials)
 					{
-						foreach (var member in partial.As<TypeDeclarationSyntax>().Members)
+						foreach (var member in partial.Syntax.As<TypeDeclarationSyntax>().Members)
 						{
-							if (member is ClassDeclarationSyntax)
-								throw new Exception("Subclasses are not supported " + Utility.Descriptor(member));
-
-							Core.Write(writer, member);
+							if (!(member is ClassDeclarationSyntax))
+								Core.Write(writer, member);
 						}
 					}
 
-					if (first.Kind != SyntaxKind.InterfaceDeclaration)
+					if (first.Syntax.Kind != SyntaxKind.InterfaceDeclaration)
 					{
 						var ctors = allChildren.OfType<ConstructorDeclarationSyntax>().ToList();
 
@@ -148,6 +148,19 @@ namespace Cs2hx
 
 				writer.WriteCloseBrace();
 			}
+		}
+
+		public static string TypeName(NamedTypeSymbol type)
+		{
+			var sb = new StringBuilder(type.Name);
+
+			while (type.ContainingType != null)
+			{
+				type = type.ContainingType;
+				sb.Insert(0, type.Name + "_");
+			}
+
+			return sb.ToString();
 		}
 	}
 }

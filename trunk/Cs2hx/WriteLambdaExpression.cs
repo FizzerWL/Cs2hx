@@ -11,12 +11,12 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, ParenthesizedLambdaExpressionSyntax expression)
 		{
-			Go(writer, expression.ParameterList.Parameters, expression.Body, TypeState.Instance.GetModel(expression).GetTypeInfo(expression));
+			Go(writer, expression.ParameterList.Parameters, expression.Body, Program.GetModel(expression).GetTypeInfo(expression));
 		}
 
 		public static void Go(HaxeWriter writer, SimpleLambdaExpressionSyntax expression)
 		{
-			Go(writer, new[] { expression.Parameter }, expression.Body, TypeState.Instance.GetModel(expression).GetTypeInfo(expression));
+			Go(writer, new[] { expression.Parameter }, expression.Body, Program.GetModel(expression).GetTypeInfo(expression));
 		}
 
 		private static void Go(HaxeWriter writer, IEnumerable<ParameterSyntax> parameters, SyntaxNode body, TypeInfo type)

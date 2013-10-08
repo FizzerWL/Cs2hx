@@ -12,7 +12,7 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, ObjectCreationExpressionSyntax expression)
 		{
-			var type = TypeState.Instance.GetModel(expression).GetTypeInfo(expression).ConvertedType;
+			var type = Program.GetModel(expression).GetTypeInfo(expression).ConvertedType;
 
 			var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, ".ctor", TypeProcessor.MatchString(TypeProcessor.GenericTypeName(type))) as Method;
 

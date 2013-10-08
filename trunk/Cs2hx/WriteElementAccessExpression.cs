@@ -16,7 +16,7 @@ namespace Cs2hx
 
 			Core.Write(writer, expression.Expression);
 
-			var typeStr = TypeProcessor.GenericTypeName(TypeState.Instance.GetModel(expression).GetTypeInfo(expression.Expression).ConvertedType);
+			var typeStr = TypeProcessor.GenericTypeName(Program.GetModel(expression).GetTypeInfo(expression.Expression).ConvertedType);
 			if (typeStr == "System.Collections.Generic.Dictionary<,>" || typeStr == "System.Collections.Generic.HashSet<>")
 			{
 				writer.Write(".GetValue(");

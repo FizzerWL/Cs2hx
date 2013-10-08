@@ -15,13 +15,33 @@ namespace Cs2hx
 {
     public static class Program
     {
-        static internal List<XDocument> TranslationDocs;
-        static internal HashSet<string> StaticConstructors = new HashSet<string>();
+		private static ConcurrentDictionary<SyntaxTree, SemanticModel> _models = new ConcurrentDictionary<SyntaxTree, SemanticModel>();
+		private static Compilation Compilation;
+		
+		public static SemanticModel GetModel(SyntaxNode node)
+		{
+			var tree = node.SyntaxTree;
+
+			SemanticModel ret;
+			if (_models.TryGetValue(tree, out ret))
+				return ret;
+
+			ret = Compilation.GetSemanticModel(tree);
+
+			_models.TryAdd(tree, ret);
+
+			return ret;
+		}
+
+        public static List<XDocument> TranslationDocs;
+		public static HashSet<string> StaticConstructors = new HashSet<string>();
 		public static ConcurrentDictionary<SyntaxNode, object> DoNotWrite = new ConcurrentDictionary<SyntaxNode, object>();
 		public static ConcurrentDictionary<string, object> DoNotWriteTypeNames = new ConcurrentDictionary<string, object>();
 
 		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation)
 		{
+			Compilation = compilation;
+
 			var sw = Stopwatch.StartNew();
 
 			//Test if it builds so we can fail early if we don't.  This isn't required for anything else to work.
@@ -37,25 +57,19 @@ namespace Cs2hx
 			if (!Directory.Exists(outDir))
 				Directory.CreateDirectory(outDir);
 
-			var allNamespaces = compilation.SyntaxTrees.SelectMany(o => o.GetRoot().ChildNodes().OfType<NamespaceDeclarationSyntax>())
-				.GroupBy(o => o.Name.ToString())
-				.Select(o => new { NamespaceName = o.Key, Namespaces = o })
+			var allTypes = compilation.SyntaxTrees
+				.SelectMany(o => o.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
+				.Select(o => new { Syntax = o, Symbol = GetModel(o).GetDeclaredSymbol(o), TypeName = WriteType.TypeName(GetModel(o).GetDeclaredSymbol(o)) })
+				.GroupBy(o => o.Symbol.ContainingNamespace.FullName() + "." + o.TypeName)
 				.ToList();
 
-			var typesGroupedByNamespace = allNamespaces.Select(o =>
-				o.Namespaces.SelectMany(n => n.Members.OfType<BaseTypeDeclarationSyntax>())
-					.GroupBy(t => t.Identifier.ValueText)
-					.Select(t => new { TypeName = t.Key, Partials = t }))
-					.ToList();
 
-			var allTypes = typesGroupedByNamespace.SelectMany(o => o).ToList();
+			WriteImports.Init(allTypes.Select(o => new KeyValuePair<string,string>(o.First().Symbol.ContainingNamespace.FullName(), o.First().TypeName)));
 
-			WriteImports.Init(allTypes.Select(o => o.Partials.First()));
 
-			
-			Utility.Parallel(allTypes, type =>
+			Utility.Parallel(compilation.SyntaxTrees.ToList(), tree =>
 				{
-					foreach (var n in type.Partials.Select(o => o.SyntaxTree).Distinct().SelectMany(TriviaProcessor.DoNotWrite))
+					foreach (var n in TriviaProcessor.DoNotWrite(tree))
 					{
 						DoNotWrite.TryAdd(n, null);
 						if (n is ClassDeclarationSyntax)
@@ -70,9 +84,11 @@ namespace Cs2hx
 			Utility.Parallel(allTypes, type =>
 				{
 					TypeState.Instance = new TypeState();
-					TypeState.Instance.Compilation = compilation;
-					TypeState.Instance.TypeName = type.TypeName;
-					TypeState.Instance.Partials = type.Partials.Where(o => !DoNotWrite.ContainsKey(o)).ToList();
+					TypeState.Instance.TypeName = type.First().TypeName;
+					TypeState.Instance.Partials = type.Select(o => new TypeState.SyntaxAndSymbol { Symbol = o.Symbol, Syntax = o.Syntax })
+						.Where(o => !DoNotWrite.ContainsKey(o.Syntax))
+						.ToList();
+
 
 					if (TypeState.Instance.Partials.Count > 0)
 						WriteType.Go(outDir);

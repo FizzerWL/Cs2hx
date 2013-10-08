@@ -10,7 +10,7 @@ namespace Cs2hx
     {
         public static void Go(HaxeWriter writer, MethodDeclarationSyntax method)
         {
-			var methodSymbol = TypeState.Instance.GetModel(method).GetDeclaredSymbol(method);
+			var methodSymbol = Program.GetModel(method).GetDeclaredSymbol(method);
 
             writer.WriteIndent();
 

@@ -17,7 +17,7 @@ namespace Cs2hx
 			writer.Write(" in ");
 			Core.Write(writer, foreachStatement.Expression);
 
-			WriteEnumeratorSuffix(writer, TypeState.Instance.GetModel(foreachStatement).GetTypeInfo(foreachStatement.Expression).ConvertedType);
+			WriteEnumeratorSuffix(writer, Program.GetModel(foreachStatement).GetTypeInfo(foreachStatement.Expression).ConvertedType);
 			
 			
 			writer.Write(")\r\n");
@@ -40,7 +40,7 @@ namespace Cs2hx
 
 		public static void CheckEnumeratorSuffix(HaxeWriter writer, ExpressionSyntax expression)
 		{
-			var type = TypeState.Instance.GetModel(expression).GetTypeInfo(expression);
+			var type = Program.GetModel(expression).GetTypeInfo(expression);
 
 			if (type.ConvertedType == null || type.Type == null)
 				return;

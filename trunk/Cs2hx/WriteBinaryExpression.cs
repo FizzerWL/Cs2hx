@@ -13,7 +13,7 @@ namespace Cs2hx
 		{
 			if (expression.OperatorToken.Kind != SyntaxKind.EqualsToken && expression.OperatorToken.Kind != SyntaxKind.PlusToken)
 			{
-				var model = TypeState.Instance.GetModel(expression);
+				var model = Program.GetModel(expression);
 				Func<ExpressionSyntax, bool> isNullable = e =>
 					{
 						var t = model.GetTypeInfo(e).Type;
@@ -56,7 +56,7 @@ namespace Cs2hx
 
 		public static void WriteAssignment(HaxeWriter writer, ExpressionSyntax expression)
 		{
-			var rightType = TypeState.Instance.GetModel(expression).GetTypeInfo(expression);
+			var rightType = Program.GetModel(expression).GetTypeInfo(expression);
 
 			if (rightType.ConvertedType.Name == "Nullable" && (rightType.Type == null || rightType.Type.Name != "Nullable"))
 			{

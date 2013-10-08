@@ -13,7 +13,7 @@ namespace Cs2hx
 		public static void Go(HaxeWriter writer, MemberAccessExpressionSyntax expression)
 		{
 			var memberName = expression.Name.Identifier.ValueText;
-			var type = TypeState.Instance.GetModel(expression).GetTypeInfo(expression.Expression).ConvertedType;
+			var type = Program.GetModel(expression).GetTypeInfo(expression.Expression).ConvertedType;
 			var typeStr = TypeProcessor.GenericTypeName(type);
 
 			if (expression.Expression is PredefinedTypeSyntax && (memberName == "MaxValue" || memberName == "MinValue" || memberName == "Empty"))

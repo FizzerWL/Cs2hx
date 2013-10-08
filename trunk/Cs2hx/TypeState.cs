@@ -11,32 +11,21 @@ namespace Cs2hx
 {
 	class TypeState
 	{
-		private static ConcurrentDictionary<SyntaxTree, SemanticModel> _models = new ConcurrentDictionary<SyntaxTree, SemanticModel>();
-
 		[ThreadStatic]
 		public static TypeState Instance;
 
-		public List<BaseTypeDeclarationSyntax> Partials;
+		public List<SyntaxAndSymbol> Partials;
 		public string TypeName;
-		public Compilation Compilation;
 
 		public bool DerivesFromObject;
 		public List<VariableDeclaratorSyntax> InstanceFieldsNeedingInitialization;
 		public List<VariableDeclaratorSyntax> StaticFieldsNeedingInitialization;
-		
-		public SemanticModel GetModel(SyntaxNode node)
+
+
+		public class SyntaxAndSymbol
 		{
-			var tree = node.SyntaxTree;
-
-			SemanticModel ret;
-			if (_models.TryGetValue(tree, out ret))
-				return ret;
-
-			ret = Compilation.GetSemanticModel(tree);
-
-			_models.TryAdd(tree, ret);
-
-			return ret;
+			public BaseTypeDeclarationSyntax Syntax;
+			public NamedTypeSymbol Symbol;
 		}
 	}
 }
