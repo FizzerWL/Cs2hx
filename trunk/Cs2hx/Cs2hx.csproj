@@ -89,6 +89,7 @@
     <Compile Include="WriteIfStatement.cs" />
     <Compile Include="WriteLambdaExpression.cs" />
     <Compile Include="WriteLiteralExpression.cs" />
+    <Compile Include="WriteLockStatement.cs" />
     <Compile Include="WriteMethod.cs" />
     <Compile Include="WriteObjectCreationExpression.cs" />
     <Compile Include="WriteParenthesizedExpression.cs" />

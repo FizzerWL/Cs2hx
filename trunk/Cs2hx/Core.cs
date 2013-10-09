@@ -90,7 +90,7 @@ namespace Cs2hx
 			else if (node is ParenthesizedExpressionSyntax)
 				WriteParenthesizedExpression.Go(writer, node.As<ParenthesizedExpressionSyntax>());
 			else if (node is LockStatementSyntax)
-				Core.Write(writer, node.As<LockStatementSyntax>().Statement); //eat lock statements -- haxe is single-threaded so they do nothing.
+				WriteLockStatement.Go(writer, node.As<LockStatementSyntax>());
 			else if (node is ContinueStatementSyntax)
 				WriteContinueStatement.Go(writer, node.As<ContinueStatementSyntax>());
 			else if (node is TypeOfExpressionSyntax)
