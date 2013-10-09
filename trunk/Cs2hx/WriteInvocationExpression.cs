@@ -181,7 +181,7 @@ namespace Cs2hx
 			}
 
 
-            foreach (var arg in TranslateParameters(translateOpt, invocationExpression.ArgumentList.Arguments, invocationExpression))
+            foreach (var arg in TranslateParameters(translateOpt, SortArguments(methodSymbol, invocationExpression.ArgumentList.Arguments, invocationExpression), invocationExpression))
             {
                 if (firstParameter)
                     firstParameter = false;
@@ -211,7 +211,47 @@ namespace Cs2hx
             writer.Write(")");
 		}
 
-		private static IEnumerable<TransformedArgument> TranslateParameters(Translations.Translation translateOpt, SeparatedSyntaxList<ArgumentSyntax> list, InvocationExpressionSyntax invoke)
+		/// <summary>
+		/// If named parameters are used, re-arrange the arguments so that they're in the order defined by the method.
+		/// Since we assume it's valid C#, we don't need to check for any error conditions
+		/// </summary>
+		/// <param name="method"></param>
+		/// <param name="arguments"></param>
+		/// <returns></returns>
+		private static IEnumerable<ArgumentSyntax> SortArguments(MethodSymbol method, SeparatedSyntaxList<ArgumentSyntax> arguments, ExpressionSyntax expressionForErr)
+		{
+			if (arguments.All(o => o.NameColon == null))
+				return arguments; //no named parameters. Return them as-is.
+
+			var ret = new List<ArgumentSyntax>(arguments.Count);
+
+			//First transer any args that don't have named parameters straight over.
+			foreach (var arg in arguments)
+			{
+				if (arg.NameColon != null)
+					break;
+
+				ret.Add(arg);
+			}
+
+			var namedArgs = arguments.Skip(ret.Count).ToDictionary(o => o.NameColon.Name.Identifier.ValueText, o => o);
+
+			foreach (var param in method.Parameters.ToList().Skip(ret.Count))
+			{
+				if (namedArgs.ContainsKey(param.Name))
+				{
+					ret.Add(namedArgs[param.Name]);
+					namedArgs.Remove(param.Name);
+				}
+			}
+
+			if (namedArgs.Count > 0)
+				throw new Exception("Named parameters not found: " + string.Join(", ", namedArgs.Keys) + " on " + Utility.Descriptor(expressionForErr));
+
+			return ret;
+		}
+
+		private static IEnumerable<TransformedArgument> TranslateParameters(Translations.Translation translateOpt, IEnumerable<ArgumentSyntax> list, InvocationExpressionSyntax invoke)
 		{
 			if (translateOpt == null)
 				return list.Select(o => new TransformedArgument(o));
