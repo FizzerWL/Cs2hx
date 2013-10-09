@@ -2558,83 +2558,83 @@ class Utilities
 }");
 		}
 
-		//This was a failed attempt at trying to support ref and out.  I couldn't figure out an elegant way to make the type system reflect the swap to a CsRef type. For example, the lambda below would need to change its return type from Int to CsRef<Int>.  One possible solution is just to ditch types everywhere and let haxe's inferance figure everything out, but I haven't tried it.
-		//The rest of it could be implemented easily just by keeping a HashSet<Symbol> of all parameters that are passed with ref or out.  Add .Value anywhere they're accessed except when passing them as ref/out.
-		//		[TestMethod]
-		//		public void RefAndOut()
-		//		{
-		//			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
-		//using System;
-		//using System.Text;
-		//
-		//namespace Blargh
-		//{
-		//    public class Foo
-		//    {
-		//		public int Field;
-		//		public Foo()
-		//		{
-		//			int x;
-		//			TestOut(out x);
-		//			x = 3;
-		//			var s = x.ToString();
-		//			int i = 1;
-		//			TestRef(ref i);
-		//			i = 5;
-		//			TestRef(ref Field);
-		//			TestRef(ref this.Field);
-		//			Func<Int> fun = () => x;
-		//		}
-		//
-		//		public void TestRef(ref int i)
-		//		{
-		//			var sb = new StringBuilder(i);
-		//			i = 4;
-		//		}
-		//		public void TestOut(out int i)
-		//		{
-		//			i = 4;
-		//			var sb = new StringBuilder(i);
-		//		}
-		//
-		//    }
-		//}", @"
-		//package blargh;
-		//" + WriteImports.StandardImports + @"
-		//import system.text.StringBuilder;
-		//
-		//class Foo
-		//{
-		//	public var Field:Int;
-		//
-		//    public function new()
-		//    {
-		//		var x:CsRef<Int> = new CsRef<Int>(0);
-		//		TestOut(x);
-		//		x.Value = 3;
-		//		var s:String = Std.string(x.Value);
-		//		var i:CsRef<Int> = new CsRef<Int>(1);
-		//		TestRef(i);
-		//		i.Value = 5;
-		//		TestRef(new CsRef<Int>(Field));
-		//		TestRef(new CsRef<Int>(this.Field));
-		//		var fun:(Void -> CsRef<Int>) = function():CsRef<Int> { return x; } ;
-		//    }
-		//
-		//	public function TestRef(i:CsRef<Int>):Void
-		//	{
-		//		var sb:StringBuilder = new StringBuilder(i.Value);
-		//		i.Value = 4;
-		//	}
-		//
-		//	public function TestOut(i:CsRef<Int>):Void
-		//	{
-		//		i.Value = 4;
-		//		var sb:StringBuilder = new StringBuilder(i.Value);
-		//	}
-		//
-		//}");
-		//		}
+		[TestMethod]
+		public void RefAndOut()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Text;
+		
+namespace Blargh
+{
+	public class Foo
+	{
+		public int Field;
+		public Foo()
+		{
+			int x;
+			TestOut(out x);
+			x = 3;
+			var s = x.ToString();
+			int i = 1;
+			TestRef(ref i);
+			i = 5;
+			new StringBuilder(i);
+			TestRef(ref Field);
+			TestRef(ref this.Field);
+			Func<int> fun = () => x;
+		}
+		
+		public void TestRef(ref int i)
+		{
+			var sb = new StringBuilder(i);
+			i = 4;
+		}
+		public void TestOut(out int i)
+		{
+			i = 4;
+			var sb = new StringBuilder(i);
+		}
+		
+	}
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+import system.text.StringBuilder;
+		
+class Foo
+{
+	public var Field:Int;
+		
+	public function new()
+	{
+		var x:CsRef<Int> = new CsRef<Int>(0);
+		TestOut(x);
+		x.Value = 3;
+		var s:String = Std.string(x.Value);
+		var i:CsRef<Int> = new CsRef<Int>(1);
+		TestRef(i);
+		i.Value = 5;
+		new StringBuilder(i.Value);
+		TestRef(new CsRef<Int>(Field));
+		TestRef(new CsRef<Int>(this.Field));
+		var fun:(Void -> Int) = function ():Int { return x.Value; } ;
+	}
+		
+	public function TestRef(i:CsRef<Int>):Void
+	{
+		var sb:StringBuilder = new StringBuilder(i.Value);
+		i.Value = 4;
+	}
+		
+	public function TestOut(i:CsRef<Int>):Void
+	{
+		i.Value = 4;
+		var sb:StringBuilder = new StringBuilder(i.Value);
+	}
+		
+}");
+		}
 
 	}
 }

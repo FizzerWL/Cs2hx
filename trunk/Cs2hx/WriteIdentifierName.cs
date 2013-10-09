@@ -9,9 +9,16 @@ namespace Cs2hx
 {
 	static class WriteIdentifierName
 	{
-		public static void Go(HaxeWriter writer, IdentifierNameSyntax identifier)
+		public static void Go(HaxeWriter writer, IdentifierNameSyntax identifier, bool byRef = false)
 		{
 			writer.Write(identifier.ToString());
+
+			if (!byRef)
+			{
+				var symbol = Program.GetModel(identifier).GetSymbolInfo(identifier).Symbol;
+				if (Program.RefOutSymbols.ContainsKey(symbol))
+					writer.Write(".Value");
+			}
 		}
 	}
 }

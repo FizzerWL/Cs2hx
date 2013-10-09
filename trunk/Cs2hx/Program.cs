@@ -37,6 +37,7 @@ namespace Cs2hx
 		public static HashSet<string> StaticConstructors = new HashSet<string>();
 		public static ConcurrentDictionary<SyntaxNode, object> DoNotWrite = new ConcurrentDictionary<SyntaxNode, object>();
 		public static ConcurrentDictionary<string, object> DoNotWriteTypeNames = new ConcurrentDictionary<string, object>();
+		public static ConcurrentDictionary<Symbol, object> RefOutSymbols = new ConcurrentDictionary<Symbol, object>();
 
 		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation)
 		{

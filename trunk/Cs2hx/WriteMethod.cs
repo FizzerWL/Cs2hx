@@ -43,8 +43,7 @@ namespace Cs2hx
 			var firstParam = true;
             foreach (var parameter in method.ParameterList.Parameters)
             {
-				if (parameter.Modifiers.Any(SyntaxKind.OutKeyword) || parameter.Modifiers.Any(SyntaxKind.RefKeyword))
-					throw new Exception("Ref and Out are not supported.  " + Utility.Descriptor(method));
+				bool isRef = parameter.Modifiers.Any(SyntaxKind.OutKeyword) || parameter.Modifiers.Any(SyntaxKind.RefKeyword);
 
 				if (firstParam)
 					firstParam = false;
@@ -52,7 +51,17 @@ namespace Cs2hx
                     writer.Write(", ");
 
                 writer.Write(parameter.Identifier.ValueText);
-				writer.Write(TypeProcessor.ConvertTypeWithColon(parameter.Type));
+
+				if (isRef)
+				{
+					writer.Write(":CsRef<");
+					writer.Write(TypeProcessor.ConvertType(parameter.Type));
+					writer.Write(">");
+
+					Program.RefOutSymbols.TryAdd(Program.GetModel(method).GetDeclaredSymbol(parameter), null);
+				}
+				else
+					writer.Write(TypeProcessor.ConvertTypeWithColon(parameter.Type));
 
 				if (parameter.Default != null)
 				{

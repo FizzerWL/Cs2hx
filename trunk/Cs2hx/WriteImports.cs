@@ -38,6 +38,7 @@ namespace Cs2hx
 		/// </summary>
 		static public string StandardImports = @"using StringTools;
 import system.Cs2Hx;
+import system.CsRef;
 import system.Exception;";
 
 		/// <summary>

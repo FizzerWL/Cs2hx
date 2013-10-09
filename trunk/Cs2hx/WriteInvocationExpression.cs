@@ -188,20 +188,22 @@ namespace Cs2hx
                 else
                     writer.Write(", ");
 
-				/*
-				var isRefField = arg.ArgumentOpt != null 
-					&& arg.ArgumentOpt.RefOrOutKeyword != null
+				
+				var isRefField = arg.ArgumentOpt != null
+					&& arg.ArgumentOpt.RefOrOutKeyword.Kind != SyntaxKind.None
 					&& Program.GetModel(invocationExpression).GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is FieldSymbol;
 
 				if (isRefField)
-					writer.Write("new CsRef<" + TypeProcessor.ConvertType(Program.GetModel(invocationExpression).GetTypeInfo(arg.ArgumentOpt.Expression).Type) + ">(");*/
+					writer.Write("new CsRef<" + TypeProcessor.ConvertType(Program.GetModel(invocationExpression).GetTypeInfo(arg.ArgumentOpt.Expression).Type) + ">(");
 
-				arg.Write(writer);
+				//When passing an argument by ref or out, leave off the .Value suffix
+				if (arg.ArgumentOpt != null && arg.ArgumentOpt.RefOrOutKeyword.Kind != SyntaxKind.None && !isRefField)
+					WriteIdentifierName.Go(writer, arg.ArgumentOpt.Expression.As<IdentifierNameSyntax>(), true);
+				else
+					arg.Write(writer);
 
-				/*
 				if (isRefField)
 					writer.Write(")");
-				 */ 
 
 				if (arg.ArgumentOpt != null)
 					WriteForEachStatement.CheckEnumeratorSuffix(writer, arg.ArgumentOpt.Expression);
