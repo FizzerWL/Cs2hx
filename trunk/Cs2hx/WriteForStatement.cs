@@ -35,7 +35,11 @@ namespace Cs2hx
 				}
 
 			foreach (var init in forStatement.Initializers)
+			{
+				writer.WriteIndent();
 				Core.Write(writer, init);
+				writer.Write(";\r\n");
+			}
 
 			writer.WriteIndent();
 			writer.Write("while (");

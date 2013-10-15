@@ -23,7 +23,7 @@ namespace Cs2hx
 			{
 				var size = array.Type.RankSpecifiers[0].Sizes[0].ToString();
 				if (size != "0" && array.Initializer != null)
-					throw new Exception("Cannot use array initialization syntax for byte arrays");
+					throw new Exception("Cannot use array initialization syntax for byte arrays " + Utility.Descriptor(array));
 
 				writer.Write("Bytes.alloc(");
 				writer.Write(size);

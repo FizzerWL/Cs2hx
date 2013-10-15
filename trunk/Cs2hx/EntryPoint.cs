@@ -43,7 +43,11 @@ Options available:
 		If you don't want to convert all projects in the passed solution, you can provide a list of project names.  Only the projects named here will be converted.
 
     /extraTranslation:<path to xml file>
-        Defines extra conversion parameters for use with this project.  See Translations.xml for examples.");
+        Defines extra conversion parameters for use with this project.  See Translations.xml for examples.
+
+	/define:<symbol>
+		Adds extra pre-processor #define symbols to add to the project before building.
+");
 					return;
 				}
 
@@ -53,6 +57,7 @@ Options available:
 				string pathToSolution = null;
 				string config = null;
 				string projects = null;
+				string[] extraDefines = new string[] { };
 
 				foreach (var arg in args)
 				{
@@ -66,6 +71,8 @@ Options available:
 						config = arg.Substring(8);
 					else if (arg.StartsWith("/projects:"))
 						projects = arg.Substring(10);
+					else if (arg.StartsWith("/define:"))
+						extraDefines = arg.Substring(8).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 					else
 						throw new Exception("Invalid argument: " + arg);
 				}
@@ -80,10 +87,17 @@ Options available:
 				if (projects != null)
 					TrimList(projectsList, projects);
 
+				if (extraDefines.Length > 0)
+					projectsList = projectsList.Select(p => p.UpdateParseOptions(new ParseOptions(preprocessorSymbols: 
+						p.ParseOptions.As<ParseOptions>().PreprocessorSymbolNames
+						.Concat(extraDefines.Where(z => z.StartsWith("-") == false))
+						.Except(extraDefines.Where(z => z.StartsWith("-")).Select(z => z.Substring(1)))
+						.ToArray())
+						)).ToList();
+
 				foreach (var project in projectsList)
 				{
 					Console.WriteLine("Building project " + project.Name + "...");
-
 					Program.Go((Compilation)project.GetCompilation(), outDir, extraTranslations);
 				}
 

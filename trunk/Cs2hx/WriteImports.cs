@@ -18,18 +18,26 @@ namespace Cs2hx
 
 		public static void Init(IEnumerable<KeyValuePair<string, string>> codeTypes)
 		{
-			//Start with all system files
-			_allTypes = SystemImports.ToDictionary(o => o.SubstringAfterLast('.'), o => o);
+			if (_allTypes == null)
+			{
+				//Start with all system files
+				_allTypes = SystemImports.ToDictionary(o => o.SubstringAfterLast('.'), o => o);
 
-			//Allow users to specify extra import statements in the xml file
-			foreach (var extra in Translations.Translation.ExtraImports())
-				_allTypes.Add(extra.SubstringAfterLast('.'), extra);
+				//Allow users to specify extra import statements in the xml file
+				foreach (var extra in Translations.Translation.ExtraImports())
+					_allTypes.Add(extra.SubstringAfterLast('.'), extra);
 
-			//Add types we reference from haxe libraries
-			_allTypes.Add("Bytes", "haxe.io.Bytes");
+				//Add types we reference from haxe libraries
+				_allTypes.Add("Bytes", "haxe.io.Bytes");
+			}
 
 			foreach (var codeType in codeTypes)
 				_allTypes.Add(codeType.Value, codeType.Key.Length == 0 ? codeType.Value : (codeType.Key.ToLower() + "." + codeType.Value));
+		}
+
+		public static void Reset()
+		{
+			_allTypes = null;
 		}
 
 		#region Standard imports
@@ -37,10 +45,7 @@ namespace Cs2hx
 		/// Anything that we need always available, even if nothing in user code references it.
 		/// </summary>
 		static public string StandardImports = @"using StringTools;
-import system.Cs2Hx;
-import system.CsLock;
-import system.CsRef;
-import system.Exception;";
+import system.*;";
 
 		/// <summary>
 		/// TODO: Calculate these by parsing our system haxe dir
@@ -141,6 +146,7 @@ import system.Exception;";
 				.Select(o => Program.GetModel(o).GetTypeInfo((ExpressionSyntax)o).ConvertedType.As<NamedTypeSymbol>().DelegateInvokeMethod.As<MethodSymbol>())
 				.SelectMany(allTypes)
 				.Select(TypeProcessor.ConvertType)
+				.Where(o => o != null)
 				.SelectMany(SplitGenericTypes))
 				typesReferenced.Add(name);
 

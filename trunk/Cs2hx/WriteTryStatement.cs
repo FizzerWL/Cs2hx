@@ -19,6 +19,9 @@ namespace Cs2hx
 
 			foreach (var catchClause in tryStatement.Catches)
 			{
+				if (Program.DoNotWrite.ContainsKey(catchClause))
+					continue;
+
 				writer.WriteIndent();
 				writer.Write("catch (");
 

@@ -46,6 +46,7 @@ namespace Test
 				.AddReferences(MetadataReference.CreateAssemblyReference("System.Core"))
 				.AddSyntaxTrees(cSharp.Select(o => SyntaxTree.ParseText(o)));
 
+			WriteImports.Reset();
             Cs2hx.Program.Go(compilation, dir, extraTranslation);
 
             Func<string, string> strip = i => Regex.Replace(i, "[\r\n \t]+", " ").Trim();

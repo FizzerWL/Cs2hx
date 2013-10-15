@@ -14,6 +14,7 @@
   <Method SourceObject="System.String" Match="Trim" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="IsNullOrEmpty" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.String" Match="Join" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+  <Method SourceObject="System.String" Match="ToCharArray" ExtensionNamespace="system.Cs2Hx" />
   <Property SourceObject="System.String" Match="Length" ReplaceWith="length" />
   
   <Method SourceObject="System.Char" Match="IsLetterOrDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
@@ -26,11 +27,7 @@
   <Method SourceObject="System.Collections.Generic.Queue" Match=".ctor">
     <Argument Location="0" Action="DeleteIfPresent" />
   </Method>
-  <Method SourceObject="System.Collections.Generic.Queue" Match="Clear" ReplaceWith="splice">
-    <Argument Location="0" Action="Insert 0" />
-    <Argument Location="1" Action="Insert {varName}.length" />
-  </Method>
-
+  <Method SourceObject="System.Collections.Generic.Queue" Match="Clear" ReplaceWith="Clear" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Array" Match="Sort" ReplaceWith="sort" />
   <Property SourceObject="System.Array" Match="Length" ReplaceWith="length" />
 
@@ -47,10 +44,7 @@
   <Method SourceObject="System.Collections.Generic.List" Match="Contains" ReplaceWith="Contains" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="ToArray" ReplaceWith="ToArray" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="Add" ReplaceWith="push" />
-  <Method SourceObject="System.Collections.Generic.List" Match="Clear" ReplaceWith="splice">
-    <Argument Location="0" Action="Insert 0" />
-    <Argument Location="1" Action="Insert {varName}.length" />
-  </Method>
+  <Method SourceObject="System.Collections.Generic.List" Match="Clear" ReplaceWith="Clear" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="Sort" ReplaceWith="sort" />
   <Method SourceObject="System.Collections.Generic.List" Match="Insert" ReplaceWith="insert" />
   <Method SourceObject="System.Collections.Generic.List" Match="IndexOf" ExtensionNamespace="system.Cs2Hx" />

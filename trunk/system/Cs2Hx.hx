@@ -3,8 +3,24 @@ import system.Exception;
 
 class Cs2Hx
 {
+	public static inline function Coalesce<T>(a:T, b:T):T
+	{
+		return a == null ? b : a;
+	}
 	
-	public static function Contains<T>(a:Array<T>, item:T):Bool
+	public static inline function Clear<T>(a:Array<T>):Void
+	{
+		a.splice(0, a.length);
+	}
+	
+	public static inline function IsNaN(a:Float):Bool
+	{
+		return Math.isNaN(a);
+	}
+	
+	
+
+	public static inline function Contains<T>(a:Array<T>, item:T):Bool
 	{
 		return IndexOf(a, item) != -1;
 	}
@@ -21,13 +37,12 @@ class Cs2Hx
 		}
 	}
 	
-
-	public static function ToArray<T>(a:Array<T>):Array<T>
+	public static inline function ToArray<T>(a:Array<T>):Array<T>
 	{
 		return a;
 	}
 	
-	public static function Split(s:String, chars:Array<Int>):Array<String>
+	public static inline function Split(s:String, chars:Array<Int>):Array<String>
 	{
 		var charString:String = "";
 		
@@ -36,12 +51,12 @@ class Cs2Hx
 		return s.split(charString);
 	}
 	
-	public static function Join(sep:String, a:Array<String>):String
+	public static inline function Join(sep:String, a:Array<String>):String
 	{
 		return a.join(sep);
 	}
 	
-	private static function MakeMap(str:String):Map<Int, Bool>
+	private static inline function MakeMap(str:String):Map<Int, Bool>
 	{
 		var hash:Map<Int, Bool> = new Map<Int, Bool>();
 		

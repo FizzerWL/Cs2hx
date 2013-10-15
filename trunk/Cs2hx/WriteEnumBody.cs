@@ -12,15 +12,64 @@ namespace Cs2hx
 		public static void Go(HaxeWriter writer, IEnumerable<EnumMemberDeclarationSyntax> allChildren)
 		{
 			int lastEnumValue = 0;
-			foreach (var varDeclaration in allChildren)
-			{
-				if (varDeclaration.EqualsValue == null)
-					lastEnumValue++;
-				else
-					lastEnumValue = int.Parse(varDeclaration.EqualsValue.Value.ToString());
 
-				writer.WriteLine("public static inline var " + varDeclaration.Identifier.ValueText + ":Int = " + lastEnumValue + ";");
-			}
+			var values = allChildren.Select(o => new { Syntax = o, Value = DetermineEnumValue(o, ref lastEnumValue) }).ToList();
+
+			foreach (var value in values)
+				writer.WriteLine("public static inline var " + value.Syntax.Identifier.ValueText + ":Int = " + value.Value + ";");
+
+			writer.WriteLine();
+
+			writer.WriteLine("public static function ToString(e:Int):String");
+			writer.WriteOpenBrace();
+			writer.WriteLine("switch (e)");
+			writer.WriteOpenBrace();
+
+			foreach (var value in values)
+				writer.WriteLine("case " + value.Value + ": return \"" + value.Syntax.Identifier.ValueText + "\";");
+
+			writer.WriteLine("default: throw new InvalidOperationException(Std.string(e));");
+
+			writer.WriteCloseBrace();
+			writer.WriteCloseBrace();
+
+			writer.WriteLine();
+			writer.WriteLine("public static function Parse(s:String):Int");
+			writer.WriteOpenBrace();
+			writer.WriteLine("switch (s)");
+			writer.WriteOpenBrace();
+
+			foreach (var value in values)
+				writer.WriteLine("case \"" + value.Syntax.Identifier.ValueText + "\": return " + value.Value + ";");
+
+			writer.WriteLine("default: throw new InvalidOperationException(s);");
+			writer.WriteCloseBrace();
+			writer.WriteCloseBrace();
+
+			writer.WriteLine();
+			writer.WriteLine("public static function Values():Array<Int>");
+			writer.WriteOpenBrace();
+
+			writer.WriteIndent();
+			writer.Write("return [");
+			writer.Write(string.Join(", ", values.Select(o => o.Value.ToString())));
+			writer.Write("];\r\n");
+			writer.WriteCloseBrace();
+
 		}
+
+		private static int DetermineEnumValue(EnumMemberDeclarationSyntax syntax, ref int lastEnumValue)
+		{
+			if (syntax.EqualsValue == null)
+				return ++lastEnumValue;
+
+
+			if (!int.TryParse(syntax.EqualsValue.Value.ToString(), out lastEnumValue))
+				throw new Exception("Enums must be assigned with an integer " + Utility.Descriptor(syntax));
+
+			return lastEnumValue;
+		}
+
+
 	}
 }

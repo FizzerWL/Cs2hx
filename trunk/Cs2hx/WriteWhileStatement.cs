@@ -15,7 +15,16 @@ namespace Cs2hx
 			writer.Write("while (");
 			Core.Write(writer, whileStatement.Condition);
 			writer.Write(")\r\n");
-			Core.Write(writer, whileStatement.Statement);
+
+			writer.WriteOpenBrace();
+
+			if (whileStatement.Statement is BlockSyntax)
+				foreach (var statement in whileStatement.Statement.As<BlockSyntax>().Statements)
+					Core.Write(writer, statement);
+			else
+				Core.Write(writer, whileStatement.Statement);
+
+			writer.WriteCloseBrace();
 		}
 	}
 }

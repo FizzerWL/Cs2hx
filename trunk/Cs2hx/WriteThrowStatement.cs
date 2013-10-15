@@ -17,7 +17,28 @@ namespace Cs2hx
 				writer.Write("return "); //"return" the throw statement. This works around the "return missing" haxe limitation
 
 			writer.Write("throw ");
-			Core.Write(writer, statement.Expression);
+
+			if (statement.Expression == null)
+			{
+				//On just "throw" with no exception name, navigate up the stack to find the nearest catch block and insert the exception's name
+				CatchClauseSyntax catchBlock;
+				SyntaxNode node = statement;
+				do
+					catchBlock = (node = node.Parent) as CatchClauseSyntax;
+				while (catchBlock == null);
+
+				if (catchBlock == null)
+					throw new Exception("throw statement with no exception name, and could not locate a catch block " + Utility.Descriptor(statement));
+
+				var exName = catchBlock.Declaration.Identifier.ValueText;
+
+				if (string.IsNullOrWhiteSpace(exName))
+					exName = "__ex";
+
+				writer.Write(exName);
+			}
+			else
+				Core.Write(writer, statement.Expression);
 			writer.Write(";\r\n");
 		}
 

@@ -78,7 +78,7 @@ namespace Cs2hx
 					}
 				});
 
-			Console.WriteLine("Finished parsing in " + sw.Elapsed + ". Writing out haxe...");
+			Console.WriteLine("Parsed in " + sw.Elapsed);
 			sw.Restart();
 
 
@@ -95,7 +95,7 @@ namespace Cs2hx
 						WriteType.Go(outDir);
 				});
 
-			Console.WriteLine("Done in " + sw.Elapsed);
+			Console.WriteLine("Haxe written out in " + sw.Elapsed);
 		}
 
     }

@@ -11,6 +11,8 @@ class Exception
 	public var Message:String;
 	#end
 	
+	public var StackTrace:String; //not populated.  This just exists to prevent build errors on code that accesses it.
+	
 	public function new(msg:String = "No message")
 	{
 		#if flash

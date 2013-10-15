@@ -76,13 +76,28 @@ namespace Cs2hx
 
             }
 
-            foreach (var field in TypeState.Instance.InstanceFieldsNeedingInitialization)
+			foreach (var field in TypeState.Instance.AllMembers
+						.OfType<BaseFieldDeclarationSyntax>()
+						.Where(o => !o.Modifiers.Any(SyntaxKind.StaticKeyword))
+						.SelectMany(o => o.Declaration.Variables)
+						.Where(o =>
+							(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<BaseFieldDeclarationSyntax>().Modifiers, o.Initializer))
+							||
+							(o.Initializer == null && TypeProcessor.ValueToReference(o.Parent.As<VariableDeclarationSyntax>().Type))
+							||
+							o.Parent.Parent is EventFieldDeclarationSyntax))
             {
                 writer.WriteIndent();
                 writer.Write(field.Identifier.ValueText);
                 writer.Write(" = ");
 
-				if (field.Initializer == null)
+				if (field.Parent.Parent is EventFieldDeclarationSyntax)
+				{
+					writer.Write("new CsEvent<");
+					writer.Write(TypeProcessor.ConvertType(field.Parent.As<VariableDeclarationSyntax>().Type));
+					writer.Write(">()");
+				}
+				else if (field.Initializer == null)
 				{
 					//The only way to get here with a null initializer is for a TypeProcess.ValueToReference field.
 					writer.Write("new ");
@@ -96,6 +111,8 @@ namespace Cs2hx
 
                 writer.Write(";\r\n");
             }
+
+
 
 			if (ctorOpt != null && ctorOpt.Body != null)
 			{
@@ -112,19 +129,37 @@ namespace Cs2hx
 
         public static void WriteStaticConstructor(HaxeWriter writer, ConstructorDeclarationSyntax staticConstructorOpt)
         {
-            if (staticConstructorOpt == null && TypeState.Instance.StaticFieldsNeedingInitialization.Count() == 0)
+			var staticFieldsNeedingInitialization = TypeState.Instance.AllMembers
+				.OfType<BaseFieldDeclarationSyntax>()
+				.Where(o => o.Modifiers.Any(SyntaxKind.StaticKeyword))
+				.SelectMany(o => o.Declaration.Variables)
+				.Where(o =>
+					(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<BaseFieldDeclarationSyntax>().Modifiers, o.Initializer))
+					||
+					(o.Initializer == null && TypeProcessor.ValueToReference(o.Parent.As<VariableDeclarationSyntax>().Type))
+					||
+					o.Parent.Parent is EventFieldDeclarationSyntax)
+				.ToList();
+
+            if (staticConstructorOpt == null && staticFieldsNeedingInitialization.Count == 0)
                 return; //No static constructor needed
 
             writer.WriteLine("public static function cctor():Void");
             writer.WriteOpenBrace();
 
-			foreach (var field in TypeState.Instance.StaticFieldsNeedingInitialization)
+			foreach (var field in staticFieldsNeedingInitialization)
             {
                 writer.WriteIndent();
                 writer.Write(field.Identifier.ValueText);
 				writer.Write(" = ");
 
-				if (field.Initializer == null)
+				if (field.Parent.Parent is EventFieldDeclarationSyntax)
+				{
+					writer.Write("new CsEvent<");
+					writer.Write(TypeProcessor.ConvertType(field.Parent.As<VariableDeclarationSyntax>().Type));
+					writer.Write(">()");
+				}
+				else if (field.Initializer == null)
 				{
 					//The only way to get here without an initializer is if it's a TypeProcessor.ValueToReference.
 					writer.Write("new ");

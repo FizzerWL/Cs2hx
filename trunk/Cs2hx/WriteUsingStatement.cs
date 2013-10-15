@@ -19,10 +19,9 @@ namespace Cs2hx
 			//	expression = expression.As<ExpressionStatement>().Expression;
 
 			//Ensure the using statement is a local variable - we can't deal with things we can't reliably repeat in the finally block
-			if (!(expression is IdentifierNameSyntax))
+			var resource = Utility.TryGetIdentifier(expression);
+			if (resource == null)
 				throw new Exception("Using statements must reference a local variable. " + Utility.Descriptor(usingStatement));
-
-			var resource = expression.As<IdentifierNameSyntax>().Identifier.ValueText;
 
 			writer.WriteIndent();
 			writer.WriteLine("var __disposed_" + resource + ":Bool = false;");

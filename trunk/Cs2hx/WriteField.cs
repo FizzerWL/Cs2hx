@@ -15,18 +15,23 @@ namespace Cs2hx
                 Go(writer, field.Modifiers, declaration.Identifier.ValueText, field.Declaration.Type, declaration.Initializer);
         }
 
+		public static void WriteFieldModifiers(HaxeWriter writer, SyntaxTokenList modifiers)
+		{
+			if (modifiers.Any(SyntaxKind.PublicKeyword) || modifiers.Any(SyntaxKind.ProtectedKeyword) || modifiers.Any(SyntaxKind.InternalKeyword))
+				writer.Write("public ");
+			if (modifiers.Any(SyntaxKind.PrivateKeyword))
+				writer.Write("private ");
+			if (modifiers.Any(SyntaxKind.StaticKeyword) || modifiers.Any(SyntaxKind.ConstKeyword))
+				writer.Write("static ");
+		}
+
         public static void Go(HaxeWriter writer, SyntaxTokenList modifiers, string name, TypeSyntax type, EqualsValueClauseSyntax initializerOpt = null)
         {
             writer.WriteIndent();
 
 			var isConst = IsConst(modifiers, initializerOpt);
 
-            if (modifiers.Any(SyntaxKind.PublicKeyword) || modifiers.Any(SyntaxKind.ProtectedKeyword) || modifiers.Any(SyntaxKind.InternalKeyword))
-                writer.Write("public ");
-            if (modifiers.Any(SyntaxKind.PrivateKeyword))
-                writer.Write("private ");
-            if (modifiers.Any(SyntaxKind.StaticKeyword) || modifiers.Any(SyntaxKind.ConstKeyword))
-                writer.Write("static ");
+			WriteFieldModifiers(writer, modifiers);
 			if (isConst)
 				writer.Write("inline ");
 

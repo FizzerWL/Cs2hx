@@ -10,6 +10,9 @@ namespace Cs2hx
     {
         public static void Go(HaxeWriter writer, MethodDeclarationSyntax method)
         {
+			if (method.Identifier.ValueText == "GetEnumerator")
+				return; //skip GetEnumerator methods -- haxe can't enumerate on objects.
+
 			var methodSymbol = Program.GetModel(method).GetDeclaredSymbol(method);
 
             writer.WriteIndent();

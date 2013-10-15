@@ -9,7 +9,175 @@ namespace UnitTestProject1
 	[TestClass]
 	public class UnitTest1
 	{
+		[TestMethod]
+		public void EnumerateOnString()
+		{
 
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Linq;
+
+namespace Blargh
+{
+    public class Foo
+    {
+        public Foo()
+        {
+            var s = ""hello"";
+			var chars = s.ToCharArray();
+			foreach(var c in s)
+			{
+			}
+			s.Select(o => o);
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+import system.linq.Linq; 
+
+class Foo
+{
+    public function new()
+    {
+        var s:String = ""hello"";
+		var chars:Array<Int> = Cs2Hx.ToCharArray(s);
+		for (c in Cs2Hx.ToCharArray(s))
+		{
+		}
+		Linq.Select(Cs2Hx.ToCharArray(s), function (o:Int):Int { return o; } );
+    }
+}");
+		}
+
+		[TestMethod]
+		public void Indexing()
+		{
+
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Collections.Generic;
+
+namespace Blargh
+{
+    public class Foo
+    {
+        public Foo()
+        {
+            var dict = new Dictionary<int, int>();
+			dict[3] = 4;
+			var i = dict[3];
+			dict[3]++;
+			dict[3]--;
+			dict[3] += 3;
+			dict[3] -= 2;
+			var array = new int[3];
+			array[0] = 1;
+			array[1]++;
+			var str = ""hello"";
+			var c = str[2];
+			var list = new List<int>();
+			i = list[0];
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+import system.collections.generic.CSDictionary;
+
+class Foo
+{
+    public function new()
+    {
+        var dict:CSDictionary<Int, Int> = new CSDictionary<Int, Int>();
+		dict.SetValue(3, 4);
+		var i:Int = dict.GetValue(3);
+		dict.IncrementValue(3, 1);
+		dict.DecrementValue(3, 1);
+		dict.IncrementValue(3, 3);
+		dict.DecrementValue(3, 2);
+		var array:Array<Int> = [ ];
+		array[0] = 1;
+		array[1]++;
+		var str:String = ""hello"";
+		var c:Int = str.charCodeAt(2);
+		var list:Array<Int> = new Array<Int>();
+		i = list[0];
+    }
+}");
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(AggregateException), "Events are not supported")]
+		public void Events()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Text;
+
+namespace Blargh
+{
+
+    public class Foo
+    {
+		public static event Action Evt;
+		public static event Action<int> EvtArg;
+		public event Action NonStatic;
+
+		public Foo()
+		{
+			Evt += Program_Evt;
+			Evt -= Program_Evt;
+			Evt();
+			EvtArg += Program_EvtArg;
+			EvtArg -= Program_EvtArg;
+			EvtArg(3);
+	
+		}
+
+		static void Program_Evt()
+		{
+		}
+		static void Program_EvtArg(int i)
+		{
+		}
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Foo
+{
+	public static var Evt:CsEvent<(Void -> Void)>;
+	public static var EvtArg:CsEvent<(Int -> Void)>;
+	public var NonStatic:CsEvent<(Void -> Void)>;
+	
+    public function new()
+    {
+		NonStatic = new CsEvent<(Void -> Void)>();
+		Evt.Add(Program_Evt);
+		Evt.Remove(Program_Evt);
+		Evt.Invoke0();
+		EvtArg.Add(Program_EvtArg);
+		EvtArg.Remove(Program_EvtArg);
+		EvtArg.Invoke1(3);
+    }
+
+	static function Program_Evt():Void
+	{
+	}
+
+	static function Program_EvtArg(i:Int):Void
+	{
+	}
+
+	public static function cctor():Void
+	{
+		Evt = new CsEvent<(Void -> Void)>();
+		EvtArg = new CsEvent<(Int -> Void)>();
+	}
+}");
+		}
 		[TestMethod]
 		public void NamedParameters()
 		{
@@ -474,7 +642,7 @@ class KeyValueList<K, V> implements IEquatable<K>
     }
     public function Clear():Void
     {
-        _list.splice(0, _list.length);
+		Cs2Hx.Clear(_list);
         var castTest:K = MemberwiseClone();
     }
     public function RemoveAt(index:Int):Void
@@ -1134,8 +1302,11 @@ namespace Blargh
 		[TestMethod]
 		public void Enums()
 		{
+			
 
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, new string[] { @"
+using System;
+
 namespace Blargh
 {
     public enum MostlyNumbered
@@ -1157,6 +1328,11 @@ namespace Blargh
             var f = MostlyNumbered.One;
             var arr = new UnNumbered[] { UnNumbered.One, UnNumbered.Two, UnNumbered.Three };
             var i = (int)f;
+			var e = (MostlyNumbered)Enum.Parse(typeof(MostlyNumbered), ""One"");
+			var s = e.ToString();
+			s = e + ""asdf"";
+			s = ""asdf"" + e;
+			var vals = Enum.GetValues(typeof(MostlyNumbered));
         }
     }
 }" }, new string[] { @"
@@ -1169,6 +1345,37 @@ class MostlyNumbered
     public static inline var Three:Int = 3;
     public static inline var Unnumbered:Int = 4;
     public static inline var SomethingElse:Int = 50;
+
+	public static function ToString(e:Int):String 
+	{ 
+		switch (e) 
+		{ 
+			case 1: return ""One""; 
+			case 2: return ""Two""; 
+			case 3: return ""Three""; 
+			case 4: return ""Unnumbered""; 
+			case 50: return ""SomethingElse""; 
+			default: throw new InvalidOperationException(Std.string(e)); 
+		}
+	} 
+	
+	public static function Parse(s:String):Int 
+	{ 
+		switch (s) 
+		{ 
+			case ""One"": return 1; 
+			case ""Two"": return 2;		
+			case ""Three"": return 3; 
+			case ""Unnumbered"": return 4; 
+			case ""SomethingElse"": return 50; 
+			default: throw new InvalidOperationException(s); 
+		} 
+	}
+
+	public static function Values():Array<Int>
+	{
+		return [1, 2, 3, 4, 50];
+	}
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
@@ -1177,6 +1384,31 @@ class UnNumbered
 	public static inline var One:Int = 1; 
     public static inline var Two:Int = 2;
     public static inline var Three:Int = 3;
+	public static function ToString(e:Int):String 
+	{ 
+		switch (e) 
+		{ 
+			case 1: return ""One""; 
+			case 2: return ""Two""; 
+			case 3: return ""Three""; 
+			default: throw new InvalidOperationException(Std.string(e)); 
+		}
+	} 
+	
+	public static function Parse(s:String):Int 
+	{ 
+		switch (s) 
+		{ 
+			case ""One"": return 1; 
+			case ""Two"": return 2;		
+			case ""Three"": return 3; 
+			default: throw new InvalidOperationException(s); 
+		} 
+	}
+	public static function Values():Array<Int>
+	{
+		return [1, 2, 3];
+	}
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
@@ -1189,12 +1421,84 @@ class Clazz
         var f:Int = MostlyNumbered.One;
         var arr:Array<Int> = [ UnNumbered.One, UnNumbered.Two, UnNumbered.Three ];
         var i:Int = f;
-    }
+		var e:Int = MostlyNumbered.Parse(""One"");
+		var s:String = MostlyNumbered.ToString(e);
+		s = MostlyNumbered.ToString(e) + ""asdf"";
+		s = ""asdf"" + MostlyNumbered.ToString(e);
+		var vals = MostlyNumbered.Values();
+	}
     public function new()
     {
     }
 }"});
 		}
+
+		[TestMethod]
+		public void NestedEnum()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, new string[] { @"
+namespace Blargh
+{
+    class Foo
+    {
+		public enum TestEnum
+		{
+			One, Two, Three
+		}
+
+		public Foo()
+		{
+			var i = TestEnum.One;
+			i.ToString();
+		}
+    }
+}" }, new string[] { @"
+package blargh;
+" + WriteImports.StandardImports + @"
+class Foo
+{
+	public function new()
+	{
+		var i:Int = Foo_TestEnum.One;
+		Foo_TestEnum.ToString(i);
+	}
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+class Foo_TestEnum
+{
+	public static inline var One:Int = 1; 
+    public static inline var Two:Int = 2;
+    public static inline var Three:Int = 3;
+
+	public static function ToString(e:Int):String 
+	{ 
+		switch (e) 
+		{ 
+			case 1: return ""One""; 
+			case 2: return ""Two""; 
+			case 3: return ""Three""; 
+			default: throw new InvalidOperationException(Std.string(e)); 
+		}
+	} 
+	
+	public static function Parse(s:String):Int 
+	{ 
+		switch (s) 
+		{ 
+			case ""One"": return 1; 
+			case ""Two"": return 2;		
+			case ""Three"": return 3; 
+			default: throw new InvalidOperationException(s); 
+		} 
+	}
+	public static function Values():Array<Int>
+	{
+		return [1, 2, 3];
+	}
+}" });
+		}
+
 		[TestMethod]
 		public void SwitchStatement()
 		{
@@ -1211,9 +1515,10 @@ namespace Blargh
             string s = ""Blah"";
             switch (s)
             {
-                case ""NotMe"": Console.WriteLine(4); break;
+                case ""NotMe"": Console.WriteLine(5); break;
                 case ""Box"": Console.WriteLine(4); break;
-                case ""Blah"": Console.WriteLine(3); break;
+                case ""Blah"": 
+				case ""Blah2"": Console.WriteLine(3); break;
                 default: throw new InvalidOperationException();
             }
         }
@@ -1231,10 +1536,10 @@ class Utilities
         switch (s)
         {
             case ""NotMe"":
-                Console.WriteLine_Int32(4);
+                Console.WriteLine_Int32(5);
             case ""Box"": 
                 Console.WriteLine_Int32(4); 
-            case ""Blah"": 
+            case ""Blah"", ""Blah2"": 
                 Console.WriteLine_Int32(3); 
             default: 
                 throw new InvalidOperationException();
@@ -1952,7 +2257,7 @@ class Utilities
         queue.push(4);
         queue.push(2);
         Console.WriteLine_Int32(queue.shift());
-        queue.splice(0, queue.length);
+        Cs2Hx.Clear(queue);
 
         var list:Array<String> = new Array<String>();
         list.push(""Three"");
@@ -2115,7 +2420,9 @@ class Utilities
         }
 
 		while (true)
+		{
 			Console.WriteLine(""nobreak"");
+		}
 
         { //for
             var i:Int = 0;

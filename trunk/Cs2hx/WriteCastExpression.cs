@@ -18,7 +18,7 @@ namespace Cs2hx
 			var castingFromStr = TypeProcessor.GenericTypeName(castingFrom);
 			var castingFromHaxe = TypeProcessor.ConvertType((TypeSymbol)castingFrom);
 			var destType = Program.GetModel(expression).GetTypeInfo(expression.Type).Type;
-			var destTypeHaxe = TypeProcessor.ConvertType(expression.Type);
+			var destTypeHaxe = TypeProcessor.TryConvertType(expression.Type);
 
 			var subExpression = expression.Expression;
 
@@ -27,9 +27,18 @@ namespace Cs2hx
 				subExpression = subExpression.As<ParenthesizedExpressionSyntax>().Expression;
 
 
-			if (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind == SyntaxKind.SlashToken).None())
+			if (destTypeHaxe == null)
 			{
-				//Just eat casts from Int to Int.  Enums getting casted to int fall here, and since we use ints to represent enums anyway, it's not necessary.  Unless we contain the division operator, since haxe division always produces floating points and C# integer division produces integers, so we can't rely on the C# expression type
+				//Sometimes roslyn can't determine the type for some reason. Just fall back to haxe's dynamic cast
+				writer.Write("cast(");
+				Core.Write(writer, expression.Expression);
+				writer.Write(")");
+			}
+			else if ((castingFromHaxe == "Dynamic") 
+				|| (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind == SyntaxKind.SlashToken).None()))
+			{
+				//Eat casts from dynamic.  haxe auto converts.
+				//Eat casts from Int to Int.  Enums getting casted to int fall here, and since we use ints to represent enums anyway, it's not necessary.  However, if we contain the division operator, and since haxe division always produces floating points and C# integer division produces integers, we can't rely on the C# expression type so cast anyway.
 				Core.Write(writer, expression.Expression);
 			}
 		    else if (destTypeHaxe == "Int")

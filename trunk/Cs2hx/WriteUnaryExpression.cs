@@ -16,6 +16,21 @@ namespace Cs2hx
 		}
 		public static void Go(HaxeWriter writer, PostfixUnaryExpressionSyntax expression)
 		{
+			//Check for ++ and -- after a element access, such as a dictionary<int,int> being called as dict[4]++
+			if (expression.Operand is ElementAccessExpressionSyntax)
+			{
+				var elementAccess = (ElementAccessExpressionSyntax)expression.Operand;
+
+				var typeHaxe = TypeProcessor.ConvertType(Program.GetModel(expression).GetTypeInfo(elementAccess.Expression).ConvertedType);
+
+				if (!typeHaxe.StartsWith("Array<")) //arrays are the only thing haxe allows assignments into via indexing
+				{
+					WriteBinaryExpression.WriteIndexingExpression(writer, expression.OperatorToken, null, elementAccess);
+					return;
+				}
+
+			}
+
 			Core.Write(writer, expression.Operand);
 			writer.Write(expression.OperatorToken.ToString()); //haxe operators are the same as C#
 		}

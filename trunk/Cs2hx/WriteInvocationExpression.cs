@@ -11,7 +11,10 @@ namespace Cs2hx
     {
         public static void Go(HaxeWriter writer, InvocationExpressionSyntax invocationExpression)
         {
-			var symbolInfo = Program.GetModel(invocationExpression).GetSymbolInfo(invocationExpression);
+			var model = Program.GetModel(invocationExpression);
+
+			var symbolInfo = model.GetSymbolInfo(invocationExpression);
+			var expressionSymbol = model.GetSymbolInfo(invocationExpression.Expression);
 			var methodSymbol = symbolInfo.Symbol.As<MethodSymbol>().UnReduce();
 
 			var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, methodSymbol.Name, methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name, string.Join(" ", methodSymbol.Parameters.ToList().Select(o => o.Type.ToString()))) as Method;
@@ -19,12 +22,30 @@ namespace Cs2hx
 			var returnTypeHaxe = TypeProcessor.ConvertType(methodSymbol.ReturnType);
 			var firstParameter = true;
 			
-
 			var extensionNamespace = methodSymbol.IsExtensionMethod ? Translation.ExtensionName(methodSymbol.ContainingType) : null; //null means it's not an extension method, non-null means it is
 			string methodName;
 			ExpressionSyntax subExpressionOpt;
 
-			if (memberReferenceExpressionOpt != null && memberReferenceExpressionOpt.Expression is PredefinedTypeSyntax)
+			if (methodSymbol.ContainingType.Name == "Enum")
+			{
+				if (methodSymbol.Name == "Parse")
+				{
+					WriteEnumParse(writer, invocationExpression);
+					return;
+				}
+
+				if (methodSymbol.Name == "GetValues")
+				{
+					WriteEnumGetValues(writer, invocationExpression);
+					return;
+				}
+			}
+
+			if (expressionSymbol.Symbol is EventSymbol)
+			{
+				methodName = "Invoke"; //Would need to append the number of arguments to this to support events.  However, events are not currently supported
+			}
+			else if (memberReferenceExpressionOpt != null && memberReferenceExpressionOpt.Expression is PredefinedTypeSyntax)
 			{
 				switch (methodSymbol.Name)
 				{
@@ -45,24 +66,14 @@ namespace Cs2hx
 							throw new Exception("Parse method on " + t + " is not supported.  " + Utility.Descriptor(memberReferenceExpressionOpt));
 
 						break;
-					case "IsNaN":
-						methodName = "isNaN";
-						extensionNamespace = "Math";
-						break;
-					case "IsInfinity":
-						methodName = "IsInfinity";
-						extensionNamespace = "Cs2Hx";
-						break;
-					case "Join":
-						methodName = "Join";
-						extensionNamespace = "Cs2Hx";
-						break;
-					case "IsNullOrEmpty":
-						methodName = "IsNullOrEmpty";
+					case "TryParse":
+						methodName = "TryParse" + TypeProcessor.ConvertType(methodSymbol.ReturnType);
 						extensionNamespace = "Cs2Hx";
 						break;
 					default:
-						throw new Exception(methodSymbol.Name + " is not supported.  " + Utility.Descriptor(invocationExpression));
+						methodName = methodSymbol.Name;
+						extensionNamespace = "Cs2Hx";
+						break;
 				}
 			}
 			else if (translateOpt != null && translateOpt.ReplaceWith != null)
@@ -94,7 +105,7 @@ namespace Cs2hx
 
 
 			//Determine if it's an extension method called in a non-extension way.  In this case, just pretend it's not an extension method
-			if (extensionNamespace != null && subExpressionOpt != null && Program.GetModel(subExpressionOpt).GetTypeInfo(subExpressionOpt).ConvertedType.ToString() == methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name)
+			if (extensionNamespace != null && subExpressionOpt != null && model.GetTypeInfo(subExpressionOpt).ConvertedType.ToString() == methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name)
 				extensionNamespace = null;
 
 			if (translateOpt != null && !string.IsNullOrEmpty(translateOpt.ExtensionNamespace))
@@ -117,10 +128,11 @@ namespace Cs2hx
 				if (subExpressionOpt != null)
 				{
 					firstParameter = false;
-					Core.Write(writer, subExpressionOpt);
 
 					if (methodSymbol.IsExtensionMethod)
-						WriteForEachStatement.CheckEnumeratorSuffix(writer, subExpressionOpt);
+						WriteForEachStatement.CheckWriteEnumerator(writer, subExpressionOpt);
+					else
+						Core.Write(writer, subExpressionOpt);
 				}
 			}
 			else
@@ -128,7 +140,7 @@ namespace Cs2hx
 				//Check against lowercase toString since it gets replaced with the haxe name before we get here
 				if (memberReferenceExpressionOpt != null)
 				{
-					var memberType = Program.GetModel(memberReferenceExpressionOpt).GetTypeInfo(memberReferenceExpressionOpt.Expression).Type;
+					var memberType = model.GetTypeInfo(memberReferenceExpressionOpt.Expression).Type;
 					var memberTypeHaxe = TypeProcessor.ConvertType(memberType);
 
 					//sort calls without any parameters need to get the default sort parameter
@@ -156,17 +168,36 @@ namespace Cs2hx
 						return;
 					}
 
-					if (methodName == "toString" && (memberTypeHaxe == "Int" || memberTypeHaxe == "Float" || memberTypeHaxe == "Bool" || memberType.TypeKind == TypeKind.TypeParameter))
+					if (methodName == "toString")
 					{
-						//ToString()'s on primitive types get replaced with Std.string
-						writer.Write("Std.string(");
-						Core.Write(writer, memberReferenceExpressionOpt.Expression);
-						writer.Write(")");
 
-						if (invocationExpression.ArgumentList.Arguments.Count > 0)
-							throw new Exception("Primitive type's ToString detected with parameters.  These are not supported in haXe. " + Utility.Descriptor(invocationExpression));
+						if (memberType.TypeKind == TypeKind.Enum)
+						{
+							//calling ToString() on an enum forwards to our enum's special ToString method
+							writer.Write(WriteType.TypeName((NamedTypeSymbol)memberType));
+							writer.Write(".ToString(");
+							Core.Write(writer, memberReferenceExpressionOpt.Expression);
+							writer.Write(")");
 
-						return; //Skip parameters
+							if (invocationExpression.ArgumentList.Arguments.Count > 0)
+								throw new Exception("Enum's ToString detected with parameters.  These are not supported " + Utility.Descriptor(invocationExpression));
+
+							return;
+						}
+
+						if (memberTypeHaxe == "Int" || memberTypeHaxe == "Float" || memberTypeHaxe == "Bool" || memberType.TypeKind == TypeKind.TypeParameter)
+						{
+							//ToString()'s on primitive types get replaced with Std.string
+							writer.Write("Std.string(");
+							Core.Write(writer, memberReferenceExpressionOpt.Expression);
+							writer.Write(")");
+
+							if (invocationExpression.ArgumentList.Arguments.Count > 0)
+								throw new Exception("Primitive type's ToString detected with parameters.  These are not supported " + Utility.Descriptor(invocationExpression));
+
+							return; //Skip parameters
+						}
+
 					}
 				}
 
@@ -191,27 +222,64 @@ namespace Cs2hx
 				
 				var isRefField = arg.ArgumentOpt != null
 					&& arg.ArgumentOpt.RefOrOutKeyword.Kind != SyntaxKind.None
-					&& Program.GetModel(invocationExpression).GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is FieldSymbol;
+					&& model.GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is FieldSymbol;
 
 				if (isRefField)
-					writer.Write("new CsRef<" + TypeProcessor.ConvertType(Program.GetModel(invocationExpression).GetTypeInfo(arg.ArgumentOpt.Expression).Type) + ">(");
+					writer.Write("new CsRef<" + TypeProcessor.ConvertType(model.GetTypeInfo(arg.ArgumentOpt.Expression).Type) + ">(");
 
 				//When passing an argument by ref or out, leave off the .Value suffix
 				if (arg.ArgumentOpt != null && arg.ArgumentOpt.RefOrOutKeyword.Kind != SyntaxKind.None && !isRefField)
 					WriteIdentifierName.Go(writer, arg.ArgumentOpt.Expression.As<IdentifierNameSyntax>(), true);
+				else if (arg.ArgumentOpt != null)
+					WriteForEachStatement.CheckWriteEnumerator(writer, arg.ArgumentOpt.Expression);
 				else
 					arg.Write(writer);
 
 				if (isRefField)
 					writer.Write(")");
 
-				if (arg.ArgumentOpt != null)
-					WriteForEachStatement.CheckEnumeratorSuffix(writer, arg.ArgumentOpt.Expression);
+				
             }
 
 
             writer.Write(")");
 		}
+
+		/// <summary>
+		/// calls to Enum.Parse get re-written as calls to our special Parse methods on each enum.  We assume the first parameter to Enum.Parse is a a typeof()
+		/// </summary>
+		private static void WriteEnumParse(HaxeWriter writer, InvocationExpressionSyntax invocationExpression)
+		{
+			var args = invocationExpression.ArgumentList.Arguments;
+
+			if (args.Count < 2 || args.Count > 3)
+				throw new Exception("Expected 2-3 args to Enum.Parse");
+
+			if (args.Count == 3 && (!(args[2].Expression is LiteralExpressionSyntax) || args[2].Expression.As<LiteralExpressionSyntax>().ToString() != "false"))
+				throw new NotImplementedException("Case-insensitive Enum.Parse is not supported " + Utility.Descriptor(invocationExpression));
+
+			if (!(args[0].Expression is TypeOfExpressionSyntax))
+				throw new Exception("Expected a typeof() expression as the first parameter of Enum.Parse " + Utility.Descriptor(invocationExpression));
+
+			var type = WriteType.TypeName((NamedTypeSymbol)Program.GetModel(invocationExpression).GetTypeInfo(args[0].Expression.As<TypeOfExpressionSyntax>().Type).Type);
+
+			writer.Write(type);
+			writer.Write(".Parse(");
+			Core.Write(writer, args[1].Expression);
+			writer.Write(")");
+		}
+
+		private static void WriteEnumGetValues(HaxeWriter writer, InvocationExpressionSyntax invocationExpression)
+		{
+			if (!(invocationExpression.ArgumentList.Arguments[0].Expression is TypeOfExpressionSyntax))
+				throw new Exception("Expected a typeof() expression as the first parameter of Enum.GetValues " + Utility.Descriptor(invocationExpression));
+
+			var type = WriteType.TypeName((NamedTypeSymbol)Program.GetModel(invocationExpression).GetTypeInfo(invocationExpression.ArgumentList.Arguments[0].Expression.As<TypeOfExpressionSyntax>().Type).Type);
+
+			writer.Write(type);
+			writer.Write(".Values()");
+		}
+
 
 		/// <summary>
 		/// If named parameters are used, re-arrange the arguments so that they're in the order defined by the method.

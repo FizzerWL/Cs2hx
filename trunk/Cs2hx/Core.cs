@@ -101,8 +101,14 @@ namespace Cs2hx
 				return; //ignore empty statements
 			else if (node is DelegateDeclarationSyntax)
 				return; //don't write delegates - we convert them to types directly
+			else if (node is EventFieldDeclarationSyntax)
+				WriteEventFieldDeclaration.Go(writer, node.As<EventFieldDeclarationSyntax>());
+			else if (node is DefaultExpressionSyntax)
+				WriteDefaultExpression.Go(writer, node.As<DefaultExpressionSyntax>());
+			else if (node is GenericNameSyntax)
+				WriteGenericName.Go(writer, node.As<GenericNameSyntax>());
 			else
-				throw new NotImplementedException(node.GetType().Name);
+				throw new NotImplementedException(node.GetType().Name + " is not supported. " + Utility.Descriptor(node));
         }
 
 		public static void WriteStatement(HaxeWriter writer, ExpressionStatementSyntax statement)

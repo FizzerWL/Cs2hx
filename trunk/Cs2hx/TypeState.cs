@@ -18,8 +18,7 @@ namespace Cs2hx
 		public string TypeName;
 
 		public bool DerivesFromObject;
-		public List<VariableDeclaratorSyntax> InstanceFieldsNeedingInitialization;
-		public List<VariableDeclaratorSyntax> StaticFieldsNeedingInitialization;
+		public List<MemberDeclarationSyntax> AllMembers;
 
 
 		public class SyntaxAndSymbol

@@ -32,9 +32,10 @@ namespace Cs2hx
 			if (attrs.ContainsKey("ReplaceWithType"))
 				return attrs["ReplaceWithType"];
 
-			var typeInfo = Program.GetModel(node).As<ISemanticModel>().GetTypeInfo(node).ConvertedType;
-
-			if (typeInfo == null || typeInfo is ErrorTypeSymbol)
+			var typeInfo = Program.GetModel(node).As<ISemanticModel>().GetTypeInfo(node);
+			var t = typeInfo.ConvertedType;
+			
+			if (t == null || t is ErrorTypeSymbol)
 			{
 				if (node.ToString() == "byte[]")
 					return "Bytes"; //not sure why Roslyn isn't converting these properly, perhaps it's a bug. Just hard-code byte arrays here instead of failing
@@ -42,7 +43,7 @@ namespace Cs2hx
 					return null;
 			}
 
-			return ConvertType((TypeSymbol)typeInfo);
+			return ConvertType((TypeSymbol)t);
 		}
 
 		public static string ConvertTypeWithColon(SyntaxNode node)
@@ -101,7 +102,7 @@ namespace Cs2hx
 				if (array.ElementType.ToString() == "byte")
 					return "Bytes"; //byte arrays become haxe.io.Bytes
 				else
-					return "Array<" + ConvertType(array.ElementType) + ">";
+					return "Array<" + (ConvertType(array.ElementType) ?? "Dynamic") + ">";
 			}
 
 			var typeInfoStr = typeInfo.ToString();
@@ -126,8 +127,8 @@ namespace Cs2hx
 				return "Nullable_" + ConvertType(named.TypeArguments.Single());
 			}
 
-			if (named != null && named.IsGenericType && !named.IsUnboundGenericType)
-				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", TypeArguments(named).Select(o => ConvertType(o))) + ">";
+			if (named != null && named.IsGenericType && !named.IsUnboundGenericType && TypeArguments(named).Any())
+				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", TypeArguments(named).Select(o => ConvertType(o) ?? "Dynamic")) + ">";
 
 			var typeStr = GenericTypeName(typeInfo);
 
@@ -198,7 +199,7 @@ namespace Cs2hx
 		{
 			if (named.ContainingType != null)
 			{
-				//Hard-code generic types for subclasses, since I can't find a way to determine them programatically
+				//Hard-code generic types for dictionaries, since I can't find a way to determine them programatically
 				switch (named.Name)
 				{
 					case "ValueCollection":
@@ -206,7 +207,7 @@ namespace Cs2hx
 					case "KeyCollection":
 						return new[] { named.ContainingType.TypeArguments.ElementAt(0) };
 					default:
-						throw new Exception("Handler for generic subclass " + named);
+						return named.TypeArguments.ToList();
 				}
 			}
 

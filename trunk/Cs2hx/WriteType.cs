@@ -101,42 +101,21 @@ namespace Cs2hx
 					WriteEnumBody.Go(writer, TypeState.Instance.Partials.Select(o => o.Syntax).Cast<EnumDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)));
 				else
 				{
-					var allChildren = partials.Select(o => o.Syntax).Cast<TypeDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)).ToList();
-
-					var fields = allChildren.OfType<FieldDeclarationSyntax>().Where(o => !Program.DoNotWrite.ContainsKey(o));
-					var staticFields = fields.Where(o => o.Modifiers.Any(m => m.ValueText == "static"));
-					TypeState.Instance.StaticFieldsNeedingInitialization = staticFields
-						.SelectMany(o => o.Declaration.Variables)
-						.Where(o => 
-							(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer))
-							||
-							(o.Initializer == null && TypeProcessor.ValueToReference(o.Parent.As<VariableDeclarationSyntax>().Type)))
-						.ToList();
-
-					TypeState.Instance.InstanceFieldsNeedingInitialization = 
-						fields
-						.Except(staticFields)
-						.SelectMany(o => o.Declaration.Variables)
-						.Where(o => 
-							(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<FieldDeclarationSyntax>().Modifiers, o.Initializer))
-							||
-							(o.Initializer == null && TypeProcessor.ValueToReference(o.Parent.As<VariableDeclarationSyntax>().Type)))
-						.ToList();
-
+					TypeState.Instance.AllMembers = partials.Select(o => o.Syntax).Cast<TypeDeclarationSyntax>().SelectMany(o => o.Members).Where(o => !Program.DoNotWrite.ContainsKey(o)).ToList();
 
 					foreach (var partial in partials)
 					{
 						foreach (var member in partial.Syntax.As<TypeDeclarationSyntax>().Members)
 						{
-							if (!(member is ClassDeclarationSyntax))
+							if (!(member is ClassDeclarationSyntax) && !(member is EnumDeclarationSyntax))
 								Core.Write(writer, member);
 						}
 					}
 
 					if (first.Syntax.Kind != SyntaxKind.InterfaceDeclaration)
 					{
-						var ctors = allChildren.OfType<ConstructorDeclarationSyntax>().ToList();
-
+						//Normally constructors will be written as we traverse the tree.  However, if there are no constructors, we must manually write them out since there are cases where we need a constructor in haxe while C# had none.
+						var ctors = TypeState.Instance.AllMembers.OfType<ConstructorDeclarationSyntax>().ToList();
 
 						if (ctors.None(o => o.Modifiers.Any(SyntaxKind.StaticKeyword)))
 							WriteConstructor.WriteStaticConstructor(writer, null);

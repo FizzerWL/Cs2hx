@@ -173,5 +173,24 @@ namespace Cs2hx
 				throw new Exception("Does not end string: " + s);
 			return s.Substring(0, s.Length - toRemove.Length);
 		}
+
+		public static string TryGetIdentifier(ExpressionSyntax expression)
+		{
+			var identifier = expression as IdentifierNameSyntax;
+
+			if (identifier != null)
+				return identifier.Identifier.ValueText;
+
+			var thisSyntax = expression as ThisExpressionSyntax;
+			if (thisSyntax != null)
+				return "this";
+
+			var memAccess = expression as MemberAccessExpressionSyntax;
+			if (memAccess != null && memAccess.Expression is ThisExpressionSyntax)
+				return memAccess.ToString();
+
+			return null;
+
+		}
 	}
 }

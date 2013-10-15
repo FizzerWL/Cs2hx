@@ -11,9 +11,10 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, TypeOfExpressionSyntax expression)
 		{
-			writer.Write("typeof(");
-			writer.Write(TypeProcessor.ConvertType(expression.Type));
-			writer.Write(")");
+			throw new Exception("typeof is not supported unless part of Enum.Parse or Enum.GetValues " + Utility.Descriptor(expression));
+			//writer.Write("typeof(");
+			//writer.Write(TypeProcessor.ConvertType(expression.Type));
+			//writer.Write(")");
 		}
 	}
 }

@@ -11,23 +11,39 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, ElementAccessExpressionSyntax expression)
 		{
-			if (expression.ArgumentList.Arguments.Count != 1)
-				throw new Exception("Multiple element access not supported in C#");
-
 			Core.Write(writer, expression.Expression);
 
-			var typeStr = TypeProcessor.GenericTypeName(Program.GetModel(expression).GetTypeInfo(expression.Expression).ConvertedType);
-			if (typeStr == "System.Collections.Generic.Dictionary<,>" || typeStr == "System.Collections.Generic.HashSet<>")
+			var typeHaxe = TypeProcessor.ConvertType(Program.GetModel(expression).GetTypeInfo(expression.Expression).ConvertedType);
+			if (typeHaxe.StartsWith("Array<")) //arrays are the only thing haxe allows using the [] syntax with
 			{
-				writer.Write(".GetValue(");
+				if (expression.ArgumentList.Arguments.Count != 1)
+					throw new Exception("Expect array index to have a single argument " + Utility.Descriptor(expression));
+
+				writer.Write("[");
+				Core.Write(writer, expression.ArgumentList.Arguments.Single().Expression);
+				writer.Write("]");
+			}
+			else if (typeHaxe == "String")
+			{
+				//indexing into string to get its character results in a call to charCodeAt
+				writer.Write(".charCodeAt(");
 				Core.Write(writer, expression.ArgumentList.Arguments.Single().Expression);
 				writer.Write(")");
 			}
 			else
 			{
-				writer.Write("[");
-				Core.Write(writer, expression.ArgumentList.Arguments.Single().Expression);
-				writer.Write("]");
+				writer.Write(".GetValue(");
+				bool first = true;
+				foreach (var arg in expression.ArgumentList.Arguments)
+				{
+					if (first)
+						first = false;
+					else
+						writer.Write(", ");
+
+					Core.Write(writer, arg.Expression);
+				}
+				writer.Write(")");
 			}
 		}
 	}

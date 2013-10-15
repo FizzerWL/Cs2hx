@@ -405,7 +405,14 @@ class Linq
 		ret.reverse();
 		return ret;
 	}
-	public static function Sum(a:Array<Float>):Float
+	public static function Sum(a:Array<Int>):Int
+	{
+		var ret:Int = 0;
+		for (i in a)
+			ret += i;
+		return ret;
+	}
+	public static function Sum_IEnumerable(a:Array<Float>):Float
 	{
 		var ret:Float = 0;
 		for (i in a)

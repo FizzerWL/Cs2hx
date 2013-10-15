@@ -78,12 +78,10 @@ namespace Cs2hx.Translations
 		{
 			var memberReference = expression.As<MemberAccessExpressionSyntax>();
 
-			var identifier = memberReference.Expression as IdentifierNameSyntax;
+			var varName = Utility.TryGetIdentifier(memberReference.Expression);
 
-			if (identifier == null)
-				throw new Exception("Calling method " + memberReference.Name + " needs to be called directly from an identifier, since we need to reference this object in its arguments list.");
-
-			var varName = identifier.Identifier.ValueText;
+			if (varName == null)
+				throw new Exception("Calling method " + memberReference.Name + " needs to be called directly from an identifier, since we need to reference this object in its arguments list. " + Utility.Descriptor(expression));
 
 			return rawString.Replace("{varName}", varName);
 		}

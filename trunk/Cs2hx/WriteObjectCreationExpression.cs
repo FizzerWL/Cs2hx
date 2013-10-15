@@ -12,26 +12,38 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, ObjectCreationExpressionSyntax expression)
 		{
+			if (expression.ArgumentList == null)
+				throw new Exception("Types must be initialized with parenthesis. Object initialization syntax is not supported. " + Utility.Descriptor(expression));
+
 			var type = Program.GetModel(expression).GetTypeInfo(expression).ConvertedType;
 
-			var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, ".ctor", TypeProcessor.MatchString(TypeProcessor.GenericTypeName(type))) as Method;
-
-			writer.Write("new ");
-			writer.Write(TypeProcessor.ConvertType(expression.Type));
-			writer.Write("(");
-
-			bool first = true;
-			foreach (var param in TranslateParameters(translateOpt, expression.ArgumentList.Arguments, expression))
+			if (type.SpecialType == Roslyn.Compilers.SpecialType.System_Object)
 			{
-				if (first)
-					first = false;
-				else
-					writer.Write(", ");
-
-				param.Write(writer);
+				//new object() results in the CsObject type being made.  This is only really useful for locking
+				writer.Write("new CsObject()");
 			}
+			else
+			{
 
-			writer.Write(")");
+				var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, ".ctor", TypeProcessor.MatchString(TypeProcessor.GenericTypeName(type))) as Method;
+
+				writer.Write("new ");
+				writer.Write(TypeProcessor.ConvertType(expression.Type));
+				writer.Write("(");
+
+				bool first = true;
+				foreach (var param in TranslateParameters(translateOpt, expression.ArgumentList.Arguments, expression))
+				{
+					if (first)
+						first = false;
+					else
+						writer.Write(", ");
+
+					param.Write(writer);
+				}
+
+				writer.Write(")");
+			}
 		}
 
 		private static IEnumerable<TransformedArgument> TranslateParameters(Translation translateOpt, SeparatedSyntaxList<ArgumentSyntax> list, ObjectCreationExpressionSyntax invoke)
