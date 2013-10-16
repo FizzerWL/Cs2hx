@@ -109,7 +109,7 @@ namespace Cs2hx
 				extensionNamespace = null;
 
 			if (translateOpt != null && !string.IsNullOrEmpty(translateOpt.ExtensionNamespace))
-				extensionNamespace = translateOpt.ExtensionNamespace.SubstringAfterLast('.');
+				extensionNamespace = translateOpt.ExtensionNamespace;
 			else if (translateOpt != null && translateOpt.ExtensionNamespace == "")
 				extensionNamespace = null;
 
@@ -137,7 +137,6 @@ namespace Cs2hx
 			}
 			else
 			{
-				//Check against lowercase toString since it gets replaced with the haxe name before we get here
 				if (memberReferenceExpressionOpt != null)
 				{
 					var memberType = model.GetTypeInfo(memberReferenceExpressionOpt.Expression).Type;
@@ -168,12 +167,14 @@ namespace Cs2hx
 						return;
 					}
 
+					//Check against lowercase toString since it gets replaced with the haxe name before we get here
 					if (methodName == "toString")
 					{
 
 						if (memberType.TypeKind == TypeKind.Enum)
 						{
 							//calling ToString() on an enum forwards to our enum's special ToString method
+							writer.Write(memberType.ContainingNamespace.FullNameWithDot().ToLower());
 							writer.Write(WriteType.TypeName((NamedTypeSymbol)memberType));
 							writer.Write(".ToString(");
 							Core.Write(writer, memberReferenceExpressionOpt.Expression);
@@ -202,7 +203,7 @@ namespace Cs2hx
 				}
 
 				if (subExpressionOpt != null)
-					Core.Write(writer, subExpressionOpt);
+					WriteMemberAccessExpression.WriteMember(writer, subExpressionOpt);
 
 				if (subExpressionOpt != null && methodName != null)
 					writer.Write(".");
@@ -261,9 +262,9 @@ namespace Cs2hx
 			if (!(args[0].Expression is TypeOfExpressionSyntax))
 				throw new Exception("Expected a typeof() expression as the first parameter of Enum.Parse " + Utility.Descriptor(invocationExpression));
 
-			var type = WriteType.TypeName((NamedTypeSymbol)Program.GetModel(invocationExpression).GetTypeInfo(args[0].Expression.As<TypeOfExpressionSyntax>().Type).Type);
-
-			writer.Write(type);
+			var type = Program.GetModel(invocationExpression).GetTypeInfo(args[0].Expression.As<TypeOfExpressionSyntax>().Type).Type;
+			writer.Write(type.ContainingNamespace.FullNameWithDot().ToLower());
+			writer.Write(WriteType.TypeName((NamedTypeSymbol)type));
 			writer.Write(".Parse(");
 			Core.Write(writer, args[1].Expression);
 			writer.Write(")");
@@ -274,9 +275,10 @@ namespace Cs2hx
 			if (!(invocationExpression.ArgumentList.Arguments[0].Expression is TypeOfExpressionSyntax))
 				throw new Exception("Expected a typeof() expression as the first parameter of Enum.GetValues " + Utility.Descriptor(invocationExpression));
 
-			var type = WriteType.TypeName((NamedTypeSymbol)Program.GetModel(invocationExpression).GetTypeInfo(invocationExpression.ArgumentList.Arguments[0].Expression.As<TypeOfExpressionSyntax>().Type).Type);
+			var type = Program.GetModel(invocationExpression).GetTypeInfo(invocationExpression.ArgumentList.Arguments[0].Expression.As<TypeOfExpressionSyntax>().Type).Type;
 
-			writer.Write(type);
+			writer.Write(type.ContainingNamespace.FullNameWithDot().ToLower());
+			writer.Write(WriteType.TypeName((NamedTypeSymbol)type));
 			writer.Write(".Values()");
 		}
 

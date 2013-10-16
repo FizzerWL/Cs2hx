@@ -39,14 +39,9 @@ namespace Cs2hx
 				if (translate != null)
 					memberName = translate.ReplaceWith;
 
-				if (type != null) //if type is null, then we're just a namespace.  TODO: if there's a type name conflict, we could need to render namespaces. just ToLowering them and spitting them out should work
+				if (type != null) //if type is null, then we're just a namespace.  We can ignore these.
 				{
-					var symbol = model.GetSymbolInfo(expression.Expression).Symbol;
-					if (symbol is NamedTypeSymbol)
-						writer.Write(WriteType.TypeName(symbol.As<NamedTypeSymbol>()));
-					else
-						Core.Write(writer, expression.Expression);
-
+					WriteMember(writer, expression.Expression);
 					writer.Write(".");
 				}
 
@@ -72,6 +67,24 @@ namespace Cs2hx
 					writer.Write(">");
 				}
 			}
+		}
+
+		public static void WriteMember(HaxeWriter writer, ExpressionSyntax expression)
+		{
+			var symbol = Program.GetModel(expression).GetSymbolInfo(expression).Symbol;
+			if (symbol is NamedTypeSymbol)
+			{
+				var translateOpt = Translation.GetTranslation(Translation.TranslationType.Type, symbol.ContainingNamespace.FullNameWithDot() + symbol.Name, null);
+
+				if (translateOpt != null)
+					writer.Write(translateOpt.As<Translations.Type>().ReplaceWith);
+				else
+					writer.Write(symbol.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(symbol.As<NamedTypeSymbol>()));
+			}
+			else
+				Core.Write(writer, expression);
+
+			
 		}
 	}
 }

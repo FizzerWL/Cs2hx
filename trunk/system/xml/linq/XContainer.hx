@@ -1,5 +1,5 @@
 package system.xml.linq;
-import system.linq.Linq;
+import system.linq.Enumerable;
 
 class XContainer extends XObject
 {

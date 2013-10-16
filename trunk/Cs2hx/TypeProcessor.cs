@@ -100,7 +100,7 @@ namespace Cs2hx
 			if (array != null)
 			{
 				if (array.ElementType.ToString() == "byte")
-					return "Bytes"; //byte arrays become haxe.io.Bytes
+					return "haxe.io.Bytes"; //byte arrays become haxe.io.Bytes
 				else
 					return "Array<" + (ConvertType(array.ElementType) ?? "Dynamic") + ">";
 			}
@@ -108,6 +108,9 @@ namespace Cs2hx
 			var typeInfoStr = typeInfo.ToString();
 
 			var named = typeInfo as NamedTypeSymbol;
+
+			if (typeInfo.TypeKind == TypeKind.TypeParameter)
+				return typeInfo.Name;
 
 			if (typeInfo.TypeKind == TypeKind.Delegate)
 			{
@@ -124,7 +127,10 @@ namespace Cs2hx
 			if (named != null && named.Name == "Nullable" && named.ContainingNamespace.ToString() == "System")
 			{
 				//Nullable types get replaced by our Nullable_ alternatives
-				return "Nullable_" + ConvertType(named.TypeArguments.Single());
+				var nullableType = ConvertType(named.TypeArguments.Single());
+				if (nullableType.Contains('.'))
+					nullableType = nullableType.SubstringAfterLast('.');
+				return "Nullable_" + nullableType;
 			}
 
 			if (named != null && named.IsGenericType && !named.IsUnboundGenericType && TypeArguments(named).Any())
@@ -161,8 +167,6 @@ namespace Cs2hx
 					return "Int";
 
 					
-				case "System.Collections.Generic.Dictionary<,>":
-					return "CSDictionary"; //change the name to avoid conflicting with Haxe's dictionary type
 				case "System.Collections.Generic.List<>":
 				case "System.Collections.Generic.IList<>":
 				case "System.Collections.Generic.Queue<>":
@@ -186,10 +190,10 @@ namespace Cs2hx
 						return trans.As<Translations.Type>().ReplaceWith;
 
 					if (named != null)
-						return WriteType.TypeName(named);
+						return typeInfo.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(named);
 
 					//This type does not get translated and gets used as-is
-					return typeInfo.Name;
+					return typeInfo.ContainingNamespace.FullNameWithDot().ToLower() + typeInfo.Name;
 				
 			}
 

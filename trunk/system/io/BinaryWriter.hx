@@ -18,7 +18,7 @@ class BinaryWriter
 	private var writer:BytesOutput;
 	#end
 	
-	public function new()
+	public function new(streamOpt:MemoryStream = null) //parameter is ignored. it's just for compatibility with C# code.  Instead get the bytes by calling BaseStream
 	{
 		#if flash
 		writer = new ByteArray();
@@ -115,5 +115,12 @@ class BinaryWriter
 			num = num >> 7;
 		}
 		this.Write_Byte(num);
+	}
+	
+	public var BaseStream (get, never):MemoryStream;
+	
+	public function get_BaseStream():MemoryStream
+	{
+		return new MemoryStream(GetBytes());
 	}
 }

@@ -104,7 +104,8 @@ namespace Cs2hx
 						//Check for enums being converted to strings by string concatenation
 						if (expression.OperatorToken.Kind == SyntaxKind.PlusToken && type.Type.TypeKind == TypeKind.Enum)
 						{
-							writer.Write(type.Type.Name);
+							writer.Write(type.Type.ContainingNamespace.FullNameWithDot().ToLower());
+							writer.Write(WriteType.TypeName(type.Type.As<NamedTypeSymbol>()));
 							writer.Write(".ToString(");
 							Core.Write(writer, e);
 							writer.Write(")");

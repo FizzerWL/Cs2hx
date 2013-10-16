@@ -1,4 +1,4 @@
-package system;
+package system.collections.generic;
 
 class KeyNotFoundException extends Exception
 {

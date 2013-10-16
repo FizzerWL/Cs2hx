@@ -15,7 +15,8 @@ namespace Cs2hx
 			if (expression.ArgumentList == null)
 				throw new Exception("Types must be initialized with parenthesis. Object initialization syntax is not supported. " + Utility.Descriptor(expression));
 
-			var type = Program.GetModel(expression).GetTypeInfo(expression).ConvertedType;
+			var model = Program.GetModel(expression);
+			var type = model.GetTypeInfo(expression).Type;
 
 			if (type.SpecialType == Roslyn.Compilers.SpecialType.System_Object)
 			{
@@ -24,8 +25,10 @@ namespace Cs2hx
 			}
 			else
 			{
+				var methodSymbol = model.GetSymbolInfo(expression).Symbol.As<MethodSymbol>();
 
-				var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, ".ctor", TypeProcessor.MatchString(TypeProcessor.GenericTypeName(type))) as Method;
+				var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, ".ctor", TypeProcessor.MatchString(TypeProcessor.GenericTypeName(type)), string.Join(" ", methodSymbol.Parameters.ToList().Select(o => o.Type.ToString()))) as Method;
+				
 
 				writer.Write("new ");
 				writer.Write(TypeProcessor.ConvertType(expression.Type));

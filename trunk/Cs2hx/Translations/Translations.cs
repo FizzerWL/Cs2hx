@@ -39,7 +39,9 @@ namespace Cs2hx.Translations
 			if (string.IsNullOrEmpty(sourceTypeName))
 				sourceTypeName = "*";
 
-			var matches = Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/" + type.ToString() + "[(not(@SourceObject) or @SourceObject = '*' or @SourceObject = '" + sourceTypeName + "') and @Match='" + objectName + "']")).ToList();
+			var matches = Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/" + type.ToString() + "[(not(@SourceObject) or @SourceObject = '*' or @SourceObject = '" + sourceTypeName + "') and @Match='" + objectName + "']"))
+				.Where(o => o.Attribute("ArgumentTypes") == null || o.Attribute("ArgumentTypes").Value == arguments)
+				.ToList();
 
 			if (matches.Count > 1)
 			{
@@ -73,7 +75,7 @@ namespace Cs2hx.Translations
 			var trans = Program.TranslationDocs.SelectMany(o => o.XPathSelectElements("/Translations/ExtensionType[@Match='" + symbol.ContainingNamespace + "." + symbol.Name + "']")).SingleOrDefault();
 
 			if (trans == null)
-				return symbol.Name;
+				return symbol.ContainingNamespace.FullNameWithDot().ToLower() + symbol.Name;
 			else
 				return trans.Attribute("ReplaceWith").Value.SubstringAfterLast('.');
 		}

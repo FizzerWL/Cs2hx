@@ -1,6 +1,6 @@
 package system;
 
-class RandomAS
+class Random
 {
 	public function new()
 	{

@@ -68,22 +68,7 @@ namespace Cs2hx.Translations
 			if (rawString.Contains("{genericType}"))
 				rawString = ReplaceGenericVar(rawString, expression);
 
-			if (rawString.Contains("{varName}"))
-				rawString = ReplaceVarName(rawString, expression);
-
 			return rawString;
-		}
-
-		private string ReplaceVarName(string rawString, ExpressionSyntax expression)
-		{
-			var memberReference = expression.As<MemberAccessExpressionSyntax>();
-
-			var varName = Utility.TryGetIdentifier(memberReference.Expression);
-
-			if (varName == null)
-				throw new Exception("Calling method " + memberReference.Name + " needs to be called directly from an identifier, since we need to reference this object in its arguments list. " + Utility.Descriptor(expression));
-
-			return rawString.Replace("{varName}", varName);
 		}
 
 		private string ReplaceGenericVar(string rawString, ExpressionSyntax expression)

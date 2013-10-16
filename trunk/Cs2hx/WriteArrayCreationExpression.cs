@@ -25,7 +25,7 @@ namespace Cs2hx
 				if (size != "0" && array.Initializer != null)
 					throw new Exception("Cannot use array initialization syntax for byte arrays " + Utility.Descriptor(array));
 
-				writer.Write("Bytes.alloc(");
+				writer.Write("haxe.io.Bytes.alloc(");
 				writer.Write(size);
 				writer.Write(")");
 			}

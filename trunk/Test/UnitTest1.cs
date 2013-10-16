@@ -10,6 +10,167 @@ namespace UnitTestProject1
 	public class UnitTest1
 	{
 		[TestMethod]
+		public void HelloWorld()
+		{
+
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction()
+        {
+            Console.WriteLine(""Hello, World!"");
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Utilities
+{
+    public static function SomeFunction():Void
+    {
+        system.Console.WriteLine(""Hello, World!"");
+    }
+    public function new()
+    {
+    }
+}");
+		}
+		[TestMethod]
+		public void IfStatement()
+		{
+
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction()
+        {
+            string notInitialized;
+            int myNum = 0;
+            notInitialized = ""InitMe!"";
+
+            if (myNum > 4)
+                myNum = 2;
+            else if (notInitialized == ""asdf"")
+                myNum = 1;
+            else
+                myNum = 999;
+
+            Console.WriteLine(myNum == 999 ? ""One"" : ""Two"");
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+class Utilities
+{
+    public static function SomeFunction():Void
+    {
+        var notInitialized:String;
+        var myNum:Int = 0;
+        notInitialized = ""InitMe!"";
+
+        if (myNum > 4)
+        {
+            myNum = 2;
+        }
+        else if (notInitialized == ""asdf"")
+        {
+            myNum = 1;
+        }
+        else
+        {
+            myNum = 999;
+        }
+
+        system.Console.WriteLine(myNum == 999 ? ""One"" : ""Two"");
+    }
+    public function new()
+    {
+    }
+}");
+		}
+
+		[TestMethod]
+		public void Loops()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction()
+        {
+            while (true)
+            {
+                Console.WriteLine(""hi"");
+                break;
+            }
+			
+			while (true)
+				Console.WriteLine(""nobreak"");
+
+            for (int i=0;i<50;i++)
+                Console.WriteLine(i);
+
+            do
+            {
+                Console.WriteLine(""Dowhile"");
+            }
+            while (false);
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Utilities
+{
+    public static function SomeFunction():Void
+    {
+        while (true)
+        {
+            system.Console.WriteLine(""hi"");
+            break;
+        }
+
+		while (true)
+		{
+			system.Console.WriteLine(""nobreak"");
+		}
+
+        { //for
+            var i:Int = 0;
+            while (i < 50)
+            {
+                system.Console.WriteLine_Int32(i);
+                i++;
+            }
+        } //end for
+        do
+        {
+            system.Console.WriteLine(""Dowhile"");
+        }
+        while (false);
+    }
+    public function new()
+    {
+    }
+}");
+		}
+
+
+		[TestMethod]
 		public void EnumerateOnString()
 		{
 
@@ -34,18 +195,17 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.linq.Linq; 
 
 class Foo
 {
     public function new()
     {
         var s:String = ""hello"";
-		var chars:Array<Int> = Cs2Hx.ToCharArray(s);
+		var chars:Array<Int> = system.Cs2Hx.ToCharArray(s);
 		for (c in Cs2Hx.ToCharArray(s))
 		{
 		}
-		Linq.Select(Cs2Hx.ToCharArray(s), function (o:Int):Int { return o; } );
+		system.linq.Enumerable.Select(Cs2Hx.ToCharArray(s), function (o:Int):Int { return o; } );
     }
 }");
 		}
@@ -83,13 +243,12 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.collections.generic.CSDictionary;
 
 class Foo
 {
     public function new()
     {
-        var dict:CSDictionary<Int, Int> = new CSDictionary<Int, Int>();
+        var dict:system.collections.generic.Dictionary<Int, Int> = new system.collections.generic.Dictionary<Int, Int>();
 		dict.SetValue(3, 4);
 		var i:Int = dict.GetValue(3);
 		dict.IncrementValue(3, 1);
@@ -257,13 +416,12 @@ namespace Blargh
 }", new[] { @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import blargh.Outer_Inner;
 
 class Outer
 {
     public function new()
     {
-		var i:Outer_Inner = new Outer_Inner();
+		var i:blargh.Outer_Inner = new blargh.Outer_Inner();
 		i.InnerField = 4;
     }
 }",
@@ -304,14 +462,13 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.text.StringBuilder;
 
 class Foo
 {
     public function new()
     {
-		var i = { Field1: 3, Field2: new StringBuilder() };
-		Console.WriteLine_Int32(i.Field1);
+		var i = { Field1: 3, Field2: new system.text.StringBuilder() };
+		system.Console.WriteLine_Int32(i.Field1);
     }
 }");
 		}
@@ -404,7 +561,7 @@ class SomeClass
     {
 		Console.WriteLine(""cs2hx1"");
 		Console.WriteLine(""cs2hx2"");
-		Console.WriteLine(""outside"");
+		system.Console.WriteLine(""outside"");
 		Console.WriteLine(""cs2hx3"");
     }
 }");
@@ -431,15 +588,13 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.linq.Linq;
-import system.text.StringBuilder;
 
 class SomeClass
 {
     public function new()
     {
         var a:Array<Int> = [ 1, 2, 3 ];
-		var b:Array<StringBuilder> = Linq.ToList(Linq.OfType(a, StringBuilder));
+		var b:Array<system.text.StringBuilder> = system.linq.Enumerable.ToList(system.linq.Enumerable.OfType(a, system.text.StringBuilder));
     }
 }");
 		}
@@ -467,7 +622,7 @@ class SomeClass
 {
     public function new()
     {
-        var c:SomeClass = null;
+        var c:blargh.SomeClass = null;
     }
 }");
 		}
@@ -544,7 +699,7 @@ class Utilities
         { //for
             while (true)
             {
-                Console.WriteLine(""Hello, World!"");
+                system.Console.WriteLine(""Hello, World!"");
             }
         } //end for
     }
@@ -625,24 +780,22 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.collections.generic.KeyValuePair;
-import system.NotImplementedException;
 
-class KeyValueList<K, V> implements IEquatable<K>
+class KeyValueList<K, V> implements system.IEquatable<K>
 {
-    private var _list:Array<KeyValuePair<K, V>>;
+    private var _list:Array<system.collections.generic.KeyValuePair<K, V>>;
 
     public function Add(key:K, value:V):Void
     {
-        this._list.push(new KeyValuePair<K, V>(key, value));
+        this._list.push(new system.collections.generic.KeyValuePair<K, V>(key, value));
     }
     public function Insert(index:Int, key:K, value:V):Void
     {
-        _list.insert(index, new KeyValuePair<K, V>(key, value));
+        _list.insert(index, new system.collections.generic.KeyValuePair<K, V>(key, value));
     }
     public function Clear():Void
     {
-		Cs2Hx.Clear(_list);
+		system.Cs2Hx.Clear(_list);
         var castTest:K = MemberwiseClone();
     }
     public function RemoveAt(index:Int):Void
@@ -651,11 +804,11 @@ class KeyValueList<K, V> implements IEquatable<K>
     }
 	public function Equals(other:K):Bool
 	{
-		return throw new NotImplementedException();
+		return throw new system.NotImplementedException();
 	}
     public function new()
     {
-        _list = new Array<KeyValuePair<K, V>>();
+        _list = new Array<system.collections.generic.KeyValuePair<K, V>>();
     }
 }");
 		}
@@ -680,14 +833,13 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import haxe.io.Bytes;
 
 class Utilities
 {
     public static function SomeFunction():Void
     {
-        var b1:Bytes = Bytes.alloc(4);
-		var b2:Bytes = Bytes.alloc(Foo());
+        var b1:haxe.io.Bytes = haxe.io.Bytes.alloc(4);
+		var b2:haxe.io.Bytes = haxe.io.Bytes.alloc(Foo());
     }
 	static function Foo():Int
 	{
@@ -756,9 +908,8 @@ class Top
 			var haxe2 = @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import blargh.Top;
 
-class Derived extends Top
+class Derived extends blargh.Top
 {
     public function new()
     {
@@ -799,10 +950,8 @@ namespace SomeInterfaceNamespace
 			var haxe1 = @"
 package someclassnamespace;
 " + WriteImports.StandardImports + @"
-import someinterfacenamespace.ISomeInterface;
-import system.IDisposable;
 
-class SomeClass implements ISomeInterface implements IDisposable
+class SomeClass implements someinterfacenamespace.ISomeInterface implements system.IDisposable
 {
     public function SomeClassMethod():Void
     {
@@ -867,22 +1016,20 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.DateTime;
-import system.text.StringBuilder;
 
 class Box
 {
     public static function Main():Void
     {
-        SomeFunction(function (_:StringBuilder, o:Int):Int { return o + 1; } );
+        SomeFunction(function (_:system.text.StringBuilder, o:Int):Int { return o + 1; } );
     }
 
-    public static function SomeFunction(doWork:(StringBuilder -> Int -> Int)):Int
+    public static function SomeFunction(doWork:(system.text.StringBuilder -> Int -> Int)):Int
     {
         var value:Int = doWork(null, 3);
 		return value;
     }
-    public function new(doWork:(DateTime -> Void))
+    public function new(doWork:(system.DateTime -> Void))
     {
     }
 }
@@ -959,11 +1106,11 @@ class Utilities
 {
     public static function SomeFunction():Void
     {
-        var usingMe:MemoryStream = new MemoryStream();
+        var usingMe:system.io.MemoryStream = new system.io.MemoryStream();
         var __disposed_usingMe:Bool = false;
         try
         {
-            Console.WriteLine(""In using"");
+            system.Console.WriteLine(""In using"");
 
             __disposed_usingMe = true;
             usingMe.Dispose();
@@ -1082,12 +1229,12 @@ class Utilities
 
     public static function SomeFunction(getit:(Int -> Int), getitnow:(Void -> Int), unused:(Float -> Int -> Float)):Void
     {
-        Console.WriteLine_Int32(getit(getitnow()));
+        system.Console.WriteLine_Int32(getit(getitnow()));
 		var a:Array<(Void -> Int)> = [ getitnow ];
 		a[0]();
 		StaticAction();
-		Utilities.StaticAction();
-		Utilities.StaticAction();
+		blargh.Utilities.StaticAction();
+		blargh.Utilities.StaticAction();
     }
     public function new()
     {
@@ -1126,11 +1273,11 @@ class Utilities
 	static var Foo:Int;
     public static function SomeFunction():Void
     {
-        Utilities.Foo = 4;
-        Console.WriteLine_Int32(2147483647);
-        Console.WriteLine_Int32(-2147483648);
+        blargh.Utilities.Foo = 4;
+        system.Console.WriteLine_Int32(2147483647);
+        system.Console.WriteLine_Int32(-2147483648);
         var s:String = ""123"";
-        Console.WriteLine_Int32(Std.parseInt(s) + 1);
+        system.Console.WriteLine_Int32(Std.parseInt(s) + 1);
         Std.parseFloat(s);
         Std.parseFloat(s);
     }
@@ -1182,47 +1329,42 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.collections.generic.CSDictionary;
-import system.collections.generic.HashSet;
-import system.collections.generic.KeyValuePair;
-import system.linq.IGrouping;
-import system.linq.Linq;
 
 class Utilities
 {
     public static function SomeFunction():Void
     {
-        var dict:CSDictionary<Int, Int> = new CSDictionary<Int, Int>();
+        var dict:system.collections.generic.Dictionary<Int, Int> = new system.collections.generic.Dictionary<Int, Int>();
         dict.Add(4, 3);
-        Console.WriteLine_Int32(dict.GetValue(4));
-        Console.WriteLine_Boolean(dict.ContainsKey(8));
+        system.Console.WriteLine_Int32(dict.GetValue(4));
+        system.Console.WriteLine_Boolean(dict.ContainsKey(8));
         dict.Remove(4);
         for (key in dict.Keys)
         {
-            Console.WriteLine_Int32(key);
+            system.Console.WriteLine_Int32(key);
         }
         for (val in dict.Values)
         {
-            Console.WriteLine_Int32(val);
+            system.Console.WriteLine_Int32(val);
         }
 		for (kv in dict.KeyValues())
 		{
-			Console.WriteLine(kv.Key + "" "" + kv.Value);
+			system.Console.WriteLine(kv.Key + "" "" + kv.Value);
 		}
-		var dict2:CSDictionary<Int, Int> = Linq.ToDictionary(dict.KeyValues(), function (o:KeyValuePair<Int, Int>):Int { return o.Key; } , function (o:KeyValuePair<Int, Int>):Int { return o.Value; } );
+		var dict2:system.collections.generic.Dictionary<Int, Int> = system.linq.Enumerable.ToDictionary(dict.KeyValues(), function (o:system.collections.generic.KeyValuePair<Int, Int>):Int { return o.Key; } , function (o:system.collections.generic.KeyValuePair<Int, Int>):Int { return o.Value; } );
 		var vals:Array<Int> = dict.Values;
         
-        var hash:HashSet<Int> = new HashSet<Int>();
+        var hash:system.collections.generic.HashSet<Int> = new system.collections.generic.HashSet<Int>();
         hash.Add(999);
-        Console.WriteLine_Boolean(hash.Contains(999));
+        system.Console.WriteLine_Boolean(hash.Contains(999));
         hash.Remove(999);
-        Console.WriteLine_Boolean(hash.Contains(999));
+        system.Console.WriteLine_Boolean(hash.Contains(999));
         for (hashItem in hash.Values())
         {
-            Console.WriteLine_Int32(hashItem);
+            system.Console.WriteLine_Int32(hashItem);
         }
-		var z:Array<Int> = Linq.ToArray(Linq.Select(hash.Values(), function (o:Int):Int { return 3; } ));
-		var g:Int = Linq.Min(Linq.Select(Linq.GroupBy(hash.Values(), function (o:Int):Int { return o; } ), function (o:IGrouping<Int, Int>):Int { return Linq.Count(o.Values()); } ));
+		var z:Array<Int> = system.linq.Enumerable.ToArray(system.linq.Enumerable.Select(hash.Values(), function (o:Int):Int { return 3; } ));
+		var g:Int = system.linq.Enumerable.Min(system.linq.Enumerable.Select(system.linq.Enumerable.GroupBy(hash.Values(), function (o:Int):Int { return o; } ), function (o:system.linq.IGrouping<Int, Int>):Int { return system.linq.Enumerable.Count(o.Values()); } ));
 
     }
     public function new()
@@ -1257,16 +1399,15 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.Nullable_Int;
 
 class Utilities
 {
     public static function SomeFunction():Void
     {
         var nullableInt:Nullable_Int = new Nullable_Int();
-        Console.WriteLine_Boolean(nullableInt.HasValue);
+        system.Console.WriteLine_Boolean(nullableInt.HasValue);
         var withValue:Nullable_Int = new Nullable_Int(8);
-        Console.WriteLine_Int32(withValue.Value);
+        system.Console.WriteLine_Int32(withValue.Value);
 		var implicitNull:Nullable_Int = new Nullable_Int();
 		implicitNull = new Nullable_Int();
 		var implicitValue:Nullable_Int = new Nullable_Int(5);
@@ -1412,20 +1553,19 @@ class UnNumbered
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import blargh.MostlyNumbered;
-import blargh.UnNumbered;
+
 class Clazz
 {
     public static function Methodz():Void
     {
-        var f:Int = MostlyNumbered.One;
-        var arr:Array<Int> = [ UnNumbered.One, UnNumbered.Two, UnNumbered.Three ];
+        var f:Int = blargh.MostlyNumbered.One;
+        var arr:Array<Int> = [ blargh.UnNumbered.One, blargh.UnNumbered.Two, blargh.UnNumbered.Three ];
         var i:Int = f;
-		var e:Int = MostlyNumbered.Parse(""One"");
-		var s:String = MostlyNumbered.ToString(e);
-		s = MostlyNumbered.ToString(e) + ""asdf"";
-		s = ""asdf"" + MostlyNumbered.ToString(e);
-		var vals = MostlyNumbered.Values();
+		var e:Int = blargh.MostlyNumbered.Parse(""One"");
+		var s:String = blargh.MostlyNumbered.ToString(e);
+		s = blargh.MostlyNumbered.ToString(e) + ""asdf"";
+		s = ""asdf"" + blargh.MostlyNumbered.ToString(e);
+		var vals = blargh.MostlyNumbered.Values();
 	}
     public function new()
     {
@@ -1459,8 +1599,8 @@ class Foo
 {
 	public function new()
 	{
-		var i:Int = Foo_TestEnum.One;
-		Foo_TestEnum.ToString(i);
+		var i:Int = blargh.Foo_TestEnum.One;
+		blargh.Foo_TestEnum.ToString(i);
 	}
 }", @"
 package blargh;
@@ -1526,7 +1666,6 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.InvalidOperationException;
 
 class Utilities
 {
@@ -1536,13 +1675,13 @@ class Utilities
         switch (s)
         {
             case ""NotMe"":
-                Console.WriteLine_Int32(5);
+                system.Console.WriteLine_Int32(5);
             case ""Box"": 
-                Console.WriteLine_Int32(4); 
+                system.Console.WriteLine_Int32(4); 
             case ""Blah"", ""Blah2"": 
-                Console.WriteLine_Int32(3); 
+                system.Console.WriteLine_Int32(3); 
             default: 
-                throw new InvalidOperationException();
+                throw new system.InvalidOperationException();
         }
     }
     public function new()
@@ -1580,39 +1719,37 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.collections.generic.CSDictionary;
-import system.linq.Linq;
 
 class Utilities
 {
     public static function SomeFunction():Void
     {
         var e:Array<Int> = [ 0, 1, 2, 3 ];
-        Console.WriteLine_Int32(Linq.First(e));
+        system.Console.WriteLine_Int32(system.linq.Enumerable.First(e));
 		
-        Console.WriteLine_Int32(Linq.First_IEnumerable_Func(e, function (o:Int):Bool
+        system.Console.WriteLine_Int32(system.linq.Enumerable.First_IEnumerable_Func(e, function (o:Int):Bool
         {
             return o == 1;
         } ));
-        Console.WriteLine_Int32(Linq.ElementAt(e, 2));
-        Console.WriteLine_Int32(Linq.Last(e));
-        Console.WriteLine_Int32(Linq.Count(Linq.Select(e, function (o:Int):Int { return o; } )));
-        Console.WriteLine_Int32(Linq.Count(Linq.Where(e, function (o:Int):Bool
+        system.Console.WriteLine_Int32(system.linq.Enumerable.ElementAt(e, 2));
+        system.Console.WriteLine_Int32(system.linq.Enumerable.Last(e));
+        system.Console.WriteLine_Int32(system.linq.Enumerable.Count(system.linq.Enumerable.Select(e, function (o:Int):Int { return o; } )));
+        system.Console.WriteLine_Int32(system.linq.Enumerable.Count(system.linq.Enumerable.Where(e, function (o:Int):Bool
         {
             return o > 0;
         } )) + 2);
-        Console.WriteLine_Int32(Linq.Count_IEnumerable_Func(e, function (o:Int):Bool
+        system.Console.WriteLine_Int32(system.linq.Enumerable.Count_IEnumerable_Func(e, function (o:Int):Bool
         {
             return true;
         } ) + 2);
-        var dict:CSDictionary<Int, Int> = Linq.ToDictionary(e, function (o:Int):Int
+        var dict:system.collections.generic.Dictionary<Int, Int> = system.linq.Enumerable.ToDictionary(e, function (o:Int):Int
         {
             return o;
         } , function (o:Int):Int
         {
             return 555;
         } );
-        Linq.OfType(e, Int);
+        system.linq.Enumerable.OfType(e, Int);
     }
     public function new()
     {
@@ -1666,9 +1803,9 @@ class Utilities
 	public static function OverOne():Void
 	{
 		OverOne_Int32(3);
-		Cs2Hx.MaxInt(3, 3);
-		Math.max(4.0, 4.0);
-		Math.max(5, 5);
+		system.Math.Max_Int32_Int32(3, 3);
+		system.Math.Max_Double_Double(4.0, 4.0);
+		system.Math.Max_Single_Single(5, 5);
 	}
 	public static function OverOne_Int32(param:Int):Void
 	{
@@ -1676,7 +1813,7 @@ class Utilities
 	}
     public static function OverOne_Int32_String(param:Int, prm:String):Void
     {
-        Console.WriteLine(param + prm);
+        system.Console.WriteLine(param + prm);
     }
 	public static function OverTwo():Int
 	{
@@ -1731,11 +1868,11 @@ class Utilities
         var list:Array<Int> = new Array<Int>();
         if (Std.is(s, String))
         {
-            Console.WriteLine(""Yes"");
+            system.Console.WriteLine(""Yes"");
         }
         if (Std.is(list, Array))
         {
-            Console.WriteLine(""Yes"");
+            system.Console.WriteLine(""Yes"");
         }
     }
     public function new()
@@ -1810,6 +1947,7 @@ namespace Blargh
       @"
 package blargh;
 " + WriteImports.StandardImports + @"
+
 class TopLevel
 {
     public function AbstractMethod():Void
@@ -1825,7 +1963,7 @@ class TopLevel
 
     public function VirtualMethod():Void
     {
-        Console.WriteLine(""TopLevel::VirtualMethod"");
+        system.Console.WriteLine(""TopLevel::VirtualMethod"");
     }
 
     public var VirtualProperty(get_VirtualProperty, never):String;
@@ -1846,13 +1984,12 @@ class TopLevel
     @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import blargh.TopLevel;
 
-class Derived extends TopLevel
+class Derived extends blargh.TopLevel
 {
     override public function AbstractMethod():Void
     {
-        Console.WriteLine(""Derived::AbstractMethod"");
+        system.Console.WriteLine(""Derived::AbstractMethod"");
     }
     override public function get_AbstractProperty():String
     {
@@ -1861,7 +1998,7 @@ class Derived extends TopLevel
     override public function VirtualMethod():Void
     {
         super.VirtualMethod();
-        Console.WriteLine(""Derived::VirtualMethod"");
+        system.Console.WriteLine(""Derived::VirtualMethod"");
     }
 
     override public function get_VirtualProperty():String
@@ -1939,10 +2076,6 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.DateTime;
-import system.Nullable_Int;
-import system.text.StringBuilder;
-import system.TimeSpan;
 
 class Box
 {
@@ -1960,7 +2093,7 @@ class Box
     public var SetOnly(never, set_SetOnly):Float;
     public function set_SetOnly(value:Float):Float
     {
-        Console.WriteLine_Single(value);
+        system.Console.WriteLine_Single(value);
 		return 0;
     }
     public var GetOnly(get_GetOnly, never):Int;
@@ -1971,7 +2104,7 @@ class Box
 
     public var IsRectangular:Bool;
     public var Characters:Array<Int>;
-    public static var StaticField:StringBuilder;
+    public static var StaticField:system.text.StringBuilder;
     public static inline var ConstInt:Int = 24;
     public static inline var StaticReadonlyInt:Int = 5;
     public static inline var WithQuoteMiddle:String = ""before\""after"";
@@ -1979,21 +2112,21 @@ class Box
     public var MultipleOne:Int;
     public var MultipleTwo:Int;
     public var ReadonlyInt:Int;
-	public var UninitializedDate:DateTime;
+	public var UninitializedDate:system.DateTime;
 	public var UnitializedNullableInt:Nullable_Int;
-	public var UninitializedTimeSpan:TimeSpan;
-	public static var StaticUninitializedDate:DateTime;
+	public var UninitializedTimeSpan:system.TimeSpan;
+	public static var StaticUninitializedDate:system.DateTime;
 	public static var StaticUnitializedNullableInt:Nullable_Int;
-	public static var StaticUninitializedTimeSpan:TimeSpan;
+	public static var StaticUninitializedTimeSpan:system.TimeSpan;
 
 
     public static function cctor():Void
     {
-        StaticField = new StringBuilder();
-		StaticUninitializedDate = new DateTime();
+        StaticField = new system.text.StringBuilder();
+		StaticUninitializedDate = new system.DateTime();
 		StaticUnitializedNullableInt = new Nullable_Int();
-		StaticUninitializedTimeSpan = new TimeSpan();
-        Console.WriteLine(""cctor"");
+		StaticUninitializedTimeSpan = new system.TimeSpan();
+        system.Console.WriteLine(""cctor"");
     }
 
 	public function new()
@@ -2001,10 +2134,10 @@ class Box
 		IsRectangular = true;
 		Characters = [ 97, 98 ];
         ReadonlyInt = 3;
-		UninitializedDate = new DateTime();
+		UninitializedDate = new system.DateTime();
 		UnitializedNullableInt = new Nullable_Int();
-		UninitializedTimeSpan = new TimeSpan();
-        Console.WriteLine(""ctor"");
+		UninitializedTimeSpan = new system.TimeSpan();
+        system.Console.WriteLine(""ctor"");
 	}
 }");
 		}
@@ -2043,13 +2176,12 @@ interface ITesting
   @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import blargh.ITesting;
 
-class Pokable implements ITesting
+class Pokable implements blargh.ITesting
 {
     public function Poke():Void
     {
-        Console.WriteLine(""Implementation"");
+        system.Console.WriteLine(""Implementation"");
     }
     public function new()
     {
@@ -2109,44 +2241,42 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.Exception;
-import system.InvalidOperationException;
 
 class Utilities
 {
     public static function SomeFunction():Void
     {
-        Console.WriteLine(""Before try"");
+        system.Console.WriteLine(""Before try"");
         try
         {
-            Console.WriteLine(""In try"");
+            system.Console.WriteLine(""In try"");
         }
-        catch (ex:Exception)
+        catch (ex:system.Exception)
         {
-            Console.WriteLine(""In catch"");
-        }
-        try
-        {
-            Console.WriteLine(""Try without finally"");
-        }
-        catch (ex:IOException)
-        {
-            Console.WriteLine(""In second catch"");
+            system.Console.WriteLine(""In catch"");
         }
         try
         {
-            Console.WriteLine(""Try in parameterless catch"");
+            system.Console.WriteLine(""Try without finally"");
+        }
+        catch (ex:system.io.IOException)
+        {
+            system.Console.WriteLine(""In second catch"");
+        }
+        try
+        {
+            system.Console.WriteLine(""Try in parameterless catch"");
         }
         catch (__ex:Dynamic)
         {
-            Console.WriteLine(""In parameterless catch"");
+            system.Console.WriteLine(""In parameterless catch"");
         }
 
-        throw new InvalidOperationException(""err"");
+        throw new system.InvalidOperationException(""err"");
     }
 	public static function ReturnsSomething():String
 	{
-		return throw new Exception();
+		return throw new system.Exception();
 	}
     public function new()
     {
@@ -2256,8 +2386,8 @@ class Utilities
         var queue:Array<Int> = new Array<Int>();
         queue.push(4);
         queue.push(2);
-        Console.WriteLine_Int32(queue.shift());
-        Cs2Hx.Clear(queue);
+        system.Console.WriteLine_Int32(queue.shift());
+        system.Cs2Hx.Clear(queue);
 
         var list:Array<String> = new Array<String>();
         list.push(""Three"");
@@ -2268,7 +2398,7 @@ class Utilities
         var stack:Array<Int> = new Array<Int>();
         stack.push(9);
         stack.push(3);
-        Cs2Hx.MaxInt(stack.pop(), stack.pop());
+        system.Math.Max_Int32_Int32(stack.pop(), stack.pop());
     }
     public function new()
     {
@@ -2309,12 +2439,12 @@ class Utilities
         { 
             return x + 5; 
         } ;
-        Console.WriteLine_Int32(f1(3));
+        system.Console.WriteLine_Int32(f1(3));
         var f2:(Int -> Int) = function (x:Int):Int 
         { 
             return x + 6; 
         } ;
-        Console.WriteLine_Int32(f2(3));
+        system.Console.WriteLine_Int32(f2(3));
         var actions:Array<(Void -> Void)> = new Array<(Void -> Void)>();
     }
     public function new()
@@ -2374,76 +2504,7 @@ class Utilities
     }
 }");
 		}
-		[TestMethod]
-		public void Loops()
-		{
-			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
-using System;
-
-namespace Blargh
-{
-    public static class Utilities
-    {
-        public static void SomeFunction()
-        {
-            while (true)
-            {
-                Console.WriteLine(""hi"");
-                break;
-            }
-			
-			while (true)
-				Console.WriteLine(""nobreak"");
-
-            for (int i=0;i<50;i++)
-                Console.WriteLine(i);
-
-            do
-            {
-                Console.WriteLine(""Dowhile"");
-            }
-            while (false);
-        }
-    }
-}", @"
-package blargh;
-" + WriteImports.StandardImports + @"
-
-class Utilities
-{
-    public static function SomeFunction():Void
-    {
-        while (true)
-        {
-            Console.WriteLine(""hi"");
-            break;
-        }
-
-		while (true)
-		{
-			Console.WriteLine(""nobreak"");
-		}
-
-        { //for
-            var i:Int = 0;
-            while (i < 50)
-            {
-                Console.WriteLine_Int32(i);
-                i++;
-            }
-        } //end for
-        do
-        {
-            Console.WriteLine(""Dowhile"");
-        }
-        while (false);
-    }
-    public function new()
-    {
-    }
-}");
-		}
-
+		
 		[TestMethod]
 		public void ReplaceTypeWithAttribute()
 		{
@@ -2512,13 +2573,12 @@ namespace Blargh
 			var haxe = @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.DateTime;
 
 class Test
 {
     public static function SomeFunction():Void
     {
-        var z:String = cast(DateTime.Now, String);
+        var z:String = cast(system.DateTime.Now, String);
     }
     public function new()
     {
@@ -2574,11 +2634,11 @@ class Utilities
         var ar:Array<Int> = [ 1, 2, 3 ];
         for (i in ar)
         {
-        	Console.WriteLine_Int32(i);
+        	system.Console.WriteLine_Int32(i);
         }
-        Console.WriteLine_Int32(ar[1]);
-        Console.WriteLine_Int32(ar.length);
-		Console.WriteLine_Int32(new Array<String>().length);
+        system.Console.WriteLine_Int32(ar[1]);
+        system.Console.WriteLine_Int32(ar.length);
+		system.Console.WriteLine_Int32(new Array<String>().length);
     }
     public function new()
     {
@@ -2626,11 +2686,11 @@ class Utilities
 {
     public function FunFromOne():Void
     {
-        Console.WriteLine(""I'm in one!"");
+        system.Console.WriteLine(""I'm in one!"");
     }
     public function FunFromTwo():Void
     {
-        Console.WriteLine(""I'm in Two!"");
+        system.Console.WriteLine(""I'm in Two!"");
     }
     public function new()
     {
@@ -2672,8 +2732,8 @@ class Utilities
     public static function SomeFunction(s2:String):Void
     {
         var s:String = ""50\\0"";
-        Console.WriteLine_Int32(s.indexOf(""0""));
-        Console.WriteLine_Int32(s2.indexOf(""0""));
+        system.Console.WriteLine_Int32(s.indexOf(""0""));
+        system.Console.WriteLine_Int32(s2.indexOf(""0""));
 
         for (s3 in [ ""Hello"" ])
         {
@@ -2681,9 +2741,9 @@ class Utilities
         }
         var i:Int = 4;
         var si:String = Std.string(i);
-		if (Cs2Hx.StartsWith(si, ""asdf""))
+		if (system.Cs2Hx.StartsWith(si, ""asdf""))
 		{
-			Console.WriteLine_Int32(4);
+			system.Console.WriteLine_Int32(4);
 		}
     }
     public function new()
@@ -2728,12 +2788,12 @@ class Utilities
     public static function SomeFunction():Void
     {
         var i:Int = -3;
-        Console.WriteLine(""false "" + Utilities.IsFour(i));
+        system.Console.WriteLine(""false "" + blargh.Utilities.IsFour(i));
         i++;
         i += 6;
-        var b:Bool = Utilities.IsFour(i);
-        Console.WriteLine(""true "" + b);
-        Utilities.IsFour(5);
+        var b:Bool = blargh.Utilities.IsFour(i);
+        system.Console.WriteLine(""true "" + b);
+        blargh.Utilities.IsFour(5);
     }
 
     public static function IsFour(i:Int):Bool
@@ -2770,100 +2830,11 @@ class Foo
 {
     public function new()
     {
-        var s:String = Cs2Hx.Join("";"", [ ""one"", ""two"" ]);
+        var s:String = system.Cs2Hx.Join("";"", [ ""one"", ""two"" ]);
     }
 }");
 		}
 
-		[TestMethod]
-		public void HelloWorld()
-		{
-
-			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
-using System;
-
-namespace Blargh
-{
-    public static class Utilities
-    {
-        public static void SomeFunction()
-        {
-            Console.WriteLine(""Hello, World!"");
-        }
-    }
-}", @"
-package blargh;
-" + WriteImports.StandardImports + @"
-
-class Utilities
-{
-    public static function SomeFunction():Void
-    {
-        Console.WriteLine(""Hello, World!"");
-    }
-    public function new()
-    {
-    }
-}");
-		}
-		[TestMethod]
-		public void IfStatement()
-		{
-
-			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
-using System;
-
-namespace Blargh
-{
-    public static class Utilities
-    {
-        public static void SomeFunction()
-        {
-            string notInitialized;
-            int myNum = 0;
-            notInitialized = ""InitMe!"";
-
-            if (myNum > 4)
-                myNum = 2;
-            else if (notInitialized == ""asdf"")
-                myNum = 1;
-            else
-                myNum = 999;
-
-            Console.WriteLine(myNum == 999 ? ""One"" : ""Two"");
-        }
-    }
-}", @"
-package blargh;
-" + WriteImports.StandardImports + @"
-class Utilities
-{
-    public static function SomeFunction():Void
-    {
-        var notInitialized:String;
-        var myNum:Int = 0;
-        notInitialized = ""InitMe!"";
-
-        if (myNum > 4)
-        {
-            myNum = 2;
-        }
-        else if (notInitialized == ""asdf"")
-        {
-            myNum = 1;
-        }
-        else
-        {
-            myNum = 999;
-        }
-
-        Console.WriteLine(myNum == 999 ? ""One"" : ""Two"");
-    }
-    public function new()
-    {
-    }
-}");
-		}
 
 		[TestMethod]
 		public void RefAndOut()
@@ -2907,7 +2878,6 @@ namespace Blargh
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
-import system.text.StringBuilder;
 		
 class Foo
 {
@@ -2922,7 +2892,7 @@ class Foo
 		var i:CsRef<Int> = new CsRef<Int>(1);
 		TestRef(i);
 		i.Value = 5;
-		new StringBuilder(i.Value);
+		new system.text.StringBuilder(i.Value);
 		TestRef(new CsRef<Int>(Field));
 		TestRef(new CsRef<Int>(this.Field));
 		var fun:(Void -> Int) = function ():Int { return x.Value; } ;
@@ -2930,18 +2900,54 @@ class Foo
 		
 	public function TestRef(i:CsRef<Int>):Void
 	{
-		var sb:StringBuilder = new StringBuilder(i.Value);
+		var sb:system.text.StringBuilder = new system.text.StringBuilder(i.Value);
 		i.Value = 4;
 	}
 		
 	public function TestOut(i:CsRef<Int>):Void
 	{
 		i.Value = 4;
-		var sb:StringBuilder = new StringBuilder(i.Value);
+		var sb:system.text.StringBuilder = new system.text.StringBuilder(i.Value);
 	}
 		
 }");
 		}
+
+		[TestMethod]
+		public void MemoryStream()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.IO;
+
+namespace Blargh
+{
+    public class Foo
+    {
+        public Foo()
+        {
+			var s = new MemoryStream(5);
+			var b = new byte[4];
+			s = new MemoryStream(b);
+			s = new MemoryStream(b.Length);
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Foo
+{
+    public function new()
+    {
+		var s:system.io.MemoryStream = new system.io.MemoryStream();
+		var b:haxe.io.Bytes = haxe.io.Bytes.alloc(4);
+		s = new system.io.MemoryStream(b);
+		s = new system.io.MemoryStream();
+    }
+}");
+		}
+
 
 	}
 }

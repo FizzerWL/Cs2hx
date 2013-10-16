@@ -126,16 +126,6 @@ class Cs2Hx
 	{
 		return i >= 0 ? i : -i;
 	}
-	
-	public static inline function MinInt(f:Int, s:Int):Int
-	{
-		return f < s ? f : s;
-	}
-
-	public static inline function MaxInt(f:Int, s:Int):Int
-	{
-		return f > s ? f : s;
-	}
 
 	public static function CharToHex(i:Int):String
 	{
@@ -179,5 +169,18 @@ class Cs2Hx
 	public static inline function SortFloats(f:Float, s:Float):Int
 	{
 		return Std.int(f - s);
+	}
+	
+	public static function NewGuid():String
+	{
+		//This is not a real guid generation algorithm.  This just generates 16 random bytes, which is enough for some uses.
+		var ret:String = "";
+		
+		for(i in 0...32)
+			ret += Cs2Hx.CharToHex(Std.random(16));
+		
+		if (ret.length != 32)
+			throw new Exception();
+		return ret;
 	}
 }

@@ -4,7 +4,7 @@ import system.collections.generic.KeyValuePair;
 import system.Cs2Hx;
 import system.Exception;
 
-class CSDictionary<K, V>
+class Dictionary<K, V>
 {
 	private var store:Map<String, V>;
 	private var keys:Array<K>;
@@ -101,9 +101,9 @@ class CSDictionary<K, V>
 		store = new Map<String, V>();
 	}
 	
-	public function Clone():CSDictionary<K,V>
+	public function Clone():Dictionary<K,V>
 	{
-		var ret = new CSDictionary<K,V>();
+		var ret = new Dictionary<K,V>();
 		for (k in keys)
 			ret.Add(k, store.get(Cs2Hx.Hash(k)));
 		return ret;

@@ -36,7 +36,6 @@ namespace Cs2hx
         public static List<XDocument> TranslationDocs;
 		public static HashSet<string> StaticConstructors = new HashSet<string>();
 		public static ConcurrentDictionary<SyntaxNode, object> DoNotWrite = new ConcurrentDictionary<SyntaxNode, object>();
-		public static ConcurrentDictionary<string, object> DoNotWriteTypeNames = new ConcurrentDictionary<string, object>();
 		public static ConcurrentDictionary<Symbol, object> RefOutSymbols = new ConcurrentDictionary<Symbol, object>();
 
 		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation)
@@ -65,17 +64,11 @@ namespace Cs2hx
 				.ToList();
 
 
-			WriteImports.Init(allTypes.Select(o => new KeyValuePair<string,string>(o.First().Symbol.ContainingNamespace.FullName(), o.First().TypeName)));
-
 
 			Utility.Parallel(compilation.SyntaxTrees.ToList(), tree =>
 				{
 					foreach (var n in TriviaProcessor.DoNotWrite(tree))
-					{
 						DoNotWrite.TryAdd(n, null);
-						if (n is ClassDeclarationSyntax)
-							DoNotWriteTypeNames.TryAdd(n.As<ClassDeclarationSyntax>().Identifier.ValueText, null);
-					}
 				});
 
 			Console.WriteLine("Parsed in " + sw.Elapsed);

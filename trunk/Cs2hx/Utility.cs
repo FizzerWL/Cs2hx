@@ -18,6 +18,13 @@ namespace Cs2hx
 			else
 				return ns.ToString();
 		}
+		public static string FullNameWithDot(this NamespaceSymbol ns)
+		{
+			if (ns.IsGlobalNamespace)
+				return "";
+			else
+				return ns.ToString() + ".";
+		}
 
 		public static string AttributeOrNull(this XElement element, string attrName)
 		{

@@ -1,12 +1,20 @@
 package system.linq;
 
-import system.collections.generic.CSDictionary;
+import system.collections.generic.Dictionary;
 import system.Exception;
 import system.DateTime;
 import system.Cs2Hx;
 
-class Linq
+class Enumerable
 {
+	public static function Range(start:Int, count:Int):Array<Int>
+	{
+		var ret = new Array<Int>();
+		for (i in start...count)
+			ret[i - start] = i;
+		return ret;
+	}
+
 	public static function Take<T>(a:Array<T>, numToTake:Int):Array<T>
 	{
 		var ret = new Array<T>();
@@ -36,9 +44,9 @@ class Linq
 	{
 		return a - b; 
 	}
-	public static function ToDictionary < T, K, V > (a:Array < T > , getKey:T -> K, getValue:T -> V):CSDictionary<K,V>
+	public static function ToDictionary < T, K, V > (a:Array < T > , getKey:T -> K, getValue:T -> V):Dictionary<K,V>
 	{
-		var ret:CSDictionary<K,V> = new CSDictionary();
+		var ret:Dictionary<K,V> = new Dictionary();
 		
 		for (i in a)
 			ret.Add(getKey(i), getValue(i));
