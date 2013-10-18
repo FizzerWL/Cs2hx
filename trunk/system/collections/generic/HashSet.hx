@@ -12,15 +12,16 @@ class HashSet<T>
 		keys = new Array<T>();
 	}
 	
-	public function Add(key:T):Void
+	public function Add(key:T):Bool
 	{
 		var s = Cs2Hx.Hash(key);
 		
 		if (store.exists(s))
-			return;
+			return false;
 		
 		keys.push(key);
 		store.set(s, 1);
+		return true;
 	}
 	
 	public function Remove(key:T):Bool
@@ -41,7 +42,7 @@ class HashSet<T>
 		return store.exists(Cs2Hx.Hash(key));
 	}
 	
-	public function Values():Array<T>
+	public function GetEnumerator():Array<T>
 	{
 		return keys;
 	}

@@ -1347,11 +1347,11 @@ class Utilities
         {
             system.Console.WriteLine_Int32(val);
         }
-		for (kv in dict.KeyValues())
+		for (kv in dict.GetEnumerator())
 		{
 			system.Console.WriteLine(kv.Key + "" "" + kv.Value);
 		}
-		var dict2:system.collections.generic.Dictionary<Int, Int> = system.linq.Enumerable.ToDictionary(dict.KeyValues(), function (o:system.collections.generic.KeyValuePair<Int, Int>):Int { return o.Key; } , function (o:system.collections.generic.KeyValuePair<Int, Int>):Int { return o.Value; } );
+		var dict2:system.collections.generic.Dictionary<Int, Int> = system.linq.Enumerable.ToDictionary(dict.GetEnumerator(), function (o:system.collections.generic.KeyValuePair<Int, Int>):Int { return o.Key; } , function (o:system.collections.generic.KeyValuePair<Int, Int>):Int { return o.Value; } );
 		var vals:Array<Int> = dict.Values;
         
         var hash:system.collections.generic.HashSet<Int> = new system.collections.generic.HashSet<Int>();
@@ -1359,12 +1359,12 @@ class Utilities
         system.Console.WriteLine_Boolean(hash.Contains(999));
         hash.Remove(999);
         system.Console.WriteLine_Boolean(hash.Contains(999));
-        for (hashItem in hash.Values())
+        for (hashItem in hash.GetEnumerator())
         {
             system.Console.WriteLine_Int32(hashItem);
         }
-		var z:Array<Int> = system.linq.Enumerable.ToArray(system.linq.Enumerable.Select(hash.Values(), function (o:Int):Int { return 3; } ));
-		var g:Int = system.linq.Enumerable.Min(system.linq.Enumerable.Select(system.linq.Enumerable.GroupBy(hash.Values(), function (o:Int):Int { return o; } ), function (o:system.linq.IGrouping<Int, Int>):Int { return system.linq.Enumerable.Count(o.Values()); } ));
+		var z:Array<Int> = system.linq.Enumerable.ToArray(system.linq.Enumerable.Select(hash.GetEnumerator(), function (o:Int):Int { return 3; } ));
+		var g:Int = system.linq.Enumerable.Min(system.linq.Enumerable.Select(system.linq.Enumerable.GroupBy(hash.GetEnumerator(), function (o:Int):Int { return o; } ), function (o:system.linq.IGrouping<Int, Int>):Int { return system.linq.Enumerable.Count(o.GetEnumerator()); } ));
 
     }
     public function new()
@@ -1394,7 +1394,13 @@ namespace Blargh
 			implicitNull = null;
 			int? implicitValue = 5;
 			implicitValue = 8;
+			Foo(3);
         }
+
+		public static int? Foo(int? i)
+		{
+			return 4;
+		}
     }
 }", @"
 package blargh;
@@ -1412,7 +1418,12 @@ class Utilities
 		implicitNull = new Nullable_Int();
 		var implicitValue:Nullable_Int = new Nullable_Int(5);
 		implicitValue = new Nullable_Int(8);
+		Foo(new Nullable_Int(3));
     }
+	public static function Foo(i:Nullable_Int):Nullable_Int
+	{
+		return new Nullable_Int(4);
+	}
     public function new()
     {
     }
@@ -1803,9 +1814,9 @@ class Utilities
 	public static function OverOne():Void
 	{
 		OverOne_Int32(3);
-		system.Math.Max_Int32_Int32(3, 3);
-		system.Math.Max_Double_Double(4.0, 4.0);
-		system.Math.Max_Single_Single(5, 5);
+		system.MathCS.Max_Int32_Int32(3, 3);
+		system.MathCS.Max_Double_Double(4.0, 4.0);
+		system.MathCS.Max_Single_Single(5, 5);
 	}
 	public static function OverOne_Int32(param:Int):Void
 	{
@@ -2398,7 +2409,7 @@ class Utilities
         var stack:Array<Int> = new Array<Int>();
         stack.push(9);
         stack.push(3);
-        system.Math.Max_Int32_Int32(stack.pop(), stack.pop());
+        system.MathCS.Max_Int32_Int32(stack.pop(), stack.pop());
     }
     public function new()
     {
@@ -2947,6 +2958,33 @@ class Foo
     }
 }");
 		}
+
+
+		[TestMethod]
+		public void PartialMethods()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public partial class Foo
+    {
+        partial void Blah();
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Foo
+{
+    public function new()
+    {
+    }
+}");
+		}
+
+
 
 
 	}

@@ -24,7 +24,17 @@ class Cs2Hx
 	{
 		return IndexOf(a, item) != -1;
 	}
+
+	public static inline function StringContains(haystack:String, needle:String):Bool
+	{
+		return haystack.indexOf(needle) != -1;
+	}
 	
+	public static inline function IndexOfChar(s:String, c:Int):Int
+	{
+		return s.indexOf(String.fromCharCode(c));
+	}
+
 
 	public static function ParseBool(str:String):Bool
 	{
@@ -73,6 +83,11 @@ class Cs2Hx
 			charOrDigitMap = MakeMap("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
 		
 		return charOrDigitMap.exists(ch);
+	}
+
+	public static function IsLetterOrDigitAtIndex(str:String, index:Int):Bool
+	{
+		return IsLetterOrDigit(str.charCodeAt(index));
 	}
 
 	public static function IndexOf<T>(a:Array<T>, item:T):Int
@@ -182,5 +197,14 @@ class Cs2Hx
 		if (ret.length != 32)
 			throw new Exception();
 		return ret;
+	}
+	
+	public static inline function IsUpper(char:Int):Bool
+	{
+		return throw new NotImplementedException();
+	}
+	public static inline function ToLower(char:Int):Bool
+	{
+		return throw new NotImplementedException();
 	}
 }

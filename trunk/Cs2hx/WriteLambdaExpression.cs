@@ -39,7 +39,14 @@ namespace Cs2hx
 			}
 
 			writer.Write(")");
-			writer.Write(TypeProcessor.ConvertTypeWithColon(methodSymbol.ReturnType));
+
+			var haxeType = TypeProcessor.ConvertType(methodSymbol.ReturnType);
+
+			if (haxeType != null && haxeType != "Array<Dynamic>") //haxe sometimes can get the type wrong when Array<Dynamic> is returned from a lambda. It works if we just leave the type off.
+			{
+				writer.Write(":");
+				writer.Write(haxeType);
+			}
 
 			if (body is BlockSyntax)
 			{

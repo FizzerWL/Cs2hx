@@ -38,7 +38,7 @@ namespace Cs2hx
 					if (variable.Initializer == null)
 						writer.Write(TypeProcessor.DefaultValue(declaration.Declaration.Type));
 					else
-						WriteBinaryExpression.WriteAssignment(writer, variable.Initializer.As<EqualsValueClauseSyntax>().Value);
+						Core.Write(writer, variable.Initializer.As<EqualsValueClauseSyntax>().Value);
 
 					writer.Write(")");
 				}
@@ -49,7 +49,7 @@ namespace Cs2hx
 					if (variable.Initializer != null)
 					{
 						writer.Write(" = ");
-						WriteBinaryExpression.WriteAssignment(writer, variable.Initializer.As<EqualsValueClauseSyntax>().Value);
+						Core.Write(writer, variable.Initializer.As<EqualsValueClauseSyntax>().Value);
 					}
 				}
 

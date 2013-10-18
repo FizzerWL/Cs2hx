@@ -29,7 +29,7 @@ namespace Test
         }
         public static void TestCode(string testName, IEnumerable<string> cSharp, IEnumerable<string> expectedOutput, params string[] extraTranslation)
         {
-            var dir = Path.Combine(@"D:\temp\CS2HX\", testName + @"\src");
+			var dir = Path.Combine(Path.GetTempPath(), "CS2HX", testName);
 
 			if (Directory.Exists(dir))
 				foreach (var existing in Directory.GetFiles(dir, "*.hx", SearchOption.AllDirectories))

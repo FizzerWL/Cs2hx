@@ -175,6 +175,7 @@ namespace Cs2hx
 				case "System.Collections.Generic.Dictionary<,>.ValueCollection":
 				case "System.Collections.Generic.Dictionary<,>.KeyCollection":
 				case "System.Linq.IOrderedEnumerable<>":
+				case "System.Collections.IEnumerable":
 					return "Array";
 
 				case "System.Array":

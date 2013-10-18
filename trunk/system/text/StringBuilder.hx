@@ -1,4 +1,5 @@
 package system.text;
+import system.NotImplementedException;
 
 
 class StringBuilder
@@ -46,7 +47,7 @@ class StringBuilder
 		Insert_Int32_String(location, String.fromCharCode(char));
 	}
 	
-	public inline function AppendChar(char:Int):Void
+	public inline function Append_Char(char:Int):Void
 	{
 		Append(String.fromCharCode(char));
 	}
@@ -55,5 +56,20 @@ class StringBuilder
 	{
 		Append(append);
 		Append("\n");
+	}
+	
+	public inline function Append_String_Int32_Int32(append:String, startAt:Int, len:Int):Void
+	{
+		Append(append.substr(startAt, len));
+	}
+	
+	public function Remove(startIndex:Int, length:Int):Void
+	{
+		throw new NotImplementedException();
+	}
+	
+	public function GetValue(index:Int):Int
+	{
+		return buffer.charCodeAt(index);
 	}
 }

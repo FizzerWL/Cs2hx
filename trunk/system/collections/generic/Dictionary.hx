@@ -2,6 +2,7 @@ package system.collections.generic;
 
 import system.collections.generic.KeyValuePair;
 import system.Cs2Hx;
+import system.CsRef.CsRef;
 import system.Exception;
 
 class Dictionary<K, V>
@@ -62,7 +63,19 @@ class Dictionary<K, V>
 		return keys;
 	}
 	
-	public function TryGetValue(key:K):V
+	public function TryGetValue(key:K, out:CsRef<V>):Bool
+	{
+		var s:String = Cs2Hx.Hash(key);
+		if (store.exists(s))
+		{
+			out.Value = store.get(s); 
+			return true;
+		}
+		else
+			return false;
+	}
+	
+	public function GetValueOrNull(key:K):V
 	{
 		var s:String = Cs2Hx.Hash(key);
 		if (store.exists(s))
@@ -70,6 +83,7 @@ class Dictionary<K, V>
 		else
 			return null;
 	}
+
 	
 	public var Values(get, never):Array<V>;
 	public function get_Values():Array<V>
@@ -87,7 +101,7 @@ class Dictionary<K, V>
 		return keys.length;
 	}
 	
-	public function KeyValues():Array<KeyValuePair<K, V>>
+	public function GetEnumerator():Array<KeyValuePair<K, V>>
 	{
 		var ret = new Array < KeyValuePair < K, V >> ();
 		for (k in keys)

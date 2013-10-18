@@ -216,6 +216,18 @@ class Enumerable
 		return ret;
 	}
 	
+	public static function SelectMany_IEnumerable_Func<FROM, TO>(a:Array<FROM>, select:FROM -> Int -> Array<TO>):Array<TO>
+	{
+		var ret = new Array<TO>();
+		var i:Int = 0;
+		for (outer in a)
+			for (inner in select(outer, i++))
+				ret.push(inner);
+		return ret;
+	}
+	
+	
+	
 	public static function FirstOrDefault_IEnumerable_Func<T>(a:Array<T>, where:T -> Bool):T
 	{
 		for (i in a)
@@ -276,6 +288,18 @@ class Enumerable
 			ret.push(func(i));
 
 		return ret;
+	}
+	
+	public static function Select_IEnumerable_Func < FROM, TO > (a:Array<FROM>, func:FROM->Int->TO):Array<TO>
+	{
+		var ret = new Array<TO>();
+		
+		var i:Int = 0;
+		for (e in a)
+			ret.push(func(e, i++));
+
+		return ret;
+		
 	}
 	
 	public static function ToHaxeList<T>(a:Array<T>):List<T>
@@ -426,5 +450,10 @@ class Enumerable
 		for (i in a)
 			ret += i;
 		return ret;
+	}
+	
+	public static function Cast<T>(a:Array<T>):Array<Dynamic>
+	{
+		return a;
 	}
 }

@@ -4,6 +4,7 @@ package system.io;
 import flash.utils.ByteArray;
 import flash.utils.Endian;
 import system.Exception;
+import system.NotImplementedException;
 import system.text.UTF8Encoding;
 #end
 
@@ -50,7 +51,7 @@ class BinaryWriter
 		#if flash
 		writer.writeInt(data);
 		#else
-		writer.writeInt32(haxe.Int32.ofInt(data));
+		writer.writeInt32(data);
 		#end
 	}
 	public function Write_UInt16(data:Int):Void
@@ -68,7 +69,7 @@ class BinaryWriter
 		#if flash
 		writer.writeUnsignedInt(data);
 		#else
-		writer.writeUInt30(data);
+		throw new NotImplementedException();
 		#end
 	}
 	public function Write_String(data:String):Void
@@ -82,7 +83,7 @@ class BinaryWriter
 		writer.writeBytes(b);
 		
 		#else
-		throw new Exception("TODO");
+		throw new NotImplementedException();
 		#end
 	}
 	public function Write(data:Bool):Void

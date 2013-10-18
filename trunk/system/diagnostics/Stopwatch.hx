@@ -13,12 +13,11 @@ class Stopwatch
 		return new Stopwatch();
 	}
 	
-	public var Elapsed(get_Elapsed, never):TimeSpan;
+	public var Elapsed(get, never):TimeSpan;
 	
 	public function get_Elapsed():TimeSpan
 	{
-		var now = Environment.TickCount;
-		return TimeSpan.FromMilliseconds(now - _started);
+		return TimeSpan.FromMilliseconds(Environment.TickCount - _started);
 	}
 	
 	public function Restart():Void
@@ -31,4 +30,9 @@ class Stopwatch
 		_started = Environment.TickCount; //This always returns milliseconds
 	}
 	
+	public var ElapsedMilliseconds(get, never):Float;
+	public function get_ElapsedMilliseconds():Float
+	{
+		return Environment.TickCount - _started;
+	}
 }

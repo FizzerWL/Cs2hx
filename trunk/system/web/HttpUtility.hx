@@ -1,4 +1,6 @@
 package system.web;
+import system.collections.specialized.NameValueCollection;
+import system.NotImplementedException;
 
 class HttpUtility 
 {
@@ -20,5 +22,10 @@ class HttpUtility
 	public static inline function UrlDecode(s:String):String
 	{
 		return StringTools.urlDecode(s);
+	}
+	
+	public static function ParseQueryString(query:String):NameValueCollection
+	{
+		return throw new NotImplementedException();
 	}
 }

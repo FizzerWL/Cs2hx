@@ -15,6 +15,34 @@ namespace Cs2hx
 			if (Program.DoNotWrite.ContainsKey(node))
 				return;
 
+			if (!(node is ExpressionSyntax))
+				Factory(writer, node);
+			else
+			{
+				var typeInfo = Program.GetModel(node).GetTypeInfo((ExpressionSyntax)node);
+
+				if (typeInfo.ConvertedType != null && typeInfo.ConvertedType.Name == "Nullable" && 
+					
+					(typeInfo.Type == null || (TypeProcessor.ConvertType(typeInfo.Type) != TypeProcessor.ConvertType(typeInfo.ConvertedType))))
+				{
+					//When assigning into a nullable, we must construct the nullable type.
+					writer.Write("new ");
+					writer.Write(TypeProcessor.ConvertType(typeInfo.ConvertedType));
+					writer.Write("(");
+
+					if (typeInfo.Type != null)
+						Factory(writer, node);
+
+					writer.Write(")");
+				}
+				else
+					Factory(writer, node);
+			}
+		}
+
+		private static void Factory(HaxeWriter writer, SyntaxNode node)
+		{
+
 			if (node is MethodDeclarationSyntax)
 				WriteMethod.Go(writer, node.As<MethodDeclarationSyntax>());
 			else if (node is PropertyDeclarationSyntax)

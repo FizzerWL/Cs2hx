@@ -10,6 +10,9 @@ namespace Cs2hx
     {
         public static void Go(HaxeWriter writer, MethodDeclarationSyntax method)
         {
+			if (method.Modifiers.Any(SyntaxKind.PartialKeyword) && method.Body == null)
+				return; //skip partial methods.  We'll write it out when we get to the non-partial one.
+
 			if (method.Identifier.ValueText == "GetEnumerator")
 				return; //skip GetEnumerator methods -- haxe can't enumerate on objects.
 

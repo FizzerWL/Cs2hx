@@ -25,4 +25,10 @@ class Environment
 		#end
 	}
 	
+	public static var OSVersion (get, never):Dynamic;
+	public static function get_OSVersion():Dynamic
+	{
+		return throw new NotImplementedException();
+	}
+	
 }

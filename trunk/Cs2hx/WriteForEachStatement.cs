@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,15 +43,14 @@ namespace Cs2hx
 			}
 			else
 			{
+				
+
 				Core.Write(writer, expression);
 
-				if (typeStr == "System.Collections.Generic.Dictionary<,>")
-					writer.Write(".KeyValues()");
-				else if (typeStr == "System.Collections.Generic.HashSet<>")
-					writer.Write(".Values()");
-				else if (typeStr == "System.Linq.IGrouping<,>")
-					writer.Write(".Values()");
+				var haxeType = TypeProcessor.ConvertType(type);
 
+				if (haxeType == null || !haxeType.StartsWith("Array"))
+					writer.Write(".GetEnumerator()");
 			}
 		}
 
@@ -63,7 +63,7 @@ namespace Cs2hx
 			else
 			{
 
-				if (type.ConvertedType.Name == "IEnumerable" && type.ConvertedType.ContainingNamespace.ToString() == "System.Collections.Generic")
+				if (type.ConvertedType.Name == "IEnumerable" && type.ConvertedType.ContainingNamespace.FullName() == "System.Collections.Generic")
 					WriteEnumerator(writer, expression, type.Type);
 				else
 					Core.Write(writer, expression);

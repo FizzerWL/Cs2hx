@@ -30,4 +30,7 @@ class Exception
 		return "Exception: " + Message;
 		#end
 	}
+	
+	public var InnerException:Exception;
+
 }

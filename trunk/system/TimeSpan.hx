@@ -46,6 +46,11 @@ class TimeSpan
 		return new TimeSpan(ticks);
 	}
 	
+	public function CompareTo_TimeSpan(span:TimeSpan):Int
+	{
+		return Std.int(this.Ticks - span.Ticks);
+	}
+
 	public inline function Subtract(other:TimeSpan):TimeSpan
 	{
 		return TimeSpan.FromTicks(this.Ticks - other.Ticks);
@@ -130,6 +135,7 @@ class TimeSpan
 	{
 		return new TimeSpan(days * MILLISECONDS_IN_DAY);
 	}
+	
 
 	public static var MILLISECONDS_IN_DAY : Float = 86400000;
 	public static var MILLISECONDS_IN_HOUR : Float = 3600000;

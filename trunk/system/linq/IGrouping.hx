@@ -18,7 +18,7 @@ class IGrouping<TKey, TElement>
 		return vals.iterator();
 	}
 	
-	public inline function Values():Array<TElement> 
+	public inline function GetEnumerator():Array<TElement> 
 	{
 		return vals;
 	}

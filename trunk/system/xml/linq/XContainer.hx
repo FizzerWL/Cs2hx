@@ -70,7 +70,6 @@ class XContainer extends XObject
 	}
 	
 	public var Value(get, set):String;
-	
 	public function get_Value():String
 	{
 		return _x.nodeValue;
@@ -79,6 +78,12 @@ class XContainer extends XObject
 	{
 		_x.nodeValue = s;
 		return s;
+	}
+	
+	public var Name(get, never):String;
+	public function get_Name():String
+	{
+		return _x.nodeName;
 	}
 
 }

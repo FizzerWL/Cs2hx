@@ -1,7 +1,7 @@
 package system;
 
 //Used to wrap variables that are passed by "ref" or "out" in C#
-class CSRef<T>
+class CsRef<T>
 {
 	public var Value:T;
 

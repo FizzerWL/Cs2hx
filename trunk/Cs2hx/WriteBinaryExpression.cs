@@ -81,13 +81,6 @@ namespace Cs2hx
 				writer.Write(TypeProcessor.RemoveGenericArguments(TypeProcessor.ConvertType(expression.Right)));
 				writer.Write(")");
 			}
-			else if (expression.OperatorToken.Kind == SyntaxKind.EqualsToken)
-			{
-				//Write assignment
-				Core.Write(writer, expression.Left);
-				writer.Write(" = ");
-				WriteAssignment(writer, expression.Right);
-			}
 			else if (expression.OperatorToken.Kind == SyntaxKind.QuestionQuestionToken)
 			{
 				writer.Write("Cs2Hx.Coalesce(");
@@ -171,26 +164,6 @@ namespace Cs2hx
 			else
 				throw new Exception("Unexpected token following an element access expression " + Utility.Descriptor(elementAccess.Parent));
 
-		}
-
-		public static void WriteAssignment(HaxeWriter writer, ExpressionSyntax expression)
-		{
-			var rightType = Program.GetModel(expression).GetTypeInfo(expression);
-
-			if (rightType.ConvertedType.Name == "Nullable" && (rightType.Type == null || rightType.Type.Name != "Nullable"))
-			{
-				//When assigning into a nullable, we must construct the nullable type.
-				writer.Write("new ");
-				writer.Write(TypeProcessor.ConvertType(rightType.ConvertedType));
-				writer.Write("(");
-
-				if (rightType.Type != null)
-					Core.Write(writer, expression);
-
-				writer.Write(")");
-			}
-			else
-				Core.Write(writer, expression);
 		}
 
 	}

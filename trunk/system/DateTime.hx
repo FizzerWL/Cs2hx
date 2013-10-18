@@ -13,28 +13,56 @@ class DateTime
 	
 	public var date:Date;
 	
-	public function new(ticks:Float = -5)
+	public function new(first:Float = -5, second:Int = -1, third:Int = -1)
 	{
-		if (ticks == -5)
+		if (first == -1)
 			date = Date.now();
+		else if (second != -1 && third != -1)
+			date = new Date(Std.int(first), second - 1, third, 0, 0, 0);
 		else
-			date = Date.fromTime(ticks);
+			date = Date.fromTime(first);
 	}
 	
 	public function Add(span:TimeSpan):DateTime
 	{
 		return new DateTime(date.getTime() + span.Ticks);
 	}
+	public function Subtract_TimeSpan(span:TimeSpan):DateTime
+	{
+		return new DateTime(date.getTime() - span.Ticks);
+	}
 	
-	public function AddDays(days:Int):DateTime
+	public inline function AddDays(days:Int):DateTime
 	{
 		return new DateTime(date.getTime() + TimeSpan.FromDays(days).Ticks);
 	}
+	public inline function AddHours(hours:Int):DateTime
+	{
+		return new DateTime(date.getTime() + TimeSpan.FromHours(hours).Ticks);
+	}
+	public inline function AddMinutes(minutes:Int):DateTime
+	{
+		return new DateTime(date.getTime() + TimeSpan.FromMinutes(minutes).Ticks);
+	}
+	public inline function AddSeconds(seconds:Int):DateTime
+	{
+		return new DateTime(date.getTime() + TimeSpan.FromSeconds(seconds).Ticks);
+	}
 	
+	public function ToLocalTime():Void
+	{
+		throw new NotImplementedException();
+	}
+
 	public inline function toString():String
 	{
-		return date.getFullYear() + "/" + FormatDatePiece(date.getMonth() + 1) + "/" + FormatDatePiece(date.getDate()) + 
+		return date.getFullYear() + "/" + FormatDatePiece(date.getMonth() + 1) + "/" + FormatDatePiece(date.getDay()) + 
 			" " + date.getHours() + ":" + FormatDatePiece(date.getMinutes()) + ":" + FormatDatePiece(date.getSeconds());
+	}
+	
+	public inline function ToShortDateString():String
+	{
+		return date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDay();
 	}
 	
 	static function FormatDatePiece(n:Float):String
@@ -96,4 +124,5 @@ class DateTime
 	{
 		return new DateTime(3155378975999999999);
 	}
+	
 }

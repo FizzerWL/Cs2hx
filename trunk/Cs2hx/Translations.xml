@@ -3,6 +3,7 @@
   <Method SourceObject="*" Match="ToString" ReplaceWith="toString" />
 
   <Method SourceObject="System.String" Match="IndexOf" ReplaceWith="indexOf" />
+  <Method SourceObject="System.String" Match="IndexOf" ArgumentTypes="char" ExtensionNamespace="system.Cs2Hx" ReplaceWith="IndexOfChar" />
   <Method SourceObject="System.String" Match="LastIndexOf" ReplaceWith="lastIndexOf" />
   <Method SourceObject="System.String" Match="Substring" ReplaceWith="substr" />
   <Method SourceObject="System.String" Match="Split" ReplaceWith="Split" ExtensionNamespace="system.Cs2Hx" />
@@ -15,6 +16,7 @@
   <Method SourceObject="System.String" Match="IsNullOrEmpty" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.String" Match="Join" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.String" Match="ToCharArray" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="Contains" ReplaceWith="StringContains" ExtensionNamespace="system.Cs2Hx" />
   <Property SourceObject="System.String" Match="Length" ReplaceWith="length" />
   
   <Method SourceObject="System.Char" Match="IsLetterOrDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />

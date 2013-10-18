@@ -23,6 +23,12 @@ namespace Cs2hx
 				Core.Write(writer, expression.ArgumentList.Arguments.Single().Expression);
 				writer.Write("]");
 			}
+			else if (typeHaxe == "haxe.io.Bytes")
+			{
+				writer.Write(".get(");
+				Core.Write(writer, expression.ArgumentList.Arguments.Single().Expression);
+				writer.Write(")");
+			}
 			else if (typeHaxe == "String")
 			{
 				//indexing into string to get its character results in a call to charCodeAt

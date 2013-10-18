@@ -2,6 +2,7 @@ package system.io;
 
 import haxe.io.BytesInput;
 import haxe.io.Bytes;
+import system.NotImplementedException;
 import system.text.StringBuilder;
 import system.Exception;
 import system.text.UTF8Encoding;
@@ -26,7 +27,7 @@ class BinaryReader
 		arr.position = 0;
 		arr.endian = Endian.LITTLE_ENDIAN;
 		#else
-		reader = new BytesInput(readFrom);
+		reader = new BytesInput(readFrom.ToArray());
 		#end
 	}
 	
@@ -68,7 +69,7 @@ class BinaryReader
 		#if flash
 		return arr.readInt();
 		#else
-		return haxe.Int32.toInt(reader.readInt32());
+		return reader.readInt32();
 		#end
 	}
 	public function ReadUInt16():Int
@@ -92,7 +93,7 @@ class BinaryReader
 		#if flash
 		return arr.readUnsignedInt();
 		#else
-		return Int32.toInt(reader.readInt32());
+		return reader.readInt32();
 		#end
 	}
 	public function ReadString():String
@@ -104,7 +105,7 @@ class BinaryReader
 		return arr.readUTFBytes(bytes);
 
 		#else
-		throw new Exception("TODO");
+		return throw new NotImplementedException();
 		#end
 	}
 	public function ReadBoolean():Bool
