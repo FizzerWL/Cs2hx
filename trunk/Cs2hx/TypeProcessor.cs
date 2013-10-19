@@ -15,7 +15,7 @@ namespace Cs2hx
 		public static string DefaultValue(TypeSyntax type)
 		{
 			var t = Program.GetModel(type).GetTypeInfo(type).Type;
-			if (t.IsValueType == false || t.Name == "Nullable")
+			if (t.IsValueType == false || t.Name == "Nullable" || t.SpecialType == SpecialType.System_DateTime || t.Name == "TimeSpan")
 				return "null";
 			else if (t.SpecialType == SpecialType.System_Boolean)
 				return "false";
@@ -32,16 +32,16 @@ namespace Cs2hx
 			if (attrs.ContainsKey("ReplaceWithType"))
 				return attrs["ReplaceWithType"];
 
-			var typeInfo = Program.GetModel(node).As<ISemanticModel>().GetTypeInfo(node);
+			var model = Program.GetModel(node).As<ISemanticModel>();
+			var typeInfo = model.GetTypeInfo(node);
+
+			if (typeInfo.ConvertedType is ErrorTypeSymbol)
+				typeInfo = model.GetTypeInfo(node.Parent); //not sure why Roslyn can't find the type of some type nodes, but telling it to use the parent's seems to work
+
 			var t = typeInfo.ConvertedType;
 			
 			if (t == null || t is ErrorTypeSymbol)
-			{
-				if (node.ToString() == "byte[]")
-					return "Bytes"; //not sure why Roslyn isn't converting these properly, perhaps it's a bug. Just hard-code byte arrays here instead of failing
-				else
-					return null;
-			}
+				return null;
 
 			return ConvertType((TypeSymbol)t);
 		}

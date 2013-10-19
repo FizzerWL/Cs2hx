@@ -133,7 +133,13 @@ namespace Cs2hx
 
 			if (operatorToken.Kind == SyntaxKind.EqualsToken)
 			{
-				writer.Write("SetValue(");
+				var leftTypeHaxe = TypeProcessor.ConvertType(elementAccess.Expression);
+
+				if (leftTypeHaxe == "haxe.io.Bytes")
+					writer.Write("set(");
+				else
+					writer.Write("SetValue(");
+
 				writeArgs();
 				Core.Write(writer, subExpressionOpt);
 				writer.Write(")");

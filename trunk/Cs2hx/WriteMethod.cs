@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Roslyn.Compilers.CSharp;
@@ -11,7 +12,15 @@ namespace Cs2hx
         public static void Go(HaxeWriter writer, MethodDeclarationSyntax method)
         {
 			if (method.Modifiers.Any(SyntaxKind.PartialKeyword) && method.Body == null)
-				return; //skip partial methods.  We'll write it out when we get to the non-partial one.
+			{
+				//We only want to render out one of the two partial methods.  If there's another, skip this one.
+				if (TypeState.Instance.Partials.SelectMany(o => o.Syntax.As<ClassDeclarationSyntax>().Members)
+					.OfType<MethodDeclarationSyntax>()
+					.Except(method)
+					.Where(o => o.Identifier.ValueText == method.Identifier.ValueText)
+					.Any())
+					return;
+			}
 
 			if (method.Identifier.ValueText == "GetEnumerator")
 				return; //skip GetEnumerator methods -- haxe can't enumerate on objects.
@@ -91,16 +100,20 @@ namespace Cs2hx
                 writer.Write("throw new Exception(\"Abstract item called\");\r\n");
                 writer.WriteCloseBrace();
             }
-            else if (method.Body == null)
-                writer.Write(";\r\n"); //interface methods wind up here
+            else if (method.Parent is InterfaceDeclarationSyntax)
+                writer.Write(";\r\n");
             else
             {
                 writer.WriteLine();
                 writer.WriteOpenBrace();
-                foreach (var statement in method.Body.Statements)
-					Core.Write(writer, statement);
 
-				TriviaProcessor.ProcessTrivias(writer, method.Body.DescendantTrivia());
+				if (method.Body != null)
+				{
+					foreach (var statement in method.Body.Statements)
+						Core.Write(writer, statement);
+
+					TriviaProcessor.ProcessTrivias(writer, method.Body.DescendantTrivia());
+				}
 
                 writer.WriteCloseBrace();
             }

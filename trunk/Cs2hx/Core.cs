@@ -15,7 +15,7 @@ namespace Cs2hx
 			if (Program.DoNotWrite.ContainsKey(node))
 				return;
 
-			if (!(node is ExpressionSyntax))
+			if (!(node is ExpressionSyntax) || node is ParenthesizedExpressionSyntax)
 				Factory(writer, node);
 			else
 			{

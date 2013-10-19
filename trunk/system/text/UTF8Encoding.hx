@@ -2,13 +2,13 @@ package system.text;
 
 import haxe.io.Bytes;
 import system.Exception;
+import system.NotImplementedException;
 
 class UTF8Encoding 
 {
-	public function GetString(b:Bytes, index:Int, count:Int):String
+	public function GetString(b:Bytes):String
 	{
-		throw new Exception("TODO");
-		return "";
+		return throw new NotImplementedException();
 	}
 	
 	public function GetBytes_String(str:String):Bytes
@@ -19,11 +19,13 @@ class UTF8Encoding
 		r.writeMultiByte(str, "utf-8");
 		return Bytes.ofData(r);
 		*/
-		throw new Exception("TODO");
-		return null;
+		return throw new NotImplementedException();
 	}
 	
-	private function new() { }
+	public function new() 
+	{ 
+	}
+	
 	
 	public static var UTF8(get, never):UTF8Encoding;
 	

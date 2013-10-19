@@ -11,6 +11,17 @@ namespace Cs2hx
 {
     public static class Utility
     {
+
+		public static void Parallel<T>(List<T> list, Action<T> action)
+		{
+#if true
+			System.Threading.Tasks.Parallel.ForEach(list, action);
+#else
+			list.ForEach(action);
+#endif
+		}
+
+
 		public static string FullName(this NamespaceSymbol ns)
 		{
 			if (ns.IsGlobalNamespace)
@@ -33,15 +44,6 @@ namespace Cs2hx
 				return null;
 			else
 				return a.Value;
-		}
-
-		public static void Parallel<T>(List<T> list, Action<T> action)
-		{
-#if true
-			System.Threading.Tasks.Parallel.ForEach(list, action);
-#else
-			list.ForEach(action);
-#endif
 		}
 
         public static T As<T>(this object o)

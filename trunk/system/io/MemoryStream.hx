@@ -1,13 +1,14 @@
 package system.io;
 import haxe.io.Bytes;
 
-class MemoryStream
+class MemoryStream extends Stream
 {
 	
 	var _data:Bytes;
 
 	public function new(data:Bytes = null) 
 	{
+		super();
 		_data = data;
 	}
 	

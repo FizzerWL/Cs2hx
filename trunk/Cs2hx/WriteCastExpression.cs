@@ -26,19 +26,36 @@ namespace Cs2hx
 			if (subExpression is ParenthesizedExpressionSyntax)
 				subExpression = subExpression.As<ParenthesizedExpressionSyntax>().Expression;
 
-
-			if (destTypeHaxe == null)
+			if (subExpression.Kind == SyntaxKind.NullLiteralExpression)
+			{
+				if (destTypeHaxe != null && destTypeHaxe.StartsWith("Nullable_"))
+				{
+					//Casting null to a nullable type results in creation of that nullable type. No cast necessary.
+					writer.Write("new ");
+					writer.Write(destTypeHaxe);
+					writer.Write("()");
+				}
+				else
+				{
+					writer.Write("null"); //no cast necessary for null. haxe can infer the type better than C#
+				}
+			}
+			else if (destTypeHaxe == null)
 			{
 				//Sometimes roslyn can't determine the type for some reason. Just fall back to haxe's dynamic cast
 				writer.Write("cast(");
 				Core.Write(writer, expression.Expression);
 				writer.Write(")");
 			}
-			else if ((castingFromHaxe == "Dynamic") 
-				|| (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind == SyntaxKind.SlashToken).None()))
+			else if ((castingFromHaxe == "Dynamic") || (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind == SyntaxKind.SlashToken).None()))
 			{
 				//Eat casts from dynamic.  haxe auto converts.
 				//Eat casts from Int to Int.  Enums getting casted to int fall here, and since we use ints to represent enums anyway, it's not necessary.  However, if we contain the division operator, and since haxe division always produces floating points and C# integer division produces integers, we can't rely on the C# expression type so cast anyway.
+				Core.Write(writer, expression.Expression);
+			}
+			else if (destTypeHaxe.Contains("<"))
+			{
+				//Eat casts with type parameters.  haxe doesn't allow this.
 				Core.Write(writer, expression.Expression);
 			}
 		    else if (destTypeHaxe == "Int")
@@ -55,11 +72,6 @@ namespace Cs2hx
 			{
 				//ignore casts to template types
 				Core.Write(writer, expression.Expression);
-			}
-			else if (castingFromHaxe == "Dynamic")
-			{
-				//ignore casts from dynamic as dynamic can be used as any type.  haXe throws errors when casting dynamic too, which is odd.
-                Core.Write(writer, expression.Expression); 
 			}
 			else
 			{

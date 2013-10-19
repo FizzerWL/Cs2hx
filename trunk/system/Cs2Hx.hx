@@ -1,8 +1,28 @@
 package system;
+using StringTools;
 import system.Exception;
 
 class Cs2Hx
 {
+	public static function IsNullOrWhiteSpace(s:String):Bool
+	{
+		return s == null || Trim(s).length == 0;
+	}
+	
+	public static function Replace(s:String, c1:Int, c2:Int):String
+	{
+		return s.replace(String.fromCharCode(c1), String.fromCharCode(c2));
+	}
+	
+	public static function ToCharArray(s:String):Array<Int>
+	{
+		var ret = new Array<Int>();
+		
+		for (i in 0...s.length)
+			ret.push(s.charCodeAt(i));
+		return ret;
+	}
+	
 	public static inline function Coalesce<T>(a:T, b:T):T
 	{
 		return a == null ? b : a;
@@ -18,7 +38,10 @@ class Cs2Hx
 		return Math.isNaN(a);
 	}
 	
-	
+	public static function Equals_String_StringComparison(str1:String, str2:String, type:Int):Bool
+	{
+		return throw new NotImplementedException();
+	}
 
 	public static inline function Contains<T>(a:Array<T>, item:T):Bool
 	{
@@ -207,4 +230,17 @@ class Cs2Hx
 	{
 		return throw new NotImplementedException();
 	}
+	
+	public static function TryParseBool(s:String, out:CsRef<Int>):Bool
+	{
+		var i = Std.parseInt(s);
+		
+		if (i == 0 && s != "0")
+			return false;
+			
+		out.Value = i;
+		return true;
+	}
+	
+
 }

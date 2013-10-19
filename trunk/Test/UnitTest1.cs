@@ -1387,6 +1387,8 @@ namespace Blargh
         public static void SomeFunction()
         {
             int? nullableInt = new Nullable<int>();
+			double d = 3;
+			var cond = nullableInt.HasValue ? (float?)null : ((float)d);
             Console.WriteLine(nullableInt.HasValue);
             int? withValue = new Nullable<int>(8);
             Console.WriteLine(withValue.Value);
@@ -1395,6 +1397,7 @@ namespace Blargh
 			int? implicitValue = 5;
 			implicitValue = 8;
 			Foo(3);
+			int? n = (int?)null;
         }
 
 		public static int? Foo(int? i)
@@ -1411,6 +1414,8 @@ class Utilities
     public static function SomeFunction():Void
     {
         var nullableInt:Nullable_Int = new Nullable_Int();
+		var d:Float = 3;
+		var cond:Nullable_Float = nullableInt.HasValue ? new Nullable_Float() : (new Nullable_Float(d));
         system.Console.WriteLine_Boolean(nullableInt.HasValue);
         var withValue:Nullable_Int = new Nullable_Int(8);
         system.Console.WriteLine_Int32(withValue.Value);
@@ -1419,6 +1424,7 @@ class Utilities
 		var implicitValue:Nullable_Int = new Nullable_Int(5);
 		implicitValue = new Nullable_Int(8);
 		Foo(new Nullable_Int(3));
+		var n:Nullable_Int = new Nullable_Int();
     }
 	public static function Foo(i:Nullable_Int):Nullable_Int
 	{
@@ -2970,14 +2976,30 @@ namespace Blargh
 {
     public partial class Foo
     {
-        partial void Blah();
+        partial void NoOther();
+		partial void Other();
     }
+
+	partial class Foo
+	{
+		partial void Other()
+		{
+			Console.WriteLine();
+		}
+	}
 }", @"
 package blargh;
 " + WriteImports.StandardImports + @"
 
 class Foo
 {
+	function NoOther():Void
+	{
+	}
+	function Other():Void
+	{
+		system.Console.WriteLine();
+	}
     public function new()
     {
     }

@@ -8,6 +8,7 @@
   <Method SourceObject="System.String" Match="Substring" ReplaceWith="substr" />
   <Method SourceObject="System.String" Match="Split" ReplaceWith="Split" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="Replace" ReplaceWith="replace" />
+  <Method SourceObject="System.String" Match="Replace" ArgumentTypes="char char" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="ToLower" ReplaceWith="toLowerCase" />
   <Method SourceObject="System.String" Match="ToUpper" ReplaceWith="toUpperCase" />
   <Method SourceObject="System.String" Match="StartsWith" ExtensionNamespace="system.Cs2Hx" />
@@ -17,6 +18,7 @@
   <Method SourceObject="System.String" Match="Join" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.String" Match="ToCharArray" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="Contains" ReplaceWith="StringContains" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="Equals" ExtensionNamespace="system.Cs2Hx" />
   <Property SourceObject="System.String" Match="Length" ReplaceWith="length" />
   
   <Method SourceObject="System.Char" Match="IsLetterOrDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />

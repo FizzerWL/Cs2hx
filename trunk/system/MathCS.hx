@@ -19,6 +19,11 @@ class MathCS
 	{
 		return f > s ? f : s;
 	}
+	public static inline function Max_Int64_Int64(f:Float, s:Float):Float
+	{
+		return f > s ? f : s;
+	}
+	
 	
 	public static inline function Min_Int32_Int32(f:Int, s:Int):Int
 	{
