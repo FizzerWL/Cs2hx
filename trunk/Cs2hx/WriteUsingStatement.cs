@@ -23,7 +23,6 @@ namespace Cs2hx
 			if (resource == null)
 				throw new Exception("Using statements must reference a local variable. " + Utility.Descriptor(usingStatement));
 
-			writer.WriteIndent();
 			writer.WriteLine("var __disposed_" + resource + ":Bool = false;");
 			writer.WriteLine("try");
 			writer.WriteOpenBrace();

@@ -49,9 +49,9 @@ class DateTime
 		return new DateTime(date.getTime() + TimeSpan.FromSeconds(seconds).Ticks);
 	}
 	
-	public function ToLocalTime():Void
+	public function ToLocalTime():DateTime
 	{
-		throw new NotImplementedException();
+		return throw new NotImplementedException();
 	}
 
 	public inline function toString():String

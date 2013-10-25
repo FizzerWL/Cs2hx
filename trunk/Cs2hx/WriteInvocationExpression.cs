@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Cs2hx.Translations;
@@ -15,7 +16,7 @@ namespace Cs2hx
 
 			var symbolInfo = model.GetSymbolInfo(invocationExpression);
 			var expressionSymbol = model.GetSymbolInfo(invocationExpression.Expression);
-			var methodSymbol = symbolInfo.Symbol.As<MethodSymbol>().UnReduce();
+			var methodSymbol = symbolInfo.Symbol.OriginalDefinition.As<MethodSymbol>().UnReduce();
 
 			var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, methodSymbol.Name, methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name, string.Join(" ", methodSymbol.Parameters.ToList().Select(o => o.Type.ToString()))) as Method;
 			var memberReferenceExpressionOpt = invocationExpression.Expression as MemberAccessExpressionSyntax;
@@ -212,7 +213,7 @@ namespace Cs2hx
 				writer.Write("(");
 			}
 
-
+			bool inParams = false;
             foreach (var arg in TranslateParameters(translateOpt, SortArguments(methodSymbol, invocationExpression.ArgumentList.Arguments, invocationExpression), invocationExpression))
             {
                 if (firstParameter)
@@ -220,30 +221,46 @@ namespace Cs2hx
                 else
                     writer.Write(", ");
 
-				
-				var isRefField = arg.ArgumentOpt != null
-					&& arg.ArgumentOpt.RefOrOutKeyword.Kind != SyntaxKind.None
-					&& model.GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is FieldSymbol;
+				if (!inParams && IsParamsArgument(invocationExpression, arg.ArgumentOpt, methodSymbol) && TypeProcessor.ConvertType(model.GetTypeInfo(arg.ArgumentOpt.Expression).Type).StartsWith("Array<") == false)
+				{
+					inParams = true;
+					writer.Write("[ ");
+				}
 
-				if (isRefField)
-					writer.Write("new CsRef<" + TypeProcessor.ConvertType(model.GetTypeInfo(arg.ArgumentOpt.Expression).Type) + ">(");
+
+				if (arg.ArgumentOpt != null
+					&& arg.ArgumentOpt.RefOrOutKeyword.Kind != SyntaxKind.None
+					&& model.GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is FieldSymbol)
+					throw new Exception("ref/out cannot reference fields, only local variables.  Consider using ref/out on a local variable and then assigning it into the field. " + Utility.Descriptor(invocationExpression));
+
 
 				//When passing an argument by ref or out, leave off the .Value suffix
-				if (arg.ArgumentOpt != null && arg.ArgumentOpt.RefOrOutKeyword.Kind != SyntaxKind.None && !isRefField)
+				if (arg.ArgumentOpt != null && arg.ArgumentOpt.RefOrOutKeyword.Kind != SyntaxKind.None)
 					WriteIdentifierName.Go(writer, arg.ArgumentOpt.Expression.As<IdentifierNameSyntax>(), true);
 				else if (arg.ArgumentOpt != null)
 					WriteForEachStatement.CheckWriteEnumerator(writer, arg.ArgumentOpt.Expression);
 				else
 					arg.Write(writer);
 
-				if (isRefField)
-					writer.Write(")");
-
-				
             }
+
+			if (inParams)
+				writer.Write(" ]");
 
 
             writer.Write(")");
+		}
+
+		private static bool IsParamsArgument(InvocationExpressionSyntax invocationExpression, ArgumentSyntax argumentOpt, MethodSymbol methodSymbol)
+		{
+			if (argumentOpt == null)
+				return false;
+
+			if (invocationExpression.ArgumentList.Arguments.Any(o => o.NameColon != null))
+				return false; //params cannot be used with named arguments
+
+			int i = invocationExpression.ArgumentList.Arguments.IndexOf(argumentOpt);
+			return methodSymbol.Parameters.ElementAt(i).IsParams;
 		}
 
 		/// <summary>

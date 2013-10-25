@@ -1,20 +1,18 @@
 package system.io;
 import haxe.io.Bytes;
+import system.NotImplementedException;
 
 class MemoryStream extends Stream
 {
-	
-	var _data:Bytes;
-
 	public function new(data:Bytes = null) 
 	{
-		super();
-		_data = data;
+		super(data);
 	}
 	
-	public function ToArray():Bytes
+	
+	public function Seek(offset:Int, origin:Int):Void
 	{
-		return _data;
+		throw new NotImplementedException();
 	}
 	
 }

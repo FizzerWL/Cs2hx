@@ -76,6 +76,14 @@ namespace Cs2hx
 				throw new Exception("char not found");
 			return s.Substring(i + 1);
 		}
+		public static string TrySubstringAfterLast(this string s, char c)
+		{
+			int i = s.LastIndexOf(c);
+			if (i == -1)
+				return s;
+			else 
+				return s.Substring(i + 1);
+		}
 
 		public static string SubstringBeforeLast(this string s, char c)
 		{

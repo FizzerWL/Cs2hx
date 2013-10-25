@@ -4,6 +4,7 @@ import system.collections.generic.Dictionary;
 import system.Exception;
 import system.DateTime;
 import system.Cs2Hx;
+import system.NotImplementedException;
 
 class Enumerable
 {
@@ -136,6 +137,24 @@ class Enumerable
 			throw new Exception("No matching items");
 		return i;
 	}
+	public static function LastOrDefault<T>(a:Array<T>):T
+	{
+		var i:T = null;
+		for (e in a)
+			i = e;
+		return i;
+	}
+	
+	public static function LastOrDefault_IEnumerable_Func<T>(a:Array<T>, func:T->Bool):T
+	{
+		var i:T = null;
+		for (e in a)
+			if (func(e))
+				i = e;
+			
+		return i;
+	}
+	
 	public static function Count<T>(a:Array<T>):Int
 	{
 		var i:Int = 0;
@@ -263,6 +282,18 @@ class Enumerable
 		}
 		return item;
 	}
+	public static function SingleOrDefault<T>(a:Array<T>):T
+	{
+		var item:T = null;
+		for (val in a)
+		{
+			if (item != null)
+				throw new Exception("Multiple items");
+			item = val;
+		}
+		return item;
+	}
+	
 	
 	public static function Single_IEnumerable_Func<T>(a:Array<T>, where:T -> Bool):T
 	{
@@ -318,7 +349,7 @@ class Enumerable
 			ret.push(k);
 		return ret;
 	}
-	public static function ToList<T>(a:Array<T>):Array<T>
+	public static inline function ToList<T>(a:Array<T>):Array<T>
 	{
 		return ToArray(a);
 	}
@@ -415,6 +446,28 @@ class Enumerable
 	{
 		return Min(a);
 	}
+	public static function Min_IEnumerable_Func<T>(a:Array<T>, func:T->Int):Int
+	{
+		var min = 2147483647;
+		for (e in a)
+		{
+			var m = func(e);
+			if (m < min)
+				min = m;
+		}
+		return min;
+	}
+	public static function Max_IEnumerable_Func<T>(a:Array<T>, func:T->Int):Int
+	{
+		var max = -2147483647;
+		for (e in a)
+		{
+			var m = func(e);
+			if (m > max)
+				max = m;
+		}
+		return max;
+	}
 	public static function Min_Float(a:Array<Float>):Float //TODO: What should this be named?
 	{
 		var ret:Float = First(a);
@@ -431,6 +484,12 @@ class Enumerable
 		list.sort(function(f:T, s:T):Int { return Std.int(selector(f) - selector(s)); } );
 		return list;
 	}
+	public static function ThenBy<T>(a:Array<T>, selector:T -> Float):Array<T>
+	{
+		return throw new NotImplementedException();
+	}
+	
+	
 	public static function OrderByDescending<T>(a:Array<T>, selector:T -> Float):Array<T>
 	{
 		var ret:Array<T> = OrderBy(a, selector);
@@ -444,6 +503,13 @@ class Enumerable
 			ret += i;
 		return ret;
 	}
+	public static function Sum_IEnumerable_Func<T>(a:Array<T>, func:T->Int):Int
+	{
+		var ret = 0;
+		for (i in a)
+			ret += func(i);
+		return ret;
+	}
 	public static function Sum_IEnumerable(a:Array<Float>):Float
 	{
 		var ret:Float = 0;
@@ -455,5 +521,13 @@ class Enumerable
 	public static function Cast<T>(a:Array<T>):Array<Dynamic>
 	{
 		return a;
+	}
+	
+	public static function Aggregate<T>(a:Array<T>, func:T->T->T):T
+	{
+		var c = a[0];
+		for(i in 1...a.length)
+			c = func(c, a[i]);
+		return c;
 	}
 }

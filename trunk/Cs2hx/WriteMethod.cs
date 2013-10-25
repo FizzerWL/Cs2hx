@@ -23,7 +23,7 @@ namespace Cs2hx
 			}
 
 			if (method.Identifier.ValueText == "GetEnumerator")
-				return; //skip GetEnumerator methods -- haxe can't enumerate on objects.
+				return; //skip GetEnumerator methods -- haxe can't enumerate on objects.  TODO: Render these out, but convert them to array-returning methods
 
 			var methodSymbol = Program.GetModel(method).GetDeclaredSymbol(method);
 
@@ -49,11 +49,12 @@ namespace Cs2hx
             if (method.TypeParameterList != null)
             {
                 writer.Write("<");
-                writer.Write(string.Join(", ", method.TypeParameterList.Parameters.Select(o => o.Identifier.ValueText)));
+				writer.Write(string.Join(", ", method.TypeParameterList.Parameters.Select(o => TypeParameter(o, method.ConstraintClauses))));
                 writer.Write(">");
             }
 
             writer.Write("(");
+			var deferredDefaults = new Dictionary<string, ExpressionSyntax>();
 
 			var firstParam = true;
             foreach (var parameter in method.ParameterList.Parameters)
@@ -81,7 +82,14 @@ namespace Cs2hx
 				if (parameter.Default != null)
 				{
 					writer.Write(" = ");
-					Core.Write(writer, parameter.Default.Value);
+
+					if (TypeProcessor.ConvertType(parameter.Type).StartsWith("Nullable_"))
+					{
+						writer.Write("null");
+						deferredDefaults.Add(parameter.Identifier.ValueText, parameter.Default.Value);
+					}
+					else 
+						Core.Write(writer, parameter.Default.Value);
 				}
             }
 
@@ -107,6 +115,18 @@ namespace Cs2hx
                 writer.WriteLine();
                 writer.WriteOpenBrace();
 
+				foreach(var defer in deferredDefaults)
+				{
+					writer.WriteLine("if (" + defer.Key + " == null)");
+					writer.Indent++;
+					writer.WriteIndent();
+					writer.Write(defer.Key);
+					writer.Write(" = ");
+					Core.Write(writer, defer.Value);
+					writer.Write(";\r\n");
+					writer.Indent--;
+				}
+
 				if (method.Body != null)
 				{
 					foreach (var statement in method.Body.Statements)
@@ -118,5 +138,17 @@ namespace Cs2hx
                 writer.WriteCloseBrace();
             }
         }
+
+		public static string TypeParameter(TypeParameterSyntax prm, IEnumerable<TypeParameterConstraintClauseSyntax> constraints)
+		{
+			var identifier = prm.Identifier.ValueText;
+
+			var constraint = constraints.SingleOrDefault(o => o.Name.Identifier.ValueText == identifier);
+
+			if (constraint == null)
+				return identifier;
+
+			return identifier + ": (" + string.Join(", ", constraint.Constraints.OfType<TypeConstraintSyntax>().ToList().Select(o => TypeProcessor.ConvertType(o.Type))) + ")";
+		}
     }
-}
+} 

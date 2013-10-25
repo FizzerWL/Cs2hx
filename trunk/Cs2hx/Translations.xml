@@ -1,16 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Translations>
   <Method SourceObject="*" Match="ToString" ReplaceWith="toString" />
+  <Method SourceObject="*" Match="GetType" ExtensionNamespace="system.Cs2Hx" />
+  <Type Match="System.Type" SourceObject="*" ReplaceWith="system.TypeCS" />
 
   <Method SourceObject="System.String" Match="IndexOf" ReplaceWith="indexOf" />
   <Method SourceObject="System.String" Match="IndexOf" ArgumentTypes="char" ExtensionNamespace="system.Cs2Hx" ReplaceWith="IndexOfChar" />
+  <Method SourceObject="System.String" Match="IndexOf" ArgumentTypes="char int" ExtensionNamespace="system.Cs2Hx" ReplaceWith="IndexOfChar" />
+  <Method SourceObject="System.String" Match="IndexOfAny" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="LastIndexOf" ReplaceWith="lastIndexOf" />
   <Method SourceObject="System.String" Match="Substring" ReplaceWith="substr" />
-  <Method SourceObject="System.String" Match="Split" ReplaceWith="Split" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="Split" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="Replace" ReplaceWith="replace" />
   <Method SourceObject="System.String" Match="Replace" ArgumentTypes="char char" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="ToLower" ReplaceWith="toLowerCase" />
   <Method SourceObject="System.String" Match="ToUpper" ReplaceWith="toUpperCase" />
+  <Method SourceObject="System.String" Match="Remove" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="StartsWith" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="EndsWith" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="Trim" ExtensionNamespace="system.Cs2Hx" />
@@ -35,11 +40,10 @@
   <Method SourceObject="System.Array" Match="Sort" ReplaceWith="sort" />
   <Property SourceObject="System.Array" Match="Length" ReplaceWith="length" />
 
-  <Property SourceObject="System.Collections.Generic.Dictionary" Match="Count" ReplaceWith="length" />
   <Property SourceObject="System.Collections.Generic.Dictionary.KeyCollection" Match="Count" ReplaceWith="length" />
   <Property SourceObject="System.Collections.Generic.Dictionary.ValueCollection" Match="Count" ReplaceWith="length" />
-
-  <Property SourceObject="System.Collections.Generic.HashSet" Match="Count" ReplaceWith="length" />
+  
+  <Property SourceObject="System.Collections.Generic.ICollection" Match="Count" ReplaceWith="length" />
 
 
   <Property SourceObject="System.Collections.Generic.List" Match="Count" ReplaceWith="length" />
@@ -48,8 +52,11 @@
   <Method SourceObject="System.Collections.Generic.List" Match="Contains" ReplaceWith="Contains" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="ToArray" ReplaceWith="ToArray" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="Add" ReplaceWith="push" />
+  <Method SourceObject="System.Collections.Generic.List" Match="AddRange" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="ForEach" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="Clear" ReplaceWith="Clear" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="Sort" ReplaceWith="sort" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Sort" ArgumentTypes="int int System.Collections.Generic.IComparer&lt;T&gt;" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="Insert" ReplaceWith="insert" />
   <Method SourceObject="System.Collections.Generic.List" Match="IndexOf" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="RemoveRange" ReplaceWith="splice" />

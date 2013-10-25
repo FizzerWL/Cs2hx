@@ -8,7 +8,7 @@ class CryptoStream extends Stream
 
 	public function new(stream:Stream, encryptor:ICryptoTransform, streamMode:Int) 
 	{
-		super();
+		super(null);
 		throw new NotImplementedException();
 	}
 	

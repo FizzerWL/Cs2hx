@@ -52,8 +52,8 @@ class HashSet<T>
 		return keys.iterator();
 	}
 	
-	public var length(get_length, never):Int;
-	public function get_length():Int
+	public var Count(get, never):Int;
+	public inline function get_Count():Int
 	{
 		return keys.length;
 	}

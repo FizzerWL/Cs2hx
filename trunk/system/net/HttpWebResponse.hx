@@ -9,6 +9,7 @@ class HttpWebResponse extends WebResponse
 	{
 		super();
 	}
-	
+
+	public var StatusCode:Int;
 	
 }

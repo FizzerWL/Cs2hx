@@ -16,7 +16,7 @@ namespace Cs2hx
 			writer.Write("for (");
 			writer.Write(foreachStatement.Identifier.ValueText);
 			writer.Write(" in ");
-			WriteEnumerator(writer, foreachStatement.Expression, Program.GetModel(foreachStatement).GetTypeInfo(foreachStatement.Expression).ConvertedType);
+			WriteEnumerator(writer, foreachStatement.Expression, Program.GetModel(foreachStatement).GetTypeInfo(foreachStatement.Expression).Type);
 			
 			
 			writer.Write(")\r\n");
@@ -34,7 +34,7 @@ namespace Cs2hx
 		private static void WriteEnumerator(HaxeWriter writer, ExpressionSyntax expression, TypeSymbol type)
 		{
 			var typeStr = TypeProcessor.GenericTypeName(type);
-
+			
 			if (typeStr == "System.String")
 			{
 				writer.Write("Cs2Hx.ToCharArray(");
@@ -48,6 +48,9 @@ namespace Cs2hx
 				Core.Write(writer, expression);
 
 				var haxeType = TypeProcessor.ConvertType(type);
+
+				if (haxeType == "haxe.io.Bytes")
+					throw new Exception("Cannot use byte[] as an enumerable.  Consider using a for loop instead " + Utility.Descriptor(expression));
 
 				if (haxeType == null || !haxeType.StartsWith("Array"))
 					writer.Write(".GetEnumerator()");

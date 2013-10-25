@@ -1,6 +1,7 @@
 package system.net;
 import system.io.Stream;
 import system.NotImplementedException;
+import system.Uri;
 
 class HttpWebRequest extends WebRequest
 {
@@ -11,6 +12,10 @@ class HttpWebRequest extends WebRequest
 	}
 	
 	public static function Create(url:String):HttpWebRequest
+	{
+		return throw new NotImplementedException();
+	}
+	public static function Create_Uri(uri:Uri):HttpWebRequest
 	{
 		return throw new NotImplementedException();
 	}

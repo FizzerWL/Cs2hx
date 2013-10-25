@@ -12,10 +12,7 @@ namespace Cs2hx
 		public static void Go(HaxeWriter writer, BinaryExpressionSyntax expression)
 		{
 			//Check for index assignments, for example dictionary[4] = 3;
-			if (expression.Left is ElementAccessExpressionSyntax && 
-				(expression.OperatorToken.Kind == SyntaxKind.EqualsToken
-				|| expression.OperatorToken.Kind == SyntaxKind.PlusEqualsToken
-				|| expression.OperatorToken.Kind == SyntaxKind.MinusEqualsToken))
+			if (expression.Left is ElementAccessExpressionSyntax && expression.OperatorToken.Kind == SyntaxKind.EqualsToken)
 			{
 				var elementAccess = (ElementAccessExpressionSyntax)expression.Left;
 
@@ -142,29 +139,6 @@ namespace Cs2hx
 
 				writeArgs();
 				Core.Write(writer, subExpressionOpt);
-				writer.Write(")");
-			}
-			else if (operatorToken.Kind == SyntaxKind.PlusEqualsToken || operatorToken.Kind == SyntaxKind.PlusPlusToken)
-			{
-				writer.Write("IncrementValue(");
-				writeArgs();
-
-				if (operatorToken.Kind == SyntaxKind.PlusPlusToken)
-					writer.Write("1");
-				else
-					Core.Write(writer, subExpressionOpt);
-
-				writer.Write(")");
-			}
-			else if (operatorToken.Kind == SyntaxKind.MinusEqualsToken || operatorToken.Kind == SyntaxKind.MinusMinusToken)
-			{
-				writer.Write("DecrementValue(");
-				writeArgs();
-
-				if (operatorToken.Kind == SyntaxKind.MinusMinusToken)
-					writer.Write("1");
-				else
-					Core.Write(writer, subExpressionOpt);
 				writer.Write(")");
 			}
 			else

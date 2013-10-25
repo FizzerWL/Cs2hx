@@ -12,15 +12,18 @@ namespace Cs2hx
 {
     static class TypeProcessor
     {
-		public static string DefaultValue(TypeSyntax type)
+		public static string DefaultValue(string haxeType)
 		{
-			var t = Program.GetModel(type).GetTypeInfo(type).Type;
-			if (t.IsValueType == false || t.Name == "Nullable" || t.SpecialType == SpecialType.System_DateTime || t.Name == "TimeSpan")
-				return "null";
-			else if (t.SpecialType == SpecialType.System_Boolean)
-				return "false";
-			else
-				return "0";
+			switch (haxeType)
+			{
+				case "Int":
+				case "Float":
+					return "0";
+				case "Bool":
+					return "false";
+				default:
+					return "null";
+			}
 		}
 
 		public static string TryConvertType(SyntaxNode node)
@@ -133,10 +136,13 @@ namespace Cs2hx
 				return "Nullable_" + nullableType;
 			}
 
-			if (named != null && named.IsGenericType && !named.IsUnboundGenericType && TypeArguments(named).Any())
+			var typeStr = GenericTypeName(typeInfo);
+
+			var trans = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Type, MatchString(typeStr), null) as Translations.Type;
+
+			if (named != null && named.IsGenericType && !named.IsUnboundGenericType && TypeArguments(named).Any() && (trans == null || trans.SkipGenericTypes == false))
 				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", TypeArguments(named).Select(o => ConvertType(o) ?? "Dynamic")) + ">";
 
-			var typeStr = GenericTypeName(typeInfo);
 
 			switch (typeStr)
 			{
@@ -174,6 +180,7 @@ namespace Cs2hx
 				case "System.Collections.Generic.IEnumerable<>":
 				case "System.Collections.Generic.Dictionary<,>.ValueCollection":
 				case "System.Collections.Generic.Dictionary<,>.KeyCollection":
+				case "System.Collections.Generic.ICollection<>":
 				case "System.Linq.IOrderedEnumerable<>":
 				case "System.Collections.IEnumerable":
 					return "Array";
@@ -185,10 +192,10 @@ namespace Cs2hx
 					return "List";
 
 				default:
-					var trans = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Type, typeStr, null);
+					
 
 					if (trans != null)
-						return trans.As<Translations.Type>().ReplaceWith;
+						return trans.As<Translations.Type>().Replace(named);
 
 					if (named != null)
 						return typeInfo.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(named);

@@ -14,4 +14,9 @@ class WebResponse
 	{
 		return throw new NotImplementedException();
 	}
+	
+	public function Dispose():Void
+	{
+		
+	}
 }

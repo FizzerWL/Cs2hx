@@ -81,7 +81,7 @@ namespace Cs2hx
 						.Where(o => !o.Modifiers.Any(SyntaxKind.StaticKeyword))
 						.SelectMany(o => o.Declaration.Variables)
 						.Where(o =>
-							(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<BaseFieldDeclarationSyntax>().Modifiers, o.Initializer))
+							(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<BaseFieldDeclarationSyntax>().Modifiers, o.Initializer, o.Parent.As<VariableDeclarationSyntax>().Type))
 							||
 							(o.Initializer == null && TypeProcessor.ValueToReference(o.Parent.As<VariableDeclarationSyntax>().Type))
 							||
@@ -134,7 +134,7 @@ namespace Cs2hx
 				.Where(o => o.Modifiers.Any(SyntaxKind.StaticKeyword))
 				.SelectMany(o => o.Declaration.Variables)
 				.Where(o =>
-					(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<BaseFieldDeclarationSyntax>().Modifiers, o.Initializer))
+					(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<BaseFieldDeclarationSyntax>().Modifiers, o.Initializer, o.Parent.As<VariableDeclarationSyntax>().Type))
 					||
 					(o.Initializer == null && TypeProcessor.ValueToReference(o.Parent.As<VariableDeclarationSyntax>().Type))
 					||

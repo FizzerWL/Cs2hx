@@ -4,7 +4,7 @@ import haxe.io.Bytes;
 import system.Exception;
 import system.NotImplementedException;
 
-class UTF8Encoding 
+class UTF8Encoding extends Encoding
 {
 	public function GetString(b:Bytes):String
 	{
@@ -24,6 +24,7 @@ class UTF8Encoding
 	
 	public function new() 
 	{ 
+		super();
 	}
 	
 	

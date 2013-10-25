@@ -83,9 +83,9 @@ namespace Test
 					{
 
 						err.AppendLine("---------------Expected after " + sub + "----------------");
-						err.AppendLine(expectedOutputStripped[i].SubstringSafe(sub, 100));
+						err.AppendLine(expectedOutputStripped[i].SubstringSafe(sub, 30));
 						err.AppendLine("---------------Actual after " + sub + "----------------");
-						err.AppendLine(haxeFilesFromDisk[i].SubstringSafe(sub, 100));
+						err.AppendLine(haxeFilesFromDisk[i].SubstringSafe(sub, 30));
 					}
 					throw new Exception(err.ToString());
                 }

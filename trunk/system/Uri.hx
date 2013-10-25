@@ -10,4 +10,9 @@ class Uri
 	
 	public var Query:String;
 	
+	public function toString():String
+	{
+		return throw new NotImplementedException();
+	}
+	
 }

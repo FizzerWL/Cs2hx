@@ -21,7 +21,7 @@ class NameValueCollection
 		return throw new NotImplementedException();
 	}
 	
-	public function GetValue(k:String):String
+	public function GetValue_String(k:String):String
 	{
 		return throw new NotImplementedException();
 	}

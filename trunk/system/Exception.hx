@@ -13,13 +13,15 @@ class Exception
 	
 	public var StackTrace:String; //not populated.  This just exists to prevent build errors on code that accesses it.
 	
-	public function new(msg:String = "No message")
+	public function new(msg:String = "No message", innerException:Exception = null)
 	{
 		#if flash
 		super(msg);
 		#else
 		this.Message = msg;
 		#end
+		
+		this.InnerException = innerException;
 	}
 
 	public function toString():String

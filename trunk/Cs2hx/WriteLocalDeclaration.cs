@@ -36,7 +36,7 @@ namespace Cs2hx
 					writer.Write(">(");
 
 					if (variable.Initializer == null)
-						writer.Write(TypeProcessor.DefaultValue(declaration.Declaration.Type));
+						writer.Write(TypeProcessor.DefaultValue(typeStr));
 					else
 						Core.Write(writer, variable.Initializer.As<EqualsValueClauseSyntax>().Value);
 

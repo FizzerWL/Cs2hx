@@ -7,6 +7,7 @@ class XAttribute extends XObject
 	
 	public function new(val:String)
 	{
+		super();
 		Value = val;
 	}
 }

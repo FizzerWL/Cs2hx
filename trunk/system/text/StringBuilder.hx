@@ -58,6 +58,11 @@ class StringBuilder
 		Append("\n");
 	}
 	
+	public inline function Append_Int32(i:Int):Void
+	{
+		Append(Std.string(i));
+	}
+	
 	public inline function Append_String_Int32_Int32(append:String, startAt:Int, len:Int):Void
 	{
 		Append(append.substr(startAt, len));
@@ -68,8 +73,13 @@ class StringBuilder
 		throw new NotImplementedException();
 	}
 	
-	public function GetValue(index:Int):Int
+	public function GetValue_Int32(index:Int):Int
 	{
 		return buffer.charCodeAt(index);
+	}
+	
+	public function Clear():Void
+	{
+		buffer = "";
 	}
 }

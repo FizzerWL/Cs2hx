@@ -24,13 +24,21 @@ class Dictionary<K, V>
 		keys.push(key);
 	}
 	
-	public function GetValue(key:K):V
+	public function GetValue_TKey(key:K):V
 	{
 		var h = Cs2Hx.Hash(key);
 		
 		if (!store.exists(h))
 			throw new Exception("Key does not exist: " + h);
 		return store.get(h);
+	}
+	public inline function GetValue(key:K):V //exists for backcompat. Will never be called by CS2HX generated code.
+	{
+		return GetValue_TKey(key);
+	}
+	public inline function GetValue_Object(key:K):V
+	{
+		return GetValue_TKey(key);
 	}
 	
 	public function ContainsKey(key:K):Bool
@@ -95,8 +103,8 @@ class Dictionary<K, V>
 		return ret;
 	}
 	
-	public var length(get_length, never):Int;
-	public function get_length():Int
+	public var Count(get, never):Int;
+	public inline function get_Count():Int
 	{
 		return keys.length;
 	}
@@ -130,4 +138,5 @@ class Dictionary<K, V>
 			ret.add(new KeyValuePair(i, store.get(Cs2Hx.Hash(i))));
 		return ret.iterator();
 	}
+	
 }

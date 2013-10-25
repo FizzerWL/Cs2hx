@@ -1,16 +1,11 @@
-/**
- * ...
- * @author asdf
- */
-
 package system;
 
 class TimeoutException extends Exception
 {
 
-	public function new(msg:String)
+	public function new(msg:String = "No message", inner:Exception = null)
 	{
-		super(msg);
+		super(msg, inner);
 	}
 	
 }

@@ -38,7 +38,14 @@ namespace Cs2hx
 			}
 			else
 			{
-				writer.Write(".GetValue(");
+				writer.Write(".GetValue");
+
+				var symbol = Program.GetModel(expression).GetSymbolInfo(expression).Symbol.OriginalDefinition.As<PropertySymbol>();
+
+				writer.Write(string.Join("", symbol.Parameters.ToArray().Select(o => "_" + o.Type.Name)));
+
+				
+				writer.Write("(");
 				bool first = true;
 				foreach (var arg in expression.ArgumentList.Arguments)
 				{

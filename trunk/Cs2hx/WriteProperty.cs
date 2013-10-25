@@ -49,7 +49,7 @@ namespace Cs2hx
                     if (!get)
                     {
                         //Unfortunately, all haXe property setters must return a value.
-                        writer.WriteLine("return " + TypeProcessor.DefaultValue(property.Type) + ";");
+						writer.WriteLine("return " + TypeProcessor.DefaultValue(type) + ";");
                     }
                 }
 

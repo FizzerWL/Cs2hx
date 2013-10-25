@@ -20,7 +20,7 @@ class BinaryReader
 	private var reader:BytesInput;
 	#end
 	
-	public function new(readFrom:MemoryStream)
+	public function new(readFrom:Stream)
 	{
 		#if flash
 		arr = readFrom.ToArray().getData();

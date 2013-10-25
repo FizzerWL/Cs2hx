@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Cs2hx;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -227,10 +228,6 @@ namespace Blargh
             var dict = new Dictionary<int, int>();
 			dict[3] = 4;
 			var i = dict[3];
-			dict[3]++;
-			dict[3]--;
-			dict[3] += 3;
-			dict[3] -= 2;
 			var array = new int[3];
 			array[0] = 1;
 			array[1]++;
@@ -250,11 +247,7 @@ class Foo
     {
         var dict:system.collections.generic.Dictionary<Int, Int> = new system.collections.generic.Dictionary<Int, Int>();
 		dict.SetValue(3, 4);
-		var i:Int = dict.GetValue(3);
-		dict.IncrementValue(3, 1);
-		dict.DecrementValue(3, 1);
-		dict.IncrementValue(3, 3);
-		dict.DecrementValue(3, 2);
+		var i:Int = dict.GetValue_TKey(3);
 		var array:Array<Int> = [ ];
 		array[0] = 1;
 		array[1]++;
@@ -1336,7 +1329,7 @@ class Utilities
     {
         var dict:system.collections.generic.Dictionary<Int, Int> = new system.collections.generic.Dictionary<Int, Int>();
         dict.Add(4, 3);
-        system.Console.WriteLine_Int32(dict.GetValue(4));
+        system.Console.WriteLine_Int32(dict.GetValue_TKey(4));
         system.Console.WriteLine_Boolean(dict.ContainsKey(8));
         dict.Remove(4);
         for (key in dict.Keys)
@@ -1435,6 +1428,43 @@ class Utilities
     }
 }");
 		}
+
+		[TestMethod]
+		public void NullableDefaults()
+		{
+
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction(int? f = 3, float? s = null)
+        {
+            Console.WriteLine(""Hello, World!"");
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Utilities
+{
+    public static function SomeFunction(f:Nullable_Int = null, s:Nullable_Float = null):Void
+    {
+		if (f == null)
+			f = new Nullable_Int(3);
+		if (s == null)
+			s = new Nullable_Float();
+        system.Console.WriteLine(""Hello, World!"");
+    }
+    public function new()
+    {
+    }
+}");
+		}
+
 
 		[TestMethod]
 		[ExpectedException(typeof(AggregateException), "When using nullable types, you must use the .Value and .HasValue properties instead of the object directly")]
@@ -2561,7 +2591,7 @@ class Foo
 		}
 
 		[TestMethod]
-		public void CastsWithAs()
+		public void Casts()
 		{
 			var cs = @"
 using System;
@@ -2582,7 +2612,9 @@ namespace Blargh
     {
         public static void SomeFunction()
         {
-			var z = DateTime.Now.As<String>();
+			var a = DateTime.Now.As<String>();
+			object o = 4;
+			var b = (byte)(short)o;
         }
     }
 }";
@@ -2595,7 +2627,9 @@ class Test
 {
     public static function SomeFunction():Void
     {
-        var z:String = cast(system.DateTime.Now, String);
+        var a:String = cast(system.DateTime.Now, String);
+		var o:Dynamic = 4;
+		var b:Int = o;
     }
     public function new()
     {
@@ -2864,7 +2898,6 @@ namespace Blargh
 {
 	public class Foo
 	{
-		public int Field;
 		public Foo()
 		{
 			int x;
@@ -2875,8 +2908,6 @@ namespace Blargh
 			TestRef(ref i);
 			i = 5;
 			new StringBuilder(i);
-			TestRef(ref Field);
-			TestRef(ref this.Field);
 			Func<int> fun = () => x;
 		}
 		
@@ -2898,8 +2929,6 @@ package blargh;
 		
 class Foo
 {
-	public var Field:Int;
-		
 	public function new()
 	{
 		var x:CsRef<Int> = new CsRef<Int>(0);
@@ -2910,8 +2939,6 @@ class Foo
 		TestRef(i);
 		i.Value = 5;
 		new system.text.StringBuilder(i.Value);
-		TestRef(new CsRef<Int>(Field));
-		TestRef(new CsRef<Int>(this.Field));
 		var fun:(Void -> Int) = function ():Int { return x.Value; } ;
 	}
 		
@@ -3007,7 +3034,152 @@ class Foo
 		}
 
 
+		[TestMethod]
+		public void TypeConstraints()
+		{
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
 
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction<T>() where T : class, IComparable<T>
+        {
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Utilities
+{
+    public static function SomeFunction<T: (system.IComparable<T>)>():Void
+    {
+    }
+    public function new()
+    {
+    }
+}");
+		}
+
+		[TestMethod]
+		public void ExplicitCastOperators()
+		{
+
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Foo
+{
+    public class Bar
+    {
+        public static explicit operator string(Bar value)
+		{
+			return ""blah"";
+		}
+
+		public static void Foo()
+		{
+			var b = new Bar();
+			var s = (string)b;
+	
+		}
+    }
+}", @"
+package foo;
+" + WriteImports.StandardImports + @"
+
+class Bar
+{
+    public static function op_Explicit_String(value:foo.Bar):String
+    {
+        return ""blah"";
+    }
+	public static function Foo():Void
+	{
+		var b:foo.Bar = new foo.Bar();
+		var s:String = foo.Bar.op_Explicit_String(b);
+	}
+    public function new()
+    {
+    }
+}");
+		}
+
+
+
+		[TestMethod]
+		public void ParamsArguments()
+		{
+
+			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Foo
+{
+    public class Bar
+    {
+        public static void Method1(params int[] p)
+		{
+		}
+        public static void Method2(int i, params int[] p)
+		{
+		}
+        public static void Method3(int i, int z, params int[] p)
+		{
+		}
+
+		public static void Foo()
+		{
+			Method1(1);
+			Method1(1, 2);
+			Method1(1, 2, 3);
+			Method1(1, 2, 3, 4);
+			Method2(1);
+			Method2(1, 2);
+			Method2(1, 2, 3);
+			Method2(1, 2, 3, 4);
+			Method3(1, 2);
+			Method3(1, 2, 3);
+			Method3(1, 2, 3, 4);
+
+		}
+    }
+}", @"
+package foo;
+" + WriteImports.StandardImports + @"
+
+class Bar
+{
+    public static function Method1(p:Array<Int>):Void
+	{
+	}
+    public static function Method2(i:Int, p:Array<Int>):Void
+	{
+	}
+    public static function Method3(i:Int, z:Int, p:Array<Int>):Void
+	{
+	}
+	public static function Foo():Void
+	{
+		Method1([ 1 ]);
+		Method1([ 1, 2 ]);
+		Method1([ 1, 2, 3 ]);
+		Method1([ 1, 2, 3, 4 ]);
+		Method2(1);
+		Method2(1, [ 2 ]);
+		Method2(1, [ 2, 3 ]);
+		Method2(1, [ 2, 3, 4 ]);
+		Method3(1, 2);
+		Method3(1, 2, [ 3 ]);
+		Method3(1, 2, [ 3, 4 ]);
+	}
+    public function new()
+    {
+    }
+}");
+		}
 
 	}
 }

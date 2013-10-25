@@ -1,12 +1,13 @@
 package system.xml.linq;
 import system.linq.Enumerable;
 
-class XContainer extends XObject
+class XContainer extends XNode
 {
 	public var _x:Xml; //ideally protected, but haxe doesn't have that.
 	
 	public function new(name:String = null)
 	{
+		super();
 		//If we're created without supplying a name, _x will be null. It's assumed that in this case, we're being constructed by another type in system.xml.linq, and _x will be assigned immediately after we're constructed.  This isn't perfect since in C# you can construct a type and assign its name later, but it'll do.
 		if (name != null)
 			_x = Xml.createElement(name); 

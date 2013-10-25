@@ -4,9 +4,9 @@ import system.NotImplementedException;
 class StreamReader
 {
 
-	public function new() 
+	public function new(stream:Stream) 
 	{
-		
+		throw new NotImplementedException();
 	}
 	
 	public function ReadToEnd():String
@@ -17,5 +17,10 @@ class StreamReader
 	public function ReadLine():String
 	{
 		return throw new NotImplementedException();
+	}
+	
+	public function Dispose():Void
+	{
+		
 	}
 }

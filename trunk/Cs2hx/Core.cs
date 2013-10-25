@@ -135,6 +135,8 @@ namespace Cs2hx
 				WriteDefaultExpression.Go(writer, node.As<DefaultExpressionSyntax>());
 			else if (node is GenericNameSyntax)
 				WriteGenericName.Go(writer, node.As<GenericNameSyntax>());
+			else if (node is ConversionOperatorDeclarationSyntax)
+				WriteConversionOperatorDeclaration.Go(writer, node.As<ConversionOperatorDeclarationSyntax>());
 			else
 				throw new NotImplementedException(node.GetType().Name + " is not supported. " + Utility.Descriptor(node));
         }

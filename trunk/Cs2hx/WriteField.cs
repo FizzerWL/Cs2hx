@@ -29,7 +29,7 @@ namespace Cs2hx
         {
             writer.WriteIndent();
 
-			var isConst = IsConst(modifiers, initializerOpt);
+			var isConst = IsConst(modifiers, initializerOpt, type);
 
 			WriteFieldModifiers(writer, modifiers);
 			if (isConst)
@@ -50,9 +50,13 @@ namespace Cs2hx
             writer.WriteLine();
         }
 
-		public static bool IsConst(SyntaxTokenList modifiers, EqualsValueClauseSyntax initializerOpt)
+		public static bool IsConst(SyntaxTokenList modifiers, EqualsValueClauseSyntax initializerOpt, TypeSyntax type)
 		{
-			return modifiers.Any(SyntaxKind.ConstKeyword) || (modifiers.Any(SyntaxKind.ReadOnlyKeyword) && modifiers.Any(SyntaxKind.StaticKeyword) && initializerOpt != null);
+			var t = TypeProcessor.ConvertType(type);
+
+			return (modifiers.Any(SyntaxKind.ConstKeyword)
+				|| (modifiers.Any(SyntaxKind.ReadOnlyKeyword) && modifiers.Any(SyntaxKind.StaticKeyword) && initializerOpt != null))
+				&& (t == "Int" || t == "String" || t == "Bool" || t == "Float");
 		}
     }
 }

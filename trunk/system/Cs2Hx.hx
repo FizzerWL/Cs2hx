@@ -1,9 +1,45 @@
 package system;
 using StringTools;
+import system.collections.generic.IComparer.IComparer;
 import system.Exception;
 
 class Cs2Hx
 {
+	public static function Remove_Int32_Int32(s:String, startIndex:Int, count:Int):String
+	{
+		return s.substr(0, startIndex) + s.substr(startIndex + count - 1);
+	}
+	
+	public static function AddRange<T>(b:Array<T>, a:Array<T>):Void
+	{
+		for (e in a)
+			b.push(e);
+	}
+	public static function ForEach<T>(a:Array<T>, func:T->Void):Void
+	{
+		for (e in a)
+			func(e);
+	}
+	
+	public static inline function GetType(c:Dynamic):TypeCS
+	{
+		return new system.TypeCS(c);
+	}
+	
+	
+	public static function IndexOfAny__Int32(s:String, chars:Array<Int>, startat:Int):Int
+	{
+		for (i in startat...s.length)
+		{
+			var ec = s.charCodeAt(i);
+			for (c in chars)
+				if (ec == c)
+					return i;
+		}
+		
+		return -1;
+	}
+	
 	public static function IsNullOrWhiteSpace(s:String):Bool
 	{
 		return s == null || Trim(s).length == 0;
@@ -53,9 +89,9 @@ class Cs2Hx
 		return haystack.indexOf(needle) != -1;
 	}
 	
-	public static inline function IndexOfChar(s:String, c:Int):Int
+	public static inline function IndexOfChar(s:String, c:Int, startAt:Int = 0):Int
 	{
-		return s.indexOf(String.fromCharCode(c));
+		return s.indexOf(String.fromCharCode(c), startAt);
 	}
 
 
@@ -75,13 +111,31 @@ class Cs2Hx
 		return a;
 	}
 	
-	public static inline function Split(s:String, chars:Array<Int>):Array<String>
+	public static inline function Split__StringSplitOptions(s:String, chars:Array<Int>, options:Int):Array<String>
+	{
+		return Split(s, chars, options);
+	}
+	
+	public static function Split(s:String, chars:Array<Int>, options:Int = 0):Array<String>
 	{
 		var charString:String = "";
 		
 		for (c in chars)
 			charString += String.fromCharCode(c);
-		return s.split(charString);
+			
+		var split = s.split(charString);
+		
+		if (options == StringSplitOptions.RemoveEmptyEntries)
+		{
+			var ret = new Array<String>();
+			for (e in split)
+				if (!IsNullOrEmpty(e))
+					ret.push(e);
+					
+			return ret;
+		}
+		else
+			return split;
 	}
 	
 	public static inline function Join(sep:String, a:Array<String>):String
@@ -182,6 +236,22 @@ class Cs2Hx
 		}
 	}
 	
+	public static function Trim_(str:String, chars:Array<Int>):String
+	{
+		var i:Int = 0;
+		while (IndexOf(chars, str.charCodeAt(i)) != -1)
+			i++;
+			
+		var e:Int = str.length - 1;
+		while (IndexOf(chars, str.charCodeAt(e)) != -1) 
+			e--;
+
+		if (e < 0)
+			return "";
+
+		return str.substr(i, e - i + 1);
+	}
+	
 	public static function Trim(str:String):String
 	{
 		var i:Int = 0;
@@ -207,6 +277,19 @@ class Cs2Hx
 	public static inline function SortFloats(f:Float, s:Float):Int
 	{
 		return Std.int(f - s);
+	}
+	
+	public static function Sort_Int32_Int32_IComparer<T>(array:Array<T>, startAt:Int, len:Int, comp:IComparer<T>):Void
+	{
+		var tmp = new Array<T>();
+		
+		for (i in startAt...(len + startAt))
+			tmp.push(array[i]);
+			
+		tmp.sort(function (a:T, b:T):Int { return comp.Compare(a, b); } );
+		
+		for (i in 0...tmp.length)
+			array[i + startAt] = tmp[i];
 	}
 	
 	public static function NewGuid():String
