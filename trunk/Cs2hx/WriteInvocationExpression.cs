@@ -68,7 +68,7 @@ namespace Cs2hx
 
 						break;
 					case "TryParse":
-						methodName = "TryParse" + TypeProcessor.ConvertType(methodSymbol.ReturnType);
+						methodName = "TryParse" + TypeProcessor.ConvertType(methodSymbol.Parameters[1].Type);
 						extensionNamespace = "Cs2Hx";
 						break;
 					default:
@@ -191,7 +191,12 @@ namespace Cs2hx
 						{
 							//ToString()'s on primitive types get replaced with Std.string
 							writer.Write("Std.string(");
-							Core.Write(writer, memberReferenceExpressionOpt.Expression);
+
+							if (memberReferenceExpressionOpt.Expression is ParenthesizedExpressionSyntax)
+								Core.Write(writer, memberReferenceExpressionOpt.Expression.As<ParenthesizedExpressionSyntax>().Expression); //eat a set of parenthesis, just to make the output code a bit nicer.
+							else 
+								Core.Write(writer, memberReferenceExpressionOpt.Expression);
+
 							writer.Write(")");
 
 							if (invocationExpression.ArgumentList.Arguments.Count > 0)
@@ -307,12 +312,12 @@ namespace Cs2hx
 		/// <param name="method"></param>
 		/// <param name="arguments"></param>
 		/// <returns></returns>
-		private static IEnumerable<ArgumentSyntax> SortArguments(MethodSymbol method, SeparatedSyntaxList<ArgumentSyntax> arguments, ExpressionSyntax expressionForErr)
+		public static IEnumerable<ArgumentSyntax> SortArguments(MethodSymbol method, IEnumerable<ArgumentSyntax> arguments, ExpressionSyntax expressionForErr)
 		{
 			if (arguments.All(o => o.NameColon == null))
 				return arguments; //no named parameters. Return them as-is.
 
-			var ret = new List<ArgumentSyntax>(arguments.Count);
+			var ret = new List<ArgumentSyntax>(arguments.Count());
 
 			//First transer any args that don't have named parameters straight over.
 			foreach (var arg in arguments)

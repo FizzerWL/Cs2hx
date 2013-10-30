@@ -93,12 +93,12 @@ namespace Cs2hx
 			return cachedValue;
 		}
 
-		private static string ConvertTypeUncached(TypeSymbol typeInfo)
+		private static string ConvertTypeUncached(TypeSymbol typeSymbol)
 		{
-			if (typeInfo.IsAnonymousType)
-				return null; //leave these blank so haxe can infer
+			if (typeSymbol.IsAnonymousType)
+				return WriteAnonymousObjectCreationExpression.TypeName(typeSymbol.As<NamedTypeSymbol>());
 
-			var array = typeInfo as ArrayTypeSymbol;
+			var array = typeSymbol as ArrayTypeSymbol;
 
 			if (array != null)
 			{
@@ -108,14 +108,14 @@ namespace Cs2hx
 					return "Array<" + (ConvertType(array.ElementType) ?? "Dynamic") + ">";
 			}
 
-			var typeInfoStr = typeInfo.ToString();
+			var typeInfoStr = typeSymbol.ToString();
 
-			var named = typeInfo as NamedTypeSymbol;
+			var named = typeSymbol as NamedTypeSymbol;
 
-			if (typeInfo.TypeKind == TypeKind.TypeParameter)
-				return typeInfo.Name;
+			if (typeSymbol.TypeKind == TypeKind.TypeParameter)
+				return typeSymbol.Name;
 
-			if (typeInfo.TypeKind == TypeKind.Delegate)
+			if (typeSymbol.TypeKind == TypeKind.Delegate)
 			{
 				var dlg = named.DelegateInvokeMethod.As<MethodSymbol>();
 				if (dlg.Parameters.Count == 0)
@@ -124,19 +124,20 @@ namespace Cs2hx
 					return "(" + string.Join("", dlg.Parameters.ToList().Select(o => ConvertType(o.Type) + " -> ")) + ConvertType(dlg.ReturnType) + ")";
 			}
 
-			if (typeInfo.TypeKind == TypeKind.Enum)
+			if (typeSymbol.TypeKind == TypeKind.Enum)
 				return "Int"; //enums are always ints
 
 			if (named != null && named.Name == "Nullable" && named.ContainingNamespace.ToString() == "System")
 			{
 				//Nullable types get replaced by our Nullable_ alternatives
 				var nullableType = ConvertType(named.TypeArguments.Single());
-				if (nullableType.Contains('.'))
-					nullableType = nullableType.SubstringAfterLast('.');
-				return "Nullable_" + nullableType;
+				if (nullableType == "Int" || nullableType == "Bool" || nullableType == "Float")
+					return "Nullable_" + nullableType;
+				else
+					return "Nullable<" + nullableType + ">";
 			}
 
-			var typeStr = GenericTypeName(typeInfo);
+			var typeStr = GenericTypeName(typeSymbol);
 
 			var trans = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Type, MatchString(typeStr), null) as Translations.Type;
 
@@ -183,6 +184,7 @@ namespace Cs2hx
 				case "System.Collections.Generic.ICollection<>":
 				case "System.Linq.IOrderedEnumerable<>":
 				case "System.Collections.IEnumerable":
+				case "System.Collections.Specialized.NameObjectCollectionBase.KeysCollection":
 					return "Array";
 
 				case "System.Array":
@@ -198,10 +200,10 @@ namespace Cs2hx
 						return trans.As<Translations.Type>().Replace(named);
 
 					if (named != null)
-						return typeInfo.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(named);
+						return typeSymbol.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(named);
 
 					//This type does not get translated and gets used as-is
-					return typeInfo.ContainingNamespace.FullNameWithDot().ToLower() + typeInfo.Name;
+					return typeSymbol.ContainingNamespace.FullNameWithDot().ToLower() + typeSymbol.Name;
 				
 			}
 

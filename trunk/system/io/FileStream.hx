@@ -10,8 +10,4 @@ class FileStream extends Stream
 		throw new NotImplementedException();
 	}
 
-	public function Dispose():Void
-	{
-		
-	}
 }

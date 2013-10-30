@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using Roslyn.Compilers.CSharp;
 
 namespace Cs2hx
 {
@@ -13,13 +14,15 @@ namespace Cs2hx
         public int Indent;
         private StringBuilder _builder = new StringBuilder(5000);
 
-        public HaxeWriter(string path)
+        public HaxeWriter(string ns, string typeName)
         {
-            if (path == null)
-                throw new ArgumentNullException("path");
-            
+			var typeNamespace = ns.ToLower();
 
-            _path = path;
+			var dir = Path.Combine(Program.OutDir, typeNamespace.Replace(".", Path.DirectorySeparatorChar.ToString()));
+			if (!Directory.Exists(dir))
+				Directory.CreateDirectory(dir);
+
+            _path = Path.Combine(dir, typeName + ".hx");
             Writer = new StringWriter(_builder);
         }
 

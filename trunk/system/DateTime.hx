@@ -32,19 +32,19 @@ class DateTime
 		return new DateTime(date.getTime() - span.Ticks);
 	}
 	
-	public inline function AddDays(days:Int):DateTime
+	public inline function AddDays(days:Float):DateTime
 	{
 		return new DateTime(date.getTime() + TimeSpan.FromDays(days).Ticks);
 	}
-	public inline function AddHours(hours:Int):DateTime
+	public inline function AddHours(hours:Float):DateTime
 	{
 		return new DateTime(date.getTime() + TimeSpan.FromHours(hours).Ticks);
 	}
-	public inline function AddMinutes(minutes:Int):DateTime
+	public inline function AddMinutes(minutes:Float):DateTime
 	{
 		return new DateTime(date.getTime() + TimeSpan.FromMinutes(minutes).Ticks);
 	}
-	public inline function AddSeconds(seconds:Int):DateTime
+	public inline function AddSeconds(seconds:Float):DateTime
 	{
 		return new DateTime(date.getTime() + TimeSpan.FromSeconds(seconds).Ticks);
 	}
@@ -54,10 +54,13 @@ class DateTime
 		return throw new NotImplementedException();
 	}
 
-	public inline function toString():String
+	public inline function toString(format:String = null):String
 	{
-		return date.getFullYear() + "/" + FormatDatePiece(date.getMonth() + 1) + "/" + FormatDatePiece(date.getDay()) + 
-			" " + date.getHours() + ":" + FormatDatePiece(date.getMinutes()) + ":" + FormatDatePiece(date.getSeconds());
+		if (format == null)
+			return date.getFullYear() + "/" + FormatDatePiece(date.getMonth() + 1) + "/" + FormatDatePiece(date.getDay()) + 
+				" " + date.getHours() + ":" + FormatDatePiece(date.getMinutes()) + ":" + FormatDatePiece(date.getSeconds());
+		else
+			throw new NotImplementedException();
 	}
 	
 	public inline function ToShortDateString():String

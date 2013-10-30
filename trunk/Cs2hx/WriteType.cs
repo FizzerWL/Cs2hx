@@ -12,18 +12,13 @@ namespace Cs2hx
 	static class WriteType
 	{
 
-		public static void Go(string outDir)
+		public static void Go()
 		{
 			var partials = TypeState.Instance.Partials;
 			var first = partials.First();
 
-			var typeNamespace = first.Symbol.ContainingNamespace.FullName().ToLower();
 
-			var dir = Path.Combine(outDir, typeNamespace.Replace(".", Path.DirectorySeparatorChar.ToString()));
-			if (!Directory.Exists(dir))
-				Directory.CreateDirectory(dir);
-
-			using (var writer = new HaxeWriter(Path.Combine(dir, TypeState.Instance.TypeName + ".hx")))
+			using (var writer = new HaxeWriter(first.Symbol.ContainingNamespace.FullName(), TypeState.Instance.TypeName))
 			{
 				var bases = partials
 					.Select(o => o.Syntax.BaseList)
@@ -37,7 +32,7 @@ namespace Cs2hx
 
 				TypeState.Instance.DerivesFromObject = bases.Count == interfaces.Count;
 
-				writer.WriteLine("package " + typeNamespace + @";");
+				writer.WriteLine("package " + first.Symbol.ContainingNamespace.FullName().ToLower() + @";");
 
 				WriteImports.Go(writer);
 

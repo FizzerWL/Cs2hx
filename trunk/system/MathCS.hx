@@ -42,6 +42,14 @@ class MathCS
 	{
 		return a >= 0 ? a : -a;
 	}
+	public static inline function Abs_Single(a:Float):Float
+	{
+		return a >= 0 ? a : -a;
+	}
+	public static inline function Abs_Double(a:Float):Float
+	{
+		return a >= 0 ? a : -a;
+	}
 	
 	public static inline function Log(a:Float):Float
 	{
@@ -70,6 +78,23 @@ class MathCS
 	public static inline function Tan(a:Float):Float
 	{
 		return Math.tan(a);
+	}
+	public static inline function Asin(a:Float):Float
+	{
+		return Math.asin(a);
+	}
+	public static inline function Acos(a:Float):Float
+	{
+		return Math.acos(a);
+	}
+	public static inline function Atan(a:Float):Float
+	{
+		return Math.atan(a);
+	}
+	
+	public static inline function Ceiling_Double(a:Float):Float
+	{
+		return Math.fceil(a);
 	}
 
 	public static inline var PI:Float = 3.1415926535897932384626433832795;

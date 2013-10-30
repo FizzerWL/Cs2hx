@@ -37,10 +37,12 @@ namespace Cs2hx
 		public static HashSet<string> StaticConstructors = new HashSet<string>();
 		public static ConcurrentDictionary<SyntaxNode, object> DoNotWrite = new ConcurrentDictionary<SyntaxNode, object>();
 		public static ConcurrentDictionary<Symbol, object> RefOutSymbols = new ConcurrentDictionary<Symbol, object>();
+		public static string OutDir;
 
 		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation)
 		{
 			Compilation = compilation;
+			OutDir = outDir;
 
 			var sw = Stopwatch.StartNew();
 
@@ -74,8 +76,13 @@ namespace Cs2hx
 			Console.WriteLine("Parsed in " + sw.Elapsed);
 			sw.Restart();
 
+			compilation.SyntaxTrees.SelectMany(o => o.GetRoot().DescendantNodes().OfType<AnonymousObjectCreationExpressionSyntax>())
+				.Select(o => new { Syntax = o, Name = WriteAnonymousObjectCreationExpression.TypeName(o) })
+				.GroupBy(o => o.Name)
+				.Parallel(o => WriteAnonymousObjectCreationExpression.WriteAnonymousType(o.First().Syntax));
 
-			Utility.Parallel(allTypes, type =>
+
+			allTypes.Parallel(type =>
 				{
 					TypeState.Instance = new TypeState();
 					TypeState.Instance.TypeName = type.First().TypeName;
@@ -85,7 +92,7 @@ namespace Cs2hx
 
 
 					if (TypeState.Instance.Partials.Count > 0)
-						WriteType.Go(outDir);
+						WriteType.Go();
 				});
 
 			Console.WriteLine("Haxe written out in " + sw.Elapsed);

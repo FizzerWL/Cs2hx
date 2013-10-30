@@ -1,4 +1,5 @@
 package system.xml.linq;
+import system.NotImplementedException;
 
 class XElement extends XContainer
 {
@@ -6,4 +7,11 @@ class XElement extends XContainer
 	{
 		super(name);
 	}
+	
+	public function GetDefaultNamespace():XNamespace
+	{
+		return throw new NotImplementedException();
+	}
+	
+	public var NodeType:Int;
 }

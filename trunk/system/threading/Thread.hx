@@ -11,6 +11,7 @@ class Thread
 	
 	public var Name:String;
 	public var ManagedThreadId:Int;
+	public var IsAlive:Bool;
 	
 	public function Start():Void
 	{
@@ -23,5 +24,15 @@ class Thread
 	}
 	
 	public static var CurrentThread:Thread;
+	
+	public function SetApartmentState(state:Int):Void
+	{
+		throw new NotImplementedException();
+	}
+	
+	public function Abort():Void
+	{
+		throw new NotImplementedException();
+	}
 	
 }

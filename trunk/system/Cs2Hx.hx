@@ -78,6 +78,10 @@ class Cs2Hx
 	{
 		return throw new NotImplementedException();
 	}
+	public static function EndsWith_String_StringComparison(str:String, endsWith:String, type:Int):Bool
+	{
+		return throw new NotImplementedException();
+	}
 
 	public static inline function Contains<T>(a:Array<T>, item:T):Bool
 	{
@@ -203,6 +207,12 @@ class Cs2Hx
 	{
 		return str1.substr(0, str2.length) == str2;
 	}
+	public static function StartsWith_String_StringComparison(str1:String, str2:String, comp:Int):Bool
+	{
+		return throw new NotImplementedException();
+	}
+	
+	
 	
 	public static inline function EndsWith(str1:String, str2:String):Bool
 	{
@@ -268,6 +278,15 @@ class Cs2Hx
 		return str.substr(i, e - i + 1);
 	}
 	
+	public static function TrimEnd(str:String, chars:Array<Int> = null):String
+	{
+		return throw new NotImplementedException();
+	}
+	public static function TrimStart(str:String, chars:Array<Int> = null):String
+	{
+		return throw new NotImplementedException();
+	}
+	
 	
 	public static inline function SortInts(f:Int, s:Int):Int
 	{
@@ -314,7 +333,7 @@ class Cs2Hx
 		return throw new NotImplementedException();
 	}
 	
-	public static function TryParseBool(s:String, out:CsRef<Int>):Bool
+	public static function TryParseInt(s:String, out:CsRef<Int>):Bool
 	{
 		var i = Std.parseInt(s);
 		
@@ -323,6 +342,31 @@ class Cs2Hx
 			
 		out.Value = i;
 		return true;
+	}
+	
+	public static function TryParseFloat(s:String, out:CsRef<Float>):Bool
+	{
+		var i = Std.parseFloat(s);
+		
+		if (i == 0 && s != "0")
+			return false;
+			
+		out.Value = i;
+		return true;
+	}
+	public static function TryParseBool(s:String, out:CsRef<Bool>):Bool
+	{
+		switch (s.toLowerCase())
+		{
+			case "true":
+				out.Value = true;
+				return true;
+			case "false":
+				out.Value = false;
+				return true;
+			default:
+				return false;
+		}
 	}
 	
 

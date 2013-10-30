@@ -18,6 +18,7 @@ namespace Cs2hx
 		static public string StandardImports = 
 @"using StringTools;
 import system.*;
+import anonymoustypes.*;
 ";
 		
 

@@ -34,33 +34,41 @@ namespace Cs2hx
 				subExpression = subExpression.As<ParenthesizedExpressionSyntax>().Expression;
 
 			if (symbol.Symbol != null && castingFromHaxe != "Int" && castingFromHaxe != "String" && castingFromHaxe != "Bool")
+			{
+				//when the symbol is non-null, this indicates we're calling a cast operator function
 				WriteCastOperator(writer, expression, (MethodSymbol)symbol.Symbol, destTypeHaxe);
+			}
+			else if (destTypeHaxe.StartsWith("Nullable"))
+			{
+				//Casting to a nullable type results in creation of that nullable type. No cast necessary.
+				writer.Write("new ");
+				writer.Write(destTypeHaxe);
+				writer.Write("(");
+
+				if (subExpression.Kind != SyntaxKind.NullLiteralExpression)
+					Core.Write(writer, subExpression);
+
+				writer.Write(")");
+			}
 			else if (subExpression.Kind == SyntaxKind.NullLiteralExpression)
 			{
-				if (destTypeHaxe != null && destTypeHaxe.StartsWith("Nullable_"))
-				{
-					//Casting null to a nullable type results in creation of that nullable type. No cast necessary.
-					writer.Write("new ");
-					writer.Write(destTypeHaxe);
-					writer.Write("()");
-				}
-				else
-				{
-					writer.Write("null"); //no cast necessary for null. haxe can infer the type better than C#
-				}
+				//no cast necessary for null. haxe can infer the type better than C#
+				writer.Write("null"); 
 			}
 			else if (destTypeHaxe == null)
 			{
 				//Sometimes roslyn can't determine the type for some reason. Just fall back to haxe's dynamic cast
 				writer.Write("cast(");
-				Core.Write(writer, expression.Expression);
+				Core.Write(writer, subExpression);
 				writer.Write(")");
 			}
-			else if (castingFromHaxe == "Dynamic" 
-				|| destTypeHaxe == "Dynamic"
-				|| (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind == SyntaxKind.SlashToken).None()))
+			else if (castingFromHaxe == "Dynamic" || destTypeHaxe == "Dynamic")
 			{
-				//Eat casts from dynamic.  haxe auto converts.
+				//Eat casts to and from dynamic.  haxe auto converts.
+				Core.Write(writer, expression.Expression);
+			}
+			else if (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind == SyntaxKind.SlashToken).None())
+			{
 				//Eat casts from Int to Int.  Enums getting casted to int fall here, and since we use ints to represent enums anyway, it's not necessary.  However, if we contain the division operator, and since haxe division always produces floating points and C# integer division produces integers, we can't rely on the C# expression type so cast anyway.
 				Core.Write(writer, expression.Expression);
 			}
@@ -69,16 +77,23 @@ namespace Cs2hx
 				//Eat casts with type parameters.  haxe doesn't allow this.
 				Core.Write(writer, expression.Expression);
 			}
-		    else if (destTypeHaxe == "Int")
-            {
-                writer.Write("Std.int(");
-                Core.Write(writer, subExpression);
-                writer.Write(")");
-            }
-            else if (destTypeHaxe == "Float")
-            {
-                Core.Write(writer, expression.Expression);
-            }
+			else if (destTypeHaxe == "Int")
+			{
+				//Casting from int to float is handled by Std.int in haxe
+				writer.Write("Std.int(");
+				Core.Write(writer, subExpression);
+				writer.Write(")");
+			}
+			else if (destTypeHaxe == "Float" && castingFromHaxe == "Int")
+			{
+				//Eat casts from Int to Float.  C# does this so it can do floating division, but in haxe all division is floating so there's no reason to do it.
+				Core.Write(writer, expression.Expression);
+			}
+			else if (destTypeHaxe == castingFromHaxe)
+			{
+				//Eat casts between identical types
+				Core.Write(writer, expression.Expression);
+			}
 			else if (destType.TypeKind == TypeKind.TypeParameter)
 			{
 				//ignore casts to template types
@@ -98,10 +113,11 @@ namespace Cs2hx
 		{
 			writer.Write(TypeProcessor.ConvertType(symbol.ContainingType));
 			writer.Write(".op_Explicit_");
-			writer.Write(destTypeHaxe.Replace('.', '_'));
+			writer.Write(destTypeHaxe.TrySubstringBeforeFirst('<').Replace('.', '_'));
 			writer.Write("(");
 			Core.Write(writer, expression.Expression);
 			writer.Write(")");
 		}
+
 	}
 }

@@ -11,5 +11,6 @@ class HttpWebResponse extends WebResponse
 	}
 
 	public var StatusCode:Int;
+	public var Cookies:CookieContainer;
 	
 }

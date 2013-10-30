@@ -1,4 +1,5 @@
 package system.web.sessionstate;
+import system.NotImplementedException;
 
 class HttpSessionState
 {
@@ -7,5 +8,9 @@ class HttpSessionState
 	{
 		
 	}
-	
+
+	public function GetValue_String(k:String):Dynamic
+	{
+		return throw new NotImplementedException();
+	}
 }

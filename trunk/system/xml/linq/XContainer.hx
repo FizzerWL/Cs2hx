@@ -48,6 +48,23 @@ class XContainer extends XNode
 		return r;
 	}
 	
+	public function Elements_XName(name:String):Array<XElement>
+	{
+		var r = new Array<XElement>();
+		for (x in _x.elements())
+		{
+			if (x.nodeName == name)
+			{
+				var e = new XElement();
+				e._x = x;
+				r.push(e);
+			}
+		}
+		
+		return r;
+		
+	}
+	
 	public function Attribute(name:String):XAttribute
 	{
 		var a = _x.get(name);
@@ -81,10 +98,10 @@ class XContainer extends XNode
 		return s;
 	}
 	
-	public var Name(get, never):String;
-	public function get_Name():String
+	public var Name(get, never):XName;
+	public function get_Name():XName
 	{
-		return _x.nodeName;
+		return new XName(_x.nodeName);
 	}
 
 }

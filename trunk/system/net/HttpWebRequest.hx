@@ -24,6 +24,7 @@ class HttpWebRequest extends WebRequest
 	public var ContentType:String;
 	public var Timeout:Int;
 	public var ContentLength:Int;
+	public var CookieContainer:CookieContainer;
 	
 	public function GetRequestStream():Stream
 	{

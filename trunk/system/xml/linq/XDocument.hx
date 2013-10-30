@@ -1,4 +1,6 @@
 package system.xml.linq;
+import system.io.File;
+import system.NotImplementedException;
 
 class XDocument extends XContainer
 {
@@ -17,6 +19,11 @@ class XDocument extends XContainer
 		d.Root._x = d._x.firstElement();
 		return d;
 	}
+	
+	public static function Load(path:String):XDocument
+	{
+		return Parse(File.ReadAllText(path));
+	}
 
 	public override function Add(x:XElement):Void
 	{
@@ -24,4 +31,8 @@ class XDocument extends XContainer
 		_x = x._x;
 	}
 	
+	public function DescendantNodes():Array<XNode>
+	{
+		return throw new NotImplementedException();
+	}
 }

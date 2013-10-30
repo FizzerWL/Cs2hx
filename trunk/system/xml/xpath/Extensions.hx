@@ -15,5 +15,11 @@ class Extensions
 	{
 		return throw new NotImplementedException();
 	}
+	public static function XPathSelectElements(node:XNode, expression:String):Array<XElement>
+	{
+		return throw new NotImplementedException();
+	}
+	
+	
 	
 }

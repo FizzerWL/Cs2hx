@@ -83,7 +83,7 @@ namespace Cs2hx
 				{
 					writer.Write(" = ");
 
-					if (TypeProcessor.ConvertType(parameter.Type).StartsWith("Nullable_"))
+					if (TypeProcessor.ConvertType(parameter.Type).StartsWith("Nullable"))
 					{
 						writer.Write("null");
 						deferredDefaults.Add(parameter.Identifier.ValueText, parameter.Default.Value);

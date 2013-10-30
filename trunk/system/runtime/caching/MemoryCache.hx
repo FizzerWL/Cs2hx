@@ -1,9 +1,9 @@
 package system.runtime.caching;
 import system.NotImplementedException;
+import system.collections.generic.KeyValuePair;
 
 class MemoryCache
 {
-
 	public function new(str:String) 
 	{
 		
@@ -29,5 +29,9 @@ class MemoryCache
 		throw new NotImplementedException();
 	}
 	
-	
+
+	public function GetEnumerator():Array < KeyValuePair < String, Dynamic >>
+	{
+		return throw new NotImplementedException();
+	}
 }

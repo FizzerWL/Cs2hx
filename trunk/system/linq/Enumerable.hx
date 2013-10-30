@@ -109,7 +109,7 @@ class Enumerable
 	}
 	
 	
-	public static function First_IEnumerable_Func<T>(a:Array<T>, match:T -> Bool):T
+	public static function First_IEnumerable_FuncBoolean<T>(a:Array<T>, match:T -> Bool):T
 	{
 		for(i in a)
 			if (match(i))
@@ -145,7 +145,7 @@ class Enumerable
 		return i;
 	}
 	
-	public static function LastOrDefault_IEnumerable_Func<T>(a:Array<T>, func:T->Bool):T
+	public static function LastOrDefault_IEnumerable_FuncBoolean<T>(a:Array<T>, func:T->Bool):T
 	{
 		var i:T = null;
 		for (e in a)
@@ -172,7 +172,7 @@ class Enumerable
 
 		return ret;
 	}
-	public static function Count_IEnumerable_Func<T>(a:Array<T>, match:T -> Bool):Int
+	public static function Count_IEnumerable_FuncBoolean<T>(a:Array<T>, match:T -> Bool):Int
 	{
 		var i:Int = 0;
 		for(e in a)
@@ -235,7 +235,7 @@ class Enumerable
 		return ret;
 	}
 	
-	public static function SelectMany_IEnumerable_Func<FROM, TO>(a:Array<FROM>, select:FROM -> Int -> Array<TO>):Array<TO>
+	public static function SelectMany_IEnumerable_FuncInt32IEnumerable<FROM, TO>(a:Array<FROM>, select:FROM -> Int -> Array<TO>):Array<TO>
 	{
 		var ret = new Array<TO>();
 		var i:Int = 0;
@@ -247,7 +247,7 @@ class Enumerable
 	
 	
 	
-	public static function FirstOrDefault_IEnumerable_Func<T>(a:Array<T>, where:T -> Bool):T
+	public static function FirstOrDefault_IEnumerable_FuncBoolean<T>(a:Array<T>, where:T -> Bool):T
 	{
 		for (i in a)
 			if (where(i))
@@ -268,7 +268,7 @@ class Enumerable
 			throw new Exception("No items");
 		return item;
 	}
-	public static function SingleOrDefault_IEnumerable_Func<T>(a:Array<T>, where:T -> Bool):T
+	public static function SingleOrDefault_IEnumerable_FuncBoolean<T>(a:Array<T>, where:T -> Bool):T
 	{
 		var item:T = null;
 		for (val in a)
@@ -295,7 +295,7 @@ class Enumerable
 	}
 	
 	
-	public static function Single_IEnumerable_Func<T>(a:Array<T>, where:T -> Bool):T
+	public static function Single_IEnumerable_FuncBoolean<T>(a:Array<T>, where:T -> Bool):T
 	{
 		var item:T = null;
 		for (val in a)
@@ -321,7 +321,7 @@ class Enumerable
 		return ret;
 	}
 	
-	public static function Select_IEnumerable_Func < FROM, TO > (a:Array<FROM>, func:FROM->Int->TO):Array<TO>
+	public static function Select_IEnumerable_FuncInt32<FROM, TO>(a:Array<FROM>, func:FROM->Int->TO):Array<TO>
 	{
 		var ret = new Array<TO>();
 		
@@ -360,7 +360,7 @@ class Enumerable
 			return true;
 		return false;
 	}
-	public static function Any_IEnumerable_Func<T>(a:Array<T>, func:T -> Bool):Bool
+	public static function Any_IEnumerable_FuncBoolean<T>(a:Array<T>, func:T -> Bool):Bool
 	{
 		for (i in a)
 			if (func(i))
@@ -433,6 +433,15 @@ class Enumerable
 				ret = i;
 		return ret;
 	}
+	public static function Min_Float(a:Array<Float>):Float
+	{
+		var ret = First(a);
+		for (i in a)
+			if (i < ret)
+				ret = i;
+				
+		return ret;
+	}
 	public static function Min(a:Array<Int>):Int
 	{
 		var ret:Int = First(a);
@@ -446,7 +455,7 @@ class Enumerable
 	{
 		return Min(a);
 	}
-	public static function Min_IEnumerable_Func<T>(a:Array<T>, func:T->Int):Int
+	public static function Min_IEnumerable_FuncInt32<T>(a:Array<T>, func:T->Int):Int
 	{
 		var min = 2147483647;
 		for (e in a)
@@ -457,7 +466,21 @@ class Enumerable
 		}
 		return min;
 	}
-	public static function Max_IEnumerable_Func<T>(a:Array<T>, func:T->Int):Int
+	
+	
+	public static function Max_IEnumerable_FuncInt64<T>(a:Array<T>, func:T->Float):Float
+	{
+		var max = -999900000000000000;
+		for (e in a)
+		{
+			var m = func(e);
+			if (m > max)
+				max = m;
+		}
+		return max;
+	}
+	
+	public static function Max_IEnumerable_FuncInt32<T>(a:Array<T>, func:T->Int):Int
 	{
 		var max = -2147483647;
 		for (e in a)
@@ -468,22 +491,49 @@ class Enumerable
 		}
 		return max;
 	}
-	public static function Min_Float(a:Array<Float>):Float //TODO: What should this be named?
+	public static function Min_IEnumerable_Func<T>(a:Array<T>, func:T->DateTime):DateTime
 	{
-		var ret:Float = First(a);
-		for (i in a)
-			if (i < ret)
-				ret = i;
-				
-		return ret;
+		var max = DateTime.MinValue;
+		for (e in a)
+		{
+			var m = func(e);
+			if (m.Ticks > max.Ticks)
+				max = m;
+		}
+		return max;
 	}
-		
-	public static function OrderBy<T>(a:Array<T>, selector:T -> Float):Array<T>
+
+	@:generic public static function OrderBy<T,V>(a:Array<T>, selector:T -> V):Array<T>
 	{
 		var list:Array<T> = ToArray(a);
 		list.sort(function(f:T, s:T):Int { return Std.int(selector(f) - selector(s)); } );
 		return list;
 	}
+
+	public static function OrderByFloats<T>(a:Array<T>, selector:T -> Float):Array<T>
+	{
+		var list:Array<T> = ToArray(a);
+		list.sort(function(f:T, s:T):Int { return Std.int(selector(f) - selector(s)); } );
+		return list;
+	}
+	
+	public static function OrderByStrings<T>(a:Array<T>, selector:T -> String):Array<T>
+	{
+		var list:Array<T> = ToArray(a);
+		list.sort(function(a:T, b:T):Int 
+		{ 
+			var f = selector(a);
+			var s = selector(b);
+            if (f == s)
+                return 0;
+            else if (f < s)
+                return -1;
+            else
+                return 1;
+		} );
+		return list;
+	}
+	
 	public static function ThenBy<T>(a:Array<T>, selector:T -> Float):Array<T>
 	{
 		return throw new NotImplementedException();
@@ -503,14 +553,22 @@ class Enumerable
 			ret += i;
 		return ret;
 	}
-	public static function Sum_IEnumerable_Func<T>(a:Array<T>, func:T->Int):Int
+	public static function Sum_IEnumerable_FuncInt32<T>(a:Array<T>, func:T->Int):Int
 	{
 		var ret = 0;
 		for (i in a)
 			ret += func(i);
 		return ret;
 	}
-	public static function Sum_IEnumerable(a:Array<Float>):Float
+	
+	public static function Sum_IEnumerable_FuncInt64<T>(a:Array<T>, func:T->Float):Float
+	{
+		var ret:Float = 0;
+		for (i in a)
+			ret += func(i);
+		return ret;
+	}
+	public static function Sum_IEnumerableDouble(a:Array<Float>):Float
 	{
 		var ret:Float = 0;
 		for (i in a)

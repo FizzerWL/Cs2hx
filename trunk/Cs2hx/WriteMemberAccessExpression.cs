@@ -30,7 +30,13 @@ namespace Cs2hx
 				else if (memberName == "NaN")
 					writer.Write("Math.NaN");
 				else
-					writer.Write(System.Type.GetType(typeStr).GetField(memberName).GetValue(null).ToString());
+				{ 
+					var val = System.Type.GetType(typeStr).GetField(memberName).GetValue(null);
+					if (val is string)
+						writer.Write("\"" + val + "\"");
+					else
+						writer.Write(val.ToString());
+				}
 			}
 			else 
 			{

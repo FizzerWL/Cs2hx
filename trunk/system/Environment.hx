@@ -30,5 +30,6 @@ class Environment
 	{
 		return throw new NotImplementedException();
 	}
-	
+
+	public static inline var NewLine:String = "\n";
 }

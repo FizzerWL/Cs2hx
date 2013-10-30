@@ -452,7 +452,7 @@ namespace Blargh
 			Console.WriteLine(i.Field1);
 		}
     }
-}", @"
+}", new[] { @"
 package blargh;
 " + WriteImports.StandardImports + @"
 
@@ -460,10 +460,28 @@ class Foo
 {
     public function new()
     {
-		var i = { Field1: 3, Field2: new system.text.StringBuilder() };
+		var i:Anon_Field1_Int__Field2_system_text_StringBuilder = new Anon_Field1_Int__Field2_system_text_StringBuilder(3, new system.text.StringBuilder());
 		system.Console.WriteLine_Int32(i.Field1);
     }
-}");
+}",
+ @"
+package anonymoustypes;
+" + WriteImports.StandardImports + @"
+
+class Anon_Field1_Int__Field2_system_text_StringBuilder
+{
+	public var Field1:Int;
+	public var Field2:system.text.StringBuilder;
+
+    public function new(Field1:Int, Field2:system.text.StringBuilder)
+    {
+		this.Field1 = Field1;
+		this.Field2 = Field2;
+    }
+}"
+
+  
+  });
 		}
 
 		[TestMethod]
@@ -1761,6 +1779,8 @@ namespace Blargh
 
             var dict = e.ToDictionary(o => o, o => 555);
             e.OfType<int>();
+			e.OrderBy(o => 4);
+			e.OrderBy(o => ""z"");
         }
     }
 }", @"
@@ -1774,7 +1794,7 @@ class Utilities
         var e:Array<Int> = [ 0, 1, 2, 3 ];
         system.Console.WriteLine_Int32(system.linq.Enumerable.First(e));
 		
-        system.Console.WriteLine_Int32(system.linq.Enumerable.First_IEnumerable_Func(e, function (o:Int):Bool
+        system.Console.WriteLine_Int32(system.linq.Enumerable.First_IEnumerable_FuncBoolean(e, function (o:Int):Bool
         {
             return o == 1;
         } ));
@@ -1785,7 +1805,7 @@ class Utilities
         {
             return o > 0;
         } )) + 2);
-        system.Console.WriteLine_Int32(system.linq.Enumerable.Count_IEnumerable_Func(e, function (o:Int):Bool
+        system.Console.WriteLine_Int32(system.linq.Enumerable.Count_IEnumerable_FuncBoolean(e, function (o:Int):Bool
         {
             return true;
         } ) + 2);
@@ -1797,6 +1817,8 @@ class Utilities
             return 555;
         } );
         system.linq.Enumerable.OfType(e, Int);
+		system.linq.Enumerable.OrderBy_Int32(function (o:Int):Int { return o; } );
+		system.linq.Enumerable.OrderBy_String(function (o:Int):String { return ""z""; } );
     }
     public function new()
     {

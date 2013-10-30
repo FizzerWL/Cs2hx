@@ -12,12 +12,13 @@ namespace Cs2hx
     public static class Utility
     {
 
-		public static void Parallel<T>(List<T> list, Action<T> action)
+		public static void Parallel<T>(this IEnumerable<T> list, Action<T> action)
 		{
 #if true
 			System.Threading.Tasks.Parallel.ForEach(list, action);
 #else
-			list.ForEach(action);
+			foreach (var t in list)
+				action(t);
 #endif
 		}
 
@@ -83,6 +84,14 @@ namespace Cs2hx
 				return s;
 			else 
 				return s.Substring(i + 1);
+		}
+		public static string TrySubstringBeforeFirst(this string s, char c)
+		{
+			int i = s.IndexOf(c);
+			if (i == -1)
+				return s;
+			else
+				return s.Substring(0, i);
 		}
 
 		public static string SubstringBeforeLast(this string s, char c)

@@ -13,10 +13,18 @@ class Convert
 	{
 		return throw new NotImplementedException();
 	}
+	public static function ToInt32_String_Int32(s:String, base:Int):Int
+	{
+		return throw new NotImplementedException();
+	}
 	
 	public static function ToBase64String(bytes:Bytes):String
 	{
 		return throw new NotImplementedException();
 	}
-	
+
+	public static function toString(i:Int, base:Int):String
+	{
+		return throw new NotImplementedException();
+	}
 }

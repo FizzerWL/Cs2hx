@@ -38,17 +38,12 @@ namespace Cs2hx
 			var defaultOverloadOpt = PickDefault(overloadedGroup);
 			
 			if (method == defaultOverloadOpt || method.ConstructedFrom == defaultOverloadOpt)
-				return method.Name; //as an optimization, the overload that takes the fewest parameters gets its default name, as long as there's only one with that number
+				return method.Name; //return the name unchanged
 
-			var typelessName = ExpandedMethodName(method, false);
-
-			//if (method.TypeArguments.Count == 0)
-				return typelessName;
-
-
+			return ExpandedMethodName(method);
 		}
 
-		private static string ExpandedMethodName(MethodSymbol method, bool includeTypes)
+		private static string ExpandedMethodName(MethodSymbol method)
 		{
 			
 			var ret = new StringBuilder(20);
@@ -56,20 +51,16 @@ namespace Cs2hx
 			ret.Append(method.Name);
 			ret.Append("_");
 
-			if (includeTypes && method.TypeArguments.Count > 0)
-			{
-				foreach (var typeArg in method.TypeArguments)
-				{
-					ret.Append(typeArg.Name);
-					ret.Append("_");
-				}
-
-				ret.Append("_");
-			}
-
 			foreach (var param in method.Parameters)
 			{
 				ret.Append(param.Type.Name);
+
+				var named = param.Type as NamedTypeSymbol;
+				if (named != null)
+					foreach(var typeArg in named.TypeArguments)
+						if (typeArg.TypeKind != TypeKind.TypeParameter)
+							ret.Append(typeArg.Name);
+
 				ret.Append("_");
 			}
 
@@ -99,7 +90,7 @@ namespace Cs2hx
 			if (overloadsWithMinParams.Count == 1)
 				return overloadsWithMinParams[0];
 
-			//If multiple overloads take the fewest number of parameters, just assign the default to the first one
+			//If multiple overloads take the fewest number of parameters, just pick one arbitrarily
 			return overloadedGroup[0];
 		}
 	}

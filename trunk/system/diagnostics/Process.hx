@@ -21,4 +21,9 @@ class Process
 	{
 		return throw new NotImplementedException();
 	}
+	
+	public static function Start_String(path:String):Process
+	{
+		return throw new NotImplementedException();
+	}
 }

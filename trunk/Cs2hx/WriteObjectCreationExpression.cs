@@ -35,7 +35,7 @@ namespace Cs2hx
 				writer.Write("(");
 
 				bool first = true;
-				foreach (var param in TranslateParameters(translateOpt, expression.ArgumentList.Arguments, expression))
+				foreach (var param in TranslateParameters(translateOpt, WriteInvocationExpression.SortArguments(methodSymbol, expression.ArgumentList.Arguments, expression), expression))
 				{
 					if (first)
 						first = false;
@@ -49,7 +49,7 @@ namespace Cs2hx
 			}
 		}
 
-		private static IEnumerable<TransformedArgument> TranslateParameters(Translation translateOpt, SeparatedSyntaxList<ArgumentSyntax> list, ObjectCreationExpressionSyntax invoke)
+		private static IEnumerable<TransformedArgument> TranslateParameters(Translation translateOpt, IEnumerable<ArgumentSyntax> list, ObjectCreationExpressionSyntax invoke)
 		{
 			if (translateOpt == null)
 				return list.Select(o => new TransformedArgument(o));

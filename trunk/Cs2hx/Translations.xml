@@ -19,6 +19,8 @@
   <Method SourceObject="System.String" Match="StartsWith" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="EndsWith" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="Trim" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="TrimStart" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="TrimEnd" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.String" Match="IsNullOrEmpty" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.String" Match="Join" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
   <Method SourceObject="System.String" Match="ToCharArray" ExtensionNamespace="system.Cs2Hx" />
@@ -84,6 +86,8 @@
   <Method SourceObject="System.Linq.Enumerable" Match="OfType">
     <Argument Location="0" Action="Insert {genericType}" />
   </Method>
+
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ArgumentTypes="IEnumerable&lt;T&gt; System.Func&lt;T, int&gt;" ReplaceWith="OrderBy_Int" />
 
   <Type Match="System.Guid" SourceObject="*" ReplaceWith="String" />
   <Method SourceObject="System.Guid" Match="NewGuid" ReplaceWith="NewGuid" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />

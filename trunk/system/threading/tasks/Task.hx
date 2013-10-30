@@ -9,9 +9,13 @@ class Task<T>
 		
 	}
 	
+	public var Result:T;
+
+	
 	public function Wait():Void
 	{
 		throw new NotImplementedException();
 	}
 	
+	public static var Factory:TaskFactory;
 }
