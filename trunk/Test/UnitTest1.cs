@@ -1817,8 +1817,8 @@ class Utilities
             return 555;
         } );
         system.linq.Enumerable.OfType(e, Int);
-		system.linq.Enumerable.OrderBy_Int32(function (o:Int):Int { return o; } );
-		system.linq.Enumerable.OrderBy_String(function (o:Int):String { return ""z""; } );
+		system.linq.Enumerable.OrderBy_Int(e, function (o:Int):Int { return 4; } );
+		system.linq.Enumerable.OrderBy_String(e, function (o:Int):String { return ""z""; } );
     }
     public function new()
     {

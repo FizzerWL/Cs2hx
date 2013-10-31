@@ -20,7 +20,11 @@ class Thread
 	
 	public static function Sleep(ms:Int):Void
 	{
+		#if flash
+		throw new NotImplementedException();
+		#else
 		Sys.sleep(ms / 1000);
+		#end
 	}
 	
 	public static var CurrentThread:Thread;

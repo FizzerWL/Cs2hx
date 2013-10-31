@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Cs2hx.Translations;
 using Roslyn.Compilers;
 using Roslyn.Compilers.Common;
 using Roslyn.Compilers.CSharp;
@@ -139,7 +140,7 @@ namespace Cs2hx
 
 			var typeStr = GenericTypeName(typeSymbol);
 
-			var trans = Translations.Translation.GetTranslation(Translations.Translation.TranslationType.Type, MatchString(typeStr), null) as Translations.Type;
+			var trans = TypeTranslation.Get(typeStr);
 
 			if (named != null && named.IsGenericType && !named.IsUnboundGenericType && TypeArguments(named).Any() && (trans == null || trans.SkipGenericTypes == false))
 				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", TypeArguments(named).Select(o => ConvertType(o) ?? "Dynamic")) + ">";
@@ -197,7 +198,7 @@ namespace Cs2hx
 					
 
 					if (trans != null)
-						return trans.As<Translations.Type>().Replace(named);
+						return trans.As<Translations.TypeTranslation>().Replace(named);
 
 					if (named != null)
 						return typeSymbol.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(named);
@@ -258,18 +259,6 @@ namespace Cs2hx
 				return typeSymbol.ToString();
 		}
 
-		/// <summary>
-		/// Convert a type string into a string for matching Translations.xml.  We exclude generic suffixes just because xml requires encoding < and >
-		/// </summary>
-		public static string MatchString(string typeStr)
-		{
-			if (typeStr == null)
-				return null;
-			else if (typeStr.EndsWith("[]"))
-				return "System.Array";
-			else
-				return Regex.Replace(typeStr, @"[<>,]", "");
-		}
 
 		public static string RemoveGenericArguments(string haxeType)
 		{

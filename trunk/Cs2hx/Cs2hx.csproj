@@ -105,10 +105,10 @@
     <Compile Include="HaxeWriter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Translations\Method.cs" />
-    <Compile Include="Translations\Property.cs" />
-    <Compile Include="Translations\Translations.cs" />
-    <Compile Include="Translations\Type.cs" />
+    <Compile Include="Translations\MethodTranslation.cs" />
+    <Compile Include="Translations\PropertyTranslation.cs" />
+    <Compile Include="Translations\TranslationManager.cs" />
+    <Compile Include="Translations\TypeTranslation.cs" />
     <Compile Include="TypeProcessor.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="WriteImports.cs" />

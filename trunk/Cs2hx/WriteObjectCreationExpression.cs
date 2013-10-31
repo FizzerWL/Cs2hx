@@ -27,7 +27,7 @@ namespace Cs2hx
 			{
 				var methodSymbol = model.GetSymbolInfo(expression).Symbol.As<MethodSymbol>();
 
-				var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, ".ctor", TypeProcessor.MatchString(TypeProcessor.GenericTypeName(type)), string.Join(" ", methodSymbol.Parameters.ToList().Select(o => o.Type.ToString()))) as Method;
+				var translateOpt = MethodTranslation.Get(methodSymbol);
 				
 
 				writer.Write("new ");
@@ -49,12 +49,12 @@ namespace Cs2hx
 			}
 		}
 
-		private static IEnumerable<TransformedArgument> TranslateParameters(Translation translateOpt, IEnumerable<ArgumentSyntax> list, ObjectCreationExpressionSyntax invoke)
+		private static IEnumerable<TransformedArgument> TranslateParameters(MethodTranslation translateOpt, IEnumerable<ArgumentSyntax> list, ObjectCreationExpressionSyntax invoke)
 		{
 			if (translateOpt == null)
 				return list.Select(o => new TransformedArgument(o));
-			else if (translateOpt is Method)
-				return translateOpt.As<Method>().TranslateParameters(list, invoke);
+			else if (translateOpt is MethodTranslation)
+				return translateOpt.As<MethodTranslation>().TranslateParameters(list, invoke);
 			else
 				throw new Exception("Need handler for " + translateOpt.GetType().Name);
 		}

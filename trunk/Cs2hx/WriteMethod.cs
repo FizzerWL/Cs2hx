@@ -29,7 +29,7 @@ namespace Cs2hx
 
             writer.WriteIndent();
 
-            if ((method.Identifier.ValueText != "ToString" || !TypeState.Instance.DerivesFromObject) && method.Modifiers.Any(SyntaxKind.OverrideKeyword))
+            if (ShouldUseOverrideKeyword(method, methodSymbol))
                 writer.Write("override ");
             if (method.Modifiers.Any(SyntaxKind.PublicKeyword) || method.Modifiers.Any(SyntaxKind.ProtectedKeyword) || method.Modifiers.Any(SyntaxKind.InternalKeyword))
                 writer.Write("public ");
@@ -138,6 +138,22 @@ namespace Cs2hx
                 writer.WriteCloseBrace();
             }
         }
+
+		private static bool ShouldUseOverrideKeyword(MethodDeclarationSyntax method, MethodSymbol symbol)
+		{
+			if (method.Modifiers.Any(SyntaxKind.StaticKeyword))
+				return false;
+
+			if (method.Identifier.ValueText == "ToString")
+				return !TypeState.Instance.DerivesFromObject;
+			if (method.Modifiers.Any(SyntaxKind.NewKeyword))
+				return true;
+
+			if (method.Modifiers.Any(SyntaxKind.PartialKeyword)) //partial methods seem exempt from C#'s normal override keyword requirement, so we have to check manually to see if it exists in a base class
+				return symbol.ContainingType.BaseType.GetMembers(symbol.Name).Any();
+
+			return method.Modifiers.Any(SyntaxKind.OverrideKeyword);
+		}
 
 		public static string TypeParameter(TypeParameterSyntax prm, IEnumerable<TypeParameterConstraintClauseSyntax> constraints)
 		{

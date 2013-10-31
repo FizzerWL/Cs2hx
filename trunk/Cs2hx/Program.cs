@@ -10,6 +10,7 @@ using Roslyn.Compilers.Common;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using Cs2hx.Translations;
 
 namespace Cs2hx
 {
@@ -33,7 +34,6 @@ namespace Cs2hx
 			return ret;
 		}
 
-        public static List<XDocument> TranslationDocs;
 		public static HashSet<string> StaticConstructors = new HashSet<string>();
 		public static ConcurrentDictionary<SyntaxNode, object> DoNotWrite = new ConcurrentDictionary<SyntaxNode, object>();
 		public static ConcurrentDictionary<Symbol, object> RefOutSymbols = new ConcurrentDictionary<Symbol, object>();
@@ -53,8 +53,7 @@ namespace Cs2hx
 			Console.WriteLine("Build succeeded in " + sw.Elapsed);
 			sw.Restart();
 
-
-			TranslationDocs = Translations.Translation.BuildTranslationDocs(extraTranslation);
+			TranslationManager.Init(extraTranslation);
 
 			if (!Directory.Exists(outDir))
 				Directory.CreateDirectory(outDir);

@@ -87,7 +87,21 @@
     <Argument Location="0" Action="Insert {genericType}" />
   </Method>
 
-  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ArgumentTypes="IEnumerable&lt;T&gt; System.Func&lt;T, int&gt;" ReplaceWith="OrderBy_Int" />
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_Int">
+    <MatchTypeParameter TypeParameterIndex="1" Match="int" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_String">
+    <MatchTypeParameter TypeParameterIndex="1" Match="string" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_Float">
+    <MatchTypeParameter TypeParameterIndex="1" Match="long" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_Float">
+    <MatchTypeParameter TypeParameterIndex="1" Match="double" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_Float">
+    <MatchTypeParameter TypeParameterIndex="1" Match="float" />
+  </Method>
 
   <Type Match="System.Guid" SourceObject="*" ReplaceWith="String" />
   <Method SourceObject="System.Guid" Match="NewGuid" ReplaceWith="NewGuid" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />

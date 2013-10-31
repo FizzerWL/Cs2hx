@@ -324,11 +324,11 @@ class Cs2Hx
 		return ret;
 	}
 	
-	public static inline function IsUpper(char:Int):Bool
+	public static function IsUpper(char:Int):Bool
 	{
 		return throw new NotImplementedException();
 	}
-	public static inline function ToLower(char:Int):Bool
+	public static function ToLower(char:Int):Bool
 	{
 		return throw new NotImplementedException();
 	}

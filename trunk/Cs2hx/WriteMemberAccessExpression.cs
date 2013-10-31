@@ -20,17 +20,19 @@ namespace Cs2hx
 
 			if (expression.Expression is PredefinedTypeSyntax)
 			{
-				//Support int.MaxValue/int.MaxValue/etc
+				//Support int.MaxValue/int.MaxValue/etc. We change MinValue/MaxValue for some types since haXe can't deal with the real MinValue (it's even stricter when compiling to java).  Any checks against this should use <= in place of ==
 				if (memberName == "Empty" && typeStr == "System.String")
 					writer.Write("\"\"");
+				else if (memberName == "MaxValue" && typeStr == "System.Double")
+					writer.Write("3.4028235e+38");
 				else if (memberName == "MinValue" && typeStr == "System.Double")
-					writer.Write("-1.7976931348623e+308");  //We change double.MinValue since haXe can't deal with the real MinValue.  Any checks against this should use <= in place of ==
+					writer.Write("1.4e-45");
 				else if (memberName == "MaxValue" && typeStr == "System.Int64")
-					writer.Write("999900000000000000"); //We change long.MaxValue since haXe can't deal with the real MaxValue. Any checks against this should use >= in place of ==
+					writer.Write("999900000000000000");
 				else if (memberName == "NaN")
 					writer.Write("Math.NaN");
 				else
-				{ 
+				{
 					var val = System.Type.GetType(typeStr).GetField(memberName).GetValue(null);
 					if (val is string)
 						writer.Write("\"" + val + "\"");
@@ -40,8 +42,8 @@ namespace Cs2hx
 			}
 			else 
 			{
-				
-				var translate = Translation.GetTranslation(Translation.TranslationType.Property, memberName, TypeProcessor.MatchString(typeStr)) as Property;
+
+				var translate = PropertyTranslation.Get(typeStr, memberName);
 				if (translate != null)
 					memberName = translate.ReplaceWith;
 
@@ -80,10 +82,10 @@ namespace Cs2hx
 			var symbol = Program.GetModel(expression).GetSymbolInfo(expression).Symbol;
 			if (symbol is NamedTypeSymbol)
 			{
-				var translateOpt = Translation.GetTranslation(Translation.TranslationType.Type, symbol.ContainingNamespace.FullNameWithDot() + symbol.Name, null);
+				var translateOpt = TypeTranslation.Get(symbol.ContainingNamespace.FullNameWithDot() + symbol.Name);
 
 				if (translateOpt != null)
-					writer.Write(translateOpt.As<Translations.Type>().ReplaceWith);
+					writer.Write(translateOpt.ReplaceWith);
 				else
 					writer.Write(symbol.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(symbol.As<NamedTypeSymbol>()));
 			}

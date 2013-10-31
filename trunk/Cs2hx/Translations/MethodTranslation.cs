@@ -8,10 +8,55 @@ using Roslyn.Compilers.CSharp;
 
 namespace Cs2hx.Translations
 {
-    class Method : Translation
+    class MethodTranslation
     {
+		public static MethodTranslation Get(MethodSymbol origMethodSymbol)
+		{
+			var methodSymbol = origMethodSymbol.OriginalDefinition.As<MethodSymbol>().UnReduce();
+
+			var sourceName = methodSymbol.ContainingNamespace.FullNameWithDot() + methodSymbol.ContainingType.Name;
+			var arguments = string.Join(" ", methodSymbol.Parameters.ToList().Select(o => o.Type.ToString()));
+
+			var matches = TranslationManager.Methods.Where(o => o.Match == methodSymbol.Name)
+				.Where(o => o.SourceObject == sourceName || o.SourceObject == null || o.SourceObject == "*")
+				.Where(o => o.ArgumentTypes == null || o.ArgumentTypes == arguments)
+				.Where(o => o.TypeParametersMatch(origMethodSymbol))
+				.ToList();
+
+			if (matches.Count > 1)
+			{
+				var matches2 = matches.Where(o => o.ArgumentTypes == arguments).ToList();
+
+				if (matches2.Count > 0)
+					matches = matches2;
+				else
+					matches = matches.Where(o => o.ArgumentTypes == null).ToList();
+
+				if (matches.Count > 1)
+					matches = matches.Except(matches.Where(o => o.SourceObject == "*")).ToList();
+			}
+
+			if (matches.Count == 0)
+				return null;
+
+			return matches.SingleOrDefault();
+		}
+
+		private bool TypeParametersMatch(MethodSymbol methodSymbol)
+		{
+			foreach (var match in this.MatchTypeParameters)
+				if (methodSymbol.TypeArguments[match.TypeParameterIndex].ToString() != match.Match)
+					return false;
+
+			return true;
+
+		}
+
+		public string SourceObject { get; set; }
+		public string Match { get; set; }
         public string ReplaceWith { get; set; }
-        public List<ArgumentModifier> Arguments { get; set; }
+        private List<ArgumentModifier> Arguments { get; set; }
+		private List<MatchTypeParameter> MatchTypeParameters { get; set; }
         public string ExtensionNamespace { get; set; }
         public bool SkipExtensionParameter { get; set; }
 		public string ArgumentTypes { get; set; }
@@ -30,16 +75,12 @@ namespace Cs2hx.Translations
             }
         }
 
-        protected override void Init(XElement data)
+        public MethodTranslation(XElement data)
         {
-            base.Init(data);
+			TranslationManager.InitProperties(this, data);
 
-            Arguments = data.Elements("Argument").Select(o =>
-                new ArgumentModifier()
-                {
-                    Action = o.Attribute("Action").Value,
-                    Location = int.Parse(o.Attribute("Location").Value)
-                }).ToList();
+            Arguments = data.Elements("Argument").Select(o => TranslationManager.InitProperties(new ArgumentModifier(), o)).ToList();
+			MatchTypeParameters = data.Elements("MatchTypeParameter").Select(o => TranslationManager.InitProperties(new MatchTypeParameter(), o)).ToList();
 
 			if (data.Element("ReplaceWith") != null)
 			{
@@ -109,11 +150,19 @@ namespace Cs2hx.Translations
 
 			return list;
 		}
+
+
+		class ArgumentModifier
+		{
+			public int Location { get; set; }
+			public string Action { get; set; }
+		}
+
+		class MatchTypeParameter
+		{
+			public int TypeParameterIndex { get; set; }
+			public string Match { get; set; }
+		}
     }
 
-    class ArgumentModifier
-    {
-        public int Location { get; set; }
-        public string Action { get; set; }
-    }
 }

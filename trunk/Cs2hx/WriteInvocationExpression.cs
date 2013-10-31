@@ -18,12 +18,12 @@ namespace Cs2hx
 			var expressionSymbol = model.GetSymbolInfo(invocationExpression.Expression);
 			var methodSymbol = symbolInfo.Symbol.OriginalDefinition.As<MethodSymbol>().UnReduce();
 
-			var translateOpt = Translation.GetTranslation(Translation.TranslationType.Method, methodSymbol.Name, methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name, string.Join(" ", methodSymbol.Parameters.ToList().Select(o => o.Type.ToString()))) as Method;
+			var translateOpt = MethodTranslation.Get(symbolInfo.Symbol.As<MethodSymbol>());
 			var memberReferenceExpressionOpt = invocationExpression.Expression as MemberAccessExpressionSyntax;
 			var returnTypeHaxe = TypeProcessor.ConvertType(methodSymbol.ReturnType);
 			var firstParameter = true;
 			
-			var extensionNamespace = methodSymbol.IsExtensionMethod ? Translation.ExtensionName(methodSymbol.ContainingType) : null; //null means it's not an extension method, non-null means it is
+			var extensionNamespace = methodSymbol.IsExtensionMethod ? methodSymbol.ContainingNamespace.FullNameWithDot().ToLower() + methodSymbol.ContainingType.Name : null; //null means it's not an extension method, non-null means it is
 			string methodName;
 			ExpressionSyntax subExpressionOpt;
 
@@ -345,12 +345,12 @@ namespace Cs2hx
 			return ret;
 		}
 
-		private static IEnumerable<TransformedArgument> TranslateParameters(Translations.Translation translateOpt, IEnumerable<ArgumentSyntax> list, InvocationExpressionSyntax invoke)
+		private static IEnumerable<TransformedArgument> TranslateParameters(MethodTranslation translateOpt, IEnumerable<ArgumentSyntax> list, InvocationExpressionSyntax invoke)
 		{
 			if (translateOpt == null)
 				return list.Select(o => new TransformedArgument(o));
-			else if (translateOpt is Translations.Method)
-				return translateOpt.As<Translations.Method>().TranslateParameters(list, invoke.Expression);
+			else if (translateOpt is Translations.MethodTranslation)
+				return translateOpt.As<Translations.MethodTranslation>().TranslateParameters(list, invoke.Expression);
 			else
 				throw new Exception("Need handler for " + translateOpt.GetType().Name);
 		}

@@ -503,21 +503,20 @@ class Enumerable
 		return max;
 	}
 
-	@:generic public static function OrderBy<T,V>(a:Array<T>, selector:T -> V):Array<T>
+	public static function OrderBy_Float<T>(a:Array<T>, selector:T -> Float):Array<T>
 	{
 		var list:Array<T> = ToArray(a);
 		list.sort(function(f:T, s:T):Int { return Std.int(selector(f) - selector(s)); } );
 		return list;
 	}
-
-	public static function OrderByFloats<T>(a:Array<T>, selector:T -> Float):Array<T>
+	public static function OrderBy_Int<T>(a:Array<T>, selector:T -> Int):Array<T>
 	{
 		var list:Array<T> = ToArray(a);
-		list.sort(function(f:T, s:T):Int { return Std.int(selector(f) - selector(s)); } );
+		list.sort(function(f:T, s:T):Int { return selector(f) - selector(s); } );
 		return list;
 	}
 	
-	public static function OrderByStrings<T>(a:Array<T>, selector:T -> String):Array<T>
+	public static function OrderBy_String<T>(a:Array<T>, selector:T -> String):Array<T>
 	{
 		var list:Array<T> = ToArray(a);
 		list.sort(function(a:T, b:T):Int 
@@ -542,7 +541,7 @@ class Enumerable
 	
 	public static function OrderByDescending<T>(a:Array<T>, selector:T -> Float):Array<T>
 	{
-		var ret:Array<T> = OrderBy(a, selector);
+		var ret:Array<T> = OrderBy_Float(a, selector);
 		ret.reverse();
 		return ret;
 	}
