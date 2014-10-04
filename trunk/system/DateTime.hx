@@ -2,25 +2,27 @@ package system;
 
 class DateTime
 {
-	public static var Now(get_Now,null):DateTime;
-	public static var MaxValue(get_MaxValue,null):DateTime;
-	public static var MinValue(get_MinValue,null):DateTime;
+	public static var Now(get,null):DateTime;
+	public static var MaxValue(get,null):DateTime;
+	public static var MinValue(get,null):DateTime;
 
-	public var Ticks(get_Ticks, null):Float;
-	public var Year(get_Year, null):Int;
-	public var Month(get_Month, null):Int;
-	public var Day(get_Day, null):Int;
+	public var Ticks(get, null):Float;
+	public var Year(get, null):Int;
+	public var Month(get, null):Int;
+	public var Day(get, null):Int;
 	
 	public var date:Date;
 	
-	public function new(first:Float = -5, second:Int = -1, third:Int = -1)
+	public function new(first:Float = 0, second:Int = -1, third:Int = -1)
 	{
-		if (first == -1)
+		if (first == 0)
+			date = Date.fromTime(0);
+		else if (first == -1)
 			date = Date.now();
 		else if (second != -1 && third != -1)
 			date = new Date(Std.int(first), second - 1, third, 0, 0, 0);
 		else
-			date = Date.fromTime(first);
+			date = Date.fromTime(first); //load it as ticks, but these ticks aren't the same as C#'s ticks
 	}
 	
 	public function Add(span:TimeSpan):DateTime
@@ -49,15 +51,10 @@ class DateTime
 		return new DateTime(date.getTime() + TimeSpan.FromSeconds(seconds).Ticks);
 	}
 	
-	public function ToLocalTime():DateTime
-	{
-		return throw new NotImplementedException();
-	}
-
 	public inline function toString(format:String = null):String
 	{
 		if (format == null)
-			return date.getFullYear() + "/" + FormatDatePiece(date.getMonth() + 1) + "/" + FormatDatePiece(date.getDay()) + 
+			return date.getFullYear() + "/" + FormatDatePiece(date.getMonth() + 1) + "/" + FormatDatePiece(date.getDate()) + 
 				" " + date.getHours() + ":" + FormatDatePiece(date.getMinutes()) + ":" + FormatDatePiece(date.getSeconds());
 		else
 			throw new NotImplementedException();
@@ -84,7 +81,7 @@ class DateTime
 		return ret;
 	}
 	
-	//TODO: Ticks might not give the same value as .net does
+	//TODO: Ticks doesn't give the same value as .net does
 	public inline function get_Ticks():Float
 	{
 		return date.getTime();
@@ -108,7 +105,7 @@ class DateTime
 	
 	public static inline function get_Now():DateTime 
 	{
-		return new DateTime();
+		return new DateTime(-1);
 	}
 	
 	public inline function Subtract(other:DateTime):TimeSpan
@@ -117,7 +114,6 @@ class DateTime
 		return new TimeSpan(date.getTime() - other.date.getTime());
 	}
 
-	//TODO: Min and MaxValue might not give the same times as .net does
 	public static inline function get_MinValue():DateTime
 	{
 		return new DateTime(0);

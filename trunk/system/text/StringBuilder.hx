@@ -27,6 +27,11 @@ class StringBuilder
 		return buffer.length;
 	}
 	
+	public function Insert_Int32_Char(location:Int, c:Int):Void
+	{
+		Insert_Int32_String(location, String.fromCharCode(c));
+	}
+	
 	public function Insert_Int32_String(location:Int, ins:String):Void
 	{
 		buffer = buffer.substr(0, location) + ins + buffer.substr(location);

@@ -1,5 +1,6 @@
 package system.xml.linq;
 import system.linq.Enumerable;
+import system.NotImplementedException;
 
 class XContainer extends XNode
 {
@@ -103,5 +104,11 @@ class XContainer extends XNode
 	{
 		return new XName(_x.nodeName);
 	}
+	
+	public function Nodes():Array<XNode>
+	{
+		return throw new NotImplementedException();
+	}
+
 
 }

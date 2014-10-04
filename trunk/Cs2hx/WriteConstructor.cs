@@ -8,6 +8,8 @@ namespace Cs2hx
 {
     static class WriteConstructor
     {
+
+
         public static void Go(HaxeWriter writer, ConstructorDeclarationSyntax constructor)
         {
 			if (constructor.Modifiers.Any(SyntaxKind.StaticKeyword))
@@ -179,8 +181,50 @@ namespace Cs2hx
 
             writer.WriteCloseBrace();
 
-            Program.StaticConstructors.Add(TypeState.Instance.TypeName);
+            StaticConstructors.Add(TypeState.Instance.TypeName);
         }
+
+		static HashSet<string> StaticConstructors = new HashSet<string>();
+		static HashSet<string> AllTypes = new HashSet<string>();
+
+
+		public static void WriteConstructorsHelper(IEnumerable<NamedTypeSymbol> allTypes)
+		{
+			foreach(var t in allTypes.Select(o => o.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(o)))
+				AllTypes.Add(t);
+
+			using (var writer = new HaxeWriter("", "Constructors"))
+			{
+				writer.WriteLine(@"/*
+This file serves two purposes:  
+    1)  It imports every type that CS2HX generated.  haXe will ignore 
+        any types that aren't used by haXe code, so this ensures haXe 
+        compiles all of your code.
+
+    2)  It lists all the static constructors.  haXe doesn't have the 
+        concept of static constructors, so CS2HX generated cctor()
+        methods.  You must call these manually.  If you call
+        Constructors.init(), all static constructors will be called 
+        at once.
+*/
+package ;");
+
+				foreach (var type in AllTypes.OrderBy(o => o))
+					writer.WriteLine("import " + type + ";");
+				writer.WriteLine("import system.TimeSpan;");
+
+				writer.WriteLine("class Constructors");
+				writer.WriteOpenBrace();
+
+				writer.WriteLine("public static function init()");
+				writer.WriteOpenBrace();
+				writer.WriteLine("TimeSpan.cctor();");
+				foreach (var cctor in StaticConstructors.OrderBy(o => o))
+					writer.WriteLine(cctor + ".cctor();");
+				writer.WriteCloseBrace();
+				writer.WriteCloseBrace();
+			}
+		}
 
     }
 }

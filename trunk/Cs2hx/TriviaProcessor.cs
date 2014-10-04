@@ -28,8 +28,7 @@ namespace Cs2hx
 
 					if (trivia.Kind == SyntaxKind.IfDirectiveTrivia)
 					{
-						var cond = GetCondition(trivia, "#if ");
-						if (cond == "CS2HX")
+						if (GetConditions(trivia, "#if ").Contains("CS2HX"))
 							literalCode = true;
 					}
 					else if (trivia.Kind == SyntaxKind.DisabledTextTrivia && literalCode)
@@ -41,7 +40,7 @@ namespace Cs2hx
 			}
 		}
 
-		private static string GetCondition(SyntaxTrivia trivia, string lineStart)
+		private static string[] GetConditions(SyntaxTrivia trivia, string lineStart)
 		{
 			var str = trivia.ToString().Trim().RemoveFromStartOfString("#if ").Trim();
 
@@ -53,7 +52,7 @@ namespace Cs2hx
 			if (i != -1)
 				str = str.Substring(0, i).Trim();
 
-			return str;
+			return str.Split("|& ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		/// <summary>
@@ -92,11 +91,11 @@ namespace Cs2hx
 								if (elseCount > 0)
 									elseCount++;
 
-								var cond = GetCondition(trivia, "#if ");
+								var cond = GetConditions(trivia, "#if ");
 
-								if (cond == "!CS2HX" && skipCount == 0)
+								if (cond.Contains("!CS2HX") && skipCount == 0)
 									skipCount = 1;
-								else if (cond == "CS2HX" && elseCount == 0)
+								else if (cond.Contains("CS2HX") && elseCount == 0)
 									elseCount = 1;
 
 							}

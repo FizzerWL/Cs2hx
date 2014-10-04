@@ -49,10 +49,10 @@ namespace Cs2hx
 			}
 		}
 
-		private static IEnumerable<TransformedArgument> TranslateParameters(MethodTranslation translateOpt, IEnumerable<ArgumentSyntax> list, ObjectCreationExpressionSyntax invoke)
+		private static IEnumerable<TransformedArgument> TranslateParameters(MethodTranslation translateOpt, IEnumerable<TransformedArgument> list, ObjectCreationExpressionSyntax invoke)
 		{
 			if (translateOpt == null)
-				return list.Select(o => new TransformedArgument(o));
+				return list;
 			else if (translateOpt is MethodTranslation)
 				return translateOpt.As<MethodTranslation>().TranslateParameters(list, invoke);
 			else

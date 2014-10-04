@@ -14,4 +14,5 @@ class XElement extends XContainer
 	}
 	
 	public var NodeType:Int;
+	
 }

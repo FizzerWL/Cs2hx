@@ -1,4 +1,5 @@
 package system.xml.linq;
+import system.NotImplementedException;
 
 class XNode extends XObject
 {
@@ -7,5 +8,9 @@ class XNode extends XObject
 	{
 		super();
 	}
-	
+
+	public function ReplaceWith(node:XNode):Void
+	{
+		throw new NotImplementedException();
+	}
 }

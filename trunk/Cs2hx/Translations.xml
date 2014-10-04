@@ -105,6 +105,7 @@
 
   <Type Match="System.Guid" SourceObject="*" ReplaceWith="String" />
   <Method SourceObject="System.Guid" Match="NewGuid" ReplaceWith="NewGuid" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+  <Method SourceObject="System.Guid" Match="Parse" ReplaceWith="GuidParse" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
 
 
   <Type Match="System.MulticastDelegate" SourceObject="*" ReplaceWith="Dynamic" />

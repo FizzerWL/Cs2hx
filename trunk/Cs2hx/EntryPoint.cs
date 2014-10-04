@@ -42,8 +42,8 @@ Options available:
 	/projects:<comma-delimited list of project names>
 		If you don't want to convert all projects in the passed solution, you can provide a list of project names.  Only the projects named here will be converted.
 
-    /extraTranslation:<path to xml file>
-        Defines extra conversion parameters for use with this project.  See Translations.xml for examples.
+	/extraTranslation:<path to xml file>
+		Defines extra conversion parameters for use with this project.  See Translations.xml for examples.
 
 	/define:<symbol>
 		Adds extra pre-processor #define symbols to add to the project before building.
@@ -62,7 +62,7 @@ Options available:
 				foreach (var arg in args)
 				{
 					if (arg.StartsWith("/extraTranslation:"))
-						extraTranslations.Add(File.ReadAllText(arg.Substring(18)));
+						extraTranslations.AddRange(arg.Substring(18).Split(';').Select(File.ReadAllText));
 					else if (arg.StartsWith("/out:"))
 						outDir = arg.Substring(5);
 					else if (arg.StartsWith("/sln:"))
@@ -97,8 +97,10 @@ Options available:
 
 				foreach (var project in projectsList)
 				{
-					Console.WriteLine("Building project " + project.Name + "...");
+					Console.WriteLine("Converting project " + project.Name + "...");
+					var sw = Stopwatch.StartNew();
 					Program.Go((Compilation)project.GetCompilation(), outDir, extraTranslations);
+					Console.WriteLine("Finished project " + project.Name + " in " + sw.Elapsed);
 				}
 
 				Environment.ExitCode = 0;

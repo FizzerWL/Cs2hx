@@ -133,6 +133,7 @@ namespace Cs2hx
 			}
 		}
 
+
 		public static string TypeName(NamedTypeSymbol type)
 		{
 			var sb = new StringBuilder(type.Name);

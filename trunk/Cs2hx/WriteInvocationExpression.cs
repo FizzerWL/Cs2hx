@@ -312,12 +312,12 @@ namespace Cs2hx
 		/// <param name="method"></param>
 		/// <param name="arguments"></param>
 		/// <returns></returns>
-		public static IEnumerable<ArgumentSyntax> SortArguments(MethodSymbol method, IEnumerable<ArgumentSyntax> arguments, ExpressionSyntax expressionForErr)
+		public static IEnumerable<TransformedArgument> SortArguments(MethodSymbol method, IEnumerable<ArgumentSyntax> arguments, ExpressionSyntax expressionForErr)
 		{
 			if (arguments.All(o => o.NameColon == null))
-				return arguments; //no named parameters. Return them as-is.
+				return arguments.Select(o => new TransformedArgument(o)); //no named parameters. Return them as-is.
 
-			var ret = new List<ArgumentSyntax>(arguments.Count());
+			var ret = new List<TransformedArgument>(arguments.Count());
 
 			//First transer any args that don't have named parameters straight over.
 			foreach (var arg in arguments)
@@ -325,18 +325,23 @@ namespace Cs2hx
 				if (arg.NameColon != null)
 					break;
 
-				ret.Add(arg);
+				ret.Add(new TransformedArgument(arg));
 			}
 
 			var namedArgs = arguments.Skip(ret.Count).ToDictionary(o => o.NameColon.Name.Identifier.ValueText, o => o);
 
-			foreach (var param in method.Parameters.ToList().Skip(ret.Count))
+            var prms = method.Parameters.ToList().Skip(ret.Count).ToList();
+			foreach (var param in prms)
 			{
 				if (namedArgs.ContainsKey(param.Name))
 				{
-					ret.Add(namedArgs[param.Name]);
+					ret.Add(new TransformedArgument(namedArgs[param.Name]));
 					namedArgs.Remove(param.Name);
 				}
+                else if (namedArgs.Count > 0)
+                {
+                    ret.Add(new TransformedArgument(WriteLiteralExpression.FromObject(param.DefaultValue)));
+                }
 			}
 
 			if (namedArgs.Count > 0)
@@ -345,10 +350,10 @@ namespace Cs2hx
 			return ret;
 		}
 
-		private static IEnumerable<TransformedArgument> TranslateParameters(MethodTranslation translateOpt, IEnumerable<ArgumentSyntax> list, InvocationExpressionSyntax invoke)
+		private static IEnumerable<TransformedArgument> TranslateParameters(MethodTranslation translateOpt, IEnumerable<TransformedArgument> list, InvocationExpressionSyntax invoke)
 		{
 			if (translateOpt == null)
-				return list.Select(o => new TransformedArgument(o));
+				return list;
 			else if (translateOpt is Translations.MethodTranslation)
 				return translateOpt.As<Translations.MethodTranslation>().TranslateParameters(list, invoke.Expression);
 			else

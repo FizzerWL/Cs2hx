@@ -346,6 +346,10 @@ namespace Blargh
 		{
 		}
 
+        public void Bar2(int a, int b = 1, int c = 2, int d = 4)
+        {
+        }
+
         public Foo()
 		{
 			Bar(1,2,3,4);
@@ -355,6 +359,7 @@ namespace Blargh
 			Bar(a: 1, c: 3, b: 2);
 			Bar(1, c: 3, b: 2);
 			Bar(1, 2, c: 3, d: 4);
+            Bar2(1, d: 5);
 		}
     }
 }", @"
@@ -366,6 +371,9 @@ class Foo
 	public function Bar(a:Int, b:Int, c:Int, d:Int = 3):Void
 	{
 	}
+    public function Bar2(a:Int, b:Int = 1, c:Int = 2, d:Int = 4):Void
+	{
+	}
     public function new()
     {
 		Bar(1, 2, 3, 4);
@@ -375,6 +383,7 @@ class Foo
 		Bar(1, 2, 3);
 		Bar(1, 2, 3);
 		Bar(1, 2, 3, 4);
+        Bar2(1, 1, 2, 5);
     }
 }");
 		}
@@ -1048,7 +1057,7 @@ class Box
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(Exception), "C# 3.5 object initialization syntax is not supported")]
+		[ExpectedException(typeof(AggregateException), "C# 3.5 object initialization syntax is not supported")]
 		public void ObjectInitilization()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
@@ -1068,7 +1077,7 @@ namespace Blargh
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(Exception), "You cannot return from within a using block")]
+		[ExpectedException(typeof(AggregateException), "You cannot return from within a using block")]
 		public void CannotReturnFromUsing()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
@@ -2574,43 +2583,6 @@ class Utilities
 }");
 		}
 		
-		[TestMethod]
-		public void ReplaceTypeWithAttribute()
-		{
-			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
-using System;
-using Shared;
-
-#if !CS2HX
-namespace Shared
-{
-	public class Cs2HxAttribute : Attribute
-    {
-        public string ReplaceWithType { get; set; }
-    }
-}
-#endif
-
-namespace Blargh
-{
-
-    public class Foo
-    {
-        [Cs2Hx(ReplaceWithType = ""bar.Baz"")]
-        public object Obj;
-    }
-}", @"
-package blargh;
-" + WriteImports.StandardImports + @"
-
-class Foo
-{
-    public var Obj:bar.Baz;
-    public function new()
-    {
-    }
-}");
-		}
 
 		[TestMethod]
 		public void Casts()

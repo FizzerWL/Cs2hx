@@ -1,4 +1,5 @@
 package system.xml.linq;
+import system.NotImplementedException;
 
 class XAttribute extends XObject
 {
@@ -9,5 +10,10 @@ class XAttribute extends XObject
 	{
 		super();
 		Value = val;
+	}
+	
+	public function Remove():Void
+	{
+		throw new NotImplementedException();
 	}
 }

@@ -34,7 +34,6 @@ namespace Cs2hx
 			return ret;
 		}
 
-		public static HashSet<string> StaticConstructors = new HashSet<string>();
 		public static ConcurrentDictionary<SyntaxNode, object> DoNotWrite = new ConcurrentDictionary<SyntaxNode, object>();
 		public static ConcurrentDictionary<Symbol, object> RefOutSymbols = new ConcurrentDictionary<Symbol, object>();
 		public static string OutDir;
@@ -44,38 +43,48 @@ namespace Cs2hx
 			Compilation = compilation;
 			OutDir = outDir;
 
+			Task.WaitAll(Task.Run(() => Build()), Task.Run(() => Generate(extraTranslation)));
+		}
+
+		private static void Build()
+		{
+			Console.WriteLine("Building...");
 			var sw = Stopwatch.StartNew();
 
 			//Test if it builds so we can fail early if we don't.  This isn't required for anything else to work.
-			var buildResult = compilation.Emit(new MemoryStream());
+			var buildResult = Compilation.Emit(new MemoryStream());
 			if (buildResult.Success == false)
 				throw new Exception("Build failed. " + buildResult.Diagnostics.Count() + " errors: " + string.Join("", buildResult.Diagnostics.Select(o => "\n  " + o.ToString())));
-			Console.WriteLine("Build succeeded in " + sw.Elapsed);
-			sw.Restart();
+			Console.WriteLine("Built in " + sw.Elapsed);
+		}
+
+		private static void Generate(IEnumerable<string> extraTranslation)
+		{
+			Console.WriteLine("Parsing...");
+			var sw = Stopwatch.StartNew();
+
 
 			TranslationManager.Init(extraTranslation);
 
-			if (!Directory.Exists(outDir))
-				Directory.CreateDirectory(outDir);
+			if (!Directory.Exists(OutDir))
+				Directory.CreateDirectory(OutDir);
 
-			var allTypes = compilation.SyntaxTrees
+			var allTypes = Compilation.SyntaxTrees
 				.SelectMany(o => o.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
 				.Select(o => new { Syntax = o, Symbol = GetModel(o).GetDeclaredSymbol(o), TypeName = WriteType.TypeName(GetModel(o).GetDeclaredSymbol(o)) })
 				.GroupBy(o => o.Symbol.ContainingNamespace.FullName() + "." + o.TypeName)
 				.ToList();
 
-
-
-			Utility.Parallel(compilation.SyntaxTrees.ToList(), tree =>
+			Utility.Parallel(Compilation.SyntaxTrees.ToList(), tree =>
 				{
 					foreach (var n in TriviaProcessor.DoNotWrite(tree))
 						DoNotWrite.TryAdd(n, null);
 				});
 
-			Console.WriteLine("Parsed in " + sw.Elapsed);
+			Console.WriteLine("Parsed in " + sw.Elapsed + ". Writing out haxe...");
 			sw.Restart();
 
-			compilation.SyntaxTrees.SelectMany(o => o.GetRoot().DescendantNodes().OfType<AnonymousObjectCreationExpressionSyntax>())
+			Compilation.SyntaxTrees.SelectMany(o => o.GetRoot().DescendantNodes().OfType<AnonymousObjectCreationExpressionSyntax>())
 				.Select(o => new { Syntax = o, Name = WriteAnonymousObjectCreationExpression.TypeName(o) })
 				.GroupBy(o => o.Name)
 				.Parallel(o => WriteAnonymousObjectCreationExpression.WriteAnonymousType(o.First().Syntax));
@@ -89,10 +98,11 @@ namespace Cs2hx
 						.Where(o => !DoNotWrite.ContainsKey(o.Syntax))
 						.ToList();
 
-
 					if (TypeState.Instance.Partials.Count > 0)
 						WriteType.Go();
 				});
+
+			WriteConstructor.WriteConstructorsHelper(allTypes.SelectMany(o => o).Where(o => !DoNotWrite.ContainsKey(o.Syntax)).Select(o => o.Symbol));
 
 			Console.WriteLine("Haxe written out in " + sw.Elapsed);
 		}

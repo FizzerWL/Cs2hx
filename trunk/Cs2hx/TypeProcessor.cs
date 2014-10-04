@@ -32,10 +32,6 @@ namespace Cs2hx
 			if (node == null)
 				return null;
 
-			var attrs = Utility.GetCS2HXAttribute(node);
-			if (attrs.ContainsKey("ReplaceWithType"))
-				return attrs["ReplaceWithType"];
-
 			var model = Program.GetModel(node).As<ISemanticModel>();
 			var typeInfo = model.GetTypeInfo(node);
 

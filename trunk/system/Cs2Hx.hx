@@ -5,6 +5,11 @@ import system.Exception;
 
 class Cs2Hx
 {
+	public static inline function GuidParse(s:String):String
+	{
+		return s;
+	}
+	
 	public static function Remove_Int32_Int32(s:String, startIndex:Int, count:Int):String
 	{
 		return s.substr(0, startIndex) + s.substr(startIndex + count - 1);
@@ -248,12 +253,15 @@ class Cs2Hx
 	
 	public static function Trim_(str:String, chars:Array<Int>):String
 	{
+		if (str.length == 0)
+			return str;
+
 		var i:Int = 0;
-		while (IndexOf(chars, str.charCodeAt(i)) != -1)
+		while (IndexOf(chars, str.charCodeAt(i)) != -1 && i < str.length)
 			i++;
 			
 		var e:Int = str.length - 1;
-		while (IndexOf(chars, str.charCodeAt(e)) != -1) 
+		while (IndexOf(chars, str.charCodeAt(e)) != -1  && e > 0) 
 			e--;
 
 		if (e < 0)
@@ -264,12 +272,15 @@ class Cs2Hx
 	
 	public static function Trim(str:String):String
 	{
+		if (str.length == 0)
+			return str;
+			
 		var i:Int = 0;
-		while (str.charCodeAt(i) < 33)
+		while (str.charCodeAt(i) < 33 && i < str.length)
 			i++;
 			
 		var e:Int = str.length - 1;
-		while (str.charCodeAt(e) < 33) 
+		while (str.charCodeAt(e) < 33 && e > 0) 
 			e--;
 
 		if (e < 0)

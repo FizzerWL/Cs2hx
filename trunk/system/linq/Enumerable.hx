@@ -8,6 +8,13 @@ import system.NotImplementedException;
 
 class Enumerable
 {
+	public static function Reverse<T>(a:Array<T>):Array<T>
+	{
+		var ret = a.copy();
+		ret.reverse();
+		return ret;
+	}
+	
 	public static function Range(start:Int, count:Int):Array<Int>
 	{
 		var ret = new Array<Int>();

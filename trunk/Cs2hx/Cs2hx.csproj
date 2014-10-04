@@ -53,6 +53,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ref\Roslyn.Services.CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Roslyn.Utilities">
+      <HintPath>..\ref\Roslyn.Utilities.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -65,7 +68,6 @@
   <ItemGroup>
     <Compile Include="Core.cs" />
     <Compile Include="EntryPoint.cs" />
-    <Compile Include="RefAndOut.cs" />
     <Compile Include="TransformedArgument.cs" />
     <Compile Include="OverloadResolver.cs" />
     <Compile Include="TriviaProcessor.cs" />

@@ -37,5 +37,16 @@ namespace Cs2hx
 			writer.Write(str);
 		}
 
+        public static string FromObject(object obj)
+        {
+            if (obj is bool)
+                return obj.ToString().ToLower();
+            else if (obj is string)
+                return "\"" + obj.ToString().Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+            else
+                return obj.ToString();
+
+        }
+
 	}
 }

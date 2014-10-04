@@ -122,10 +122,9 @@ namespace Cs2hx.Translations
 		}
 
 
-		internal IEnumerable<TransformedArgument> TranslateParameters(IEnumerable<ArgumentSyntax> args, ExpressionSyntax expression)
+		internal IEnumerable<TransformedArgument> TranslateParameters(IEnumerable<TransformedArgument> args, ExpressionSyntax expression)
 		{
-			//Copy it
-			var list = args.Select(o => new TransformedArgument(o)).ToList();
+			var list = args.ToList();
 
 			foreach (var arg in Arguments)
 			{

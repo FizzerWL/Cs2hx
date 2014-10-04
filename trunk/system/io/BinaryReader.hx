@@ -20,10 +20,14 @@ class BinaryReader
 	private var reader:BytesInput;
 	#end
 	
-	public function new(readFrom:Stream)
+	public function new(readFrom:Stream, a:ByteArray = null )
 	{
 		#if flash
-		arr = readFrom.ToArray().getData();
+		if (a != null)
+			arr = a;
+		else
+			arr = readFrom.ToArray().getData();
+			
 		arr.position = 0;
 		arr.endian = Endian.LITTLE_ENDIAN;
 		#else
