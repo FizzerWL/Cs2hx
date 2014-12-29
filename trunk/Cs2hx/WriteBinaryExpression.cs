@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Roslyn.Compilers;
 using Roslyn.Compilers.CSharp;
 
 namespace Cs2hx
@@ -88,9 +89,10 @@ namespace Cs2hx
 			}
 			else
 			{
-				Action<ExpressionSyntax> write = e =>
+				Action<ExpressionSyntax, ExpressionSyntax> write = (e, otherSide) =>
 					{
 						var type = Program.GetModel(expression).GetTypeInfo(e);
+                        var otherType = Program.GetModel(expression).GetTypeInfo(otherSide);
 						//Check for enums being converted to strings by string concatenation
 						if (expression.OperatorToken.Kind == SyntaxKind.PlusToken && type.Type.TypeKind == TypeKind.Enum)
 						{
@@ -100,15 +102,22 @@ namespace Cs2hx
 							Core.Write(writer, e);
 							writer.Write(")");
 						}
-						else
+                        else if (expression.OperatorToken.Kind == SyntaxKind.PlusToken && type.Type.SpecialType == SpecialType.System_Char && otherType.Type.SpecialType != SpecialType.System_Char && otherType.Type.SpecialType != SpecialType.System_Int32)
+                        {
+                            //Chars are integers in haxe, so when string-concatening them we must convert them to strings
+                            writer.Write("Cs2Hx.CharToString(");
+                            Core.Write(writer, e);
+                            writer.Write(")");
+                        }
+                        else
 							Core.Write(writer, e);
 					};
 
-				write(expression.Left);
+				write(expression.Left, expression.Right);
 				writer.Write(" ");
 				writer.Write(expression.OperatorToken.ToString()); //we can do this since haxe operators work just like C# operators
 				writer.Write(" ");
-				write(expression.Right);
+				write(expression.Right, expression.Left);
 			}
 
 			

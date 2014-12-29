@@ -9,6 +9,8 @@ class Uri
 	}
 	
 	public var Query:String;
+	public var Scheme:String;
+	public var PathAndQuery:String;
 	
 	public function toString():String
 	{

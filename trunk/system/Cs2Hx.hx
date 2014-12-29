@@ -208,6 +208,11 @@ class Cs2Hx
 		return str == null || str.length == 0;
 	}
 	
+	public static inline function CharToString(c:Int):String
+	{
+		return String.fromCharCode(c);
+	}
+	
 	public static inline function StartsWith(str1:String, str2:String):Bool
 	{
 		return str1.substr(0, str2.length) == str2;
@@ -339,7 +344,7 @@ class Cs2Hx
 	{
 		return throw new NotImplementedException();
 	}
-	public static function ToLower(char:Int):Bool
+	public static function ToLower(char:Int):Int
 	{
 		return throw new NotImplementedException();
 	}

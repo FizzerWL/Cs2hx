@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Cs2hx.Translations;
+using Roslyn.Compilers;
 using Roslyn.Compilers.CSharp;
 
 namespace Cs2hx
@@ -186,6 +187,19 @@ namespace Cs2hx
 
 							return;
 						}
+
+                        if (memberType.SpecialType == SpecialType.System_Char)
+                        {
+                            writer.Write("Cs2Hx.CharToString(");
+                            Core.Write(writer, memberReferenceExpressionOpt.Expression);
+                            writer.Write(")");
+
+                            if (invocationExpression.ArgumentList.Arguments.Count > 0)
+                                throw new Exception("Char's ToString detected with parameters.  These are not supported " + Utility.Descriptor(invocationExpression));
+
+                            return;
+
+                        }
 
 						if (memberTypeHaxe == "Int" || memberTypeHaxe == "Float" || memberTypeHaxe == "Bool" || memberType.TypeKind == TypeKind.TypeParameter)
 						{

@@ -26,6 +26,7 @@ class BinaryWriter
 		writer.endian = Endian.LITTLE_ENDIAN;
 		#else
 		writer = new BytesOutput();
+		writer.bigEndian = false;
 		#end
 	}
 	
@@ -83,7 +84,10 @@ class BinaryWriter
 		writer.writeBytes(b);
 		
 		#else
-		throw new NotImplementedException();
+		
+		this.Write7BitEncodedInt(data.length);
+		writer.writeString(data);
+		
 		#end
 	}
 	public function Write(data:Bool):Void
@@ -96,7 +100,14 @@ class BinaryWriter
 	}
 	public function Write_Double(data:Float):Void
 	{
+		#if js
+		writer.bigEndian = true;
 		writer.writeDouble(data);
+		writer.bigEndian = false;
+		#else
+		
+		writer.writeDouble(data);
+		#end
 	}
 	public function Write_Single(data:Float):Void
 	{

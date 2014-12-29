@@ -2767,6 +2767,11 @@ namespace Blargh
             string si = i.ToString();
 			if (si.StartsWith(""asdf""))
 				Console.WriteLine(4);
+            char c = 'A';
+            s = c.ToString();
+            s = c + """";
+            s = """" + c;
+            var c2 = c + 3;
         }
     }
 }", @"
@@ -2790,6 +2795,11 @@ class Utilities
 		{
 			system.Console.WriteLine_Int32(4);
 		}
+        var c:Int = 65;
+        s = Cs2Hx.CharToString(c);
+        s = Cs2Hx.CharToString(c) + """";
+        s = """" + Cs2Hx.CharToString(c);
+        var c2:Int = c + 3;
     }
     public function new()
     {

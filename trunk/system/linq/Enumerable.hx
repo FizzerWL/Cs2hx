@@ -582,6 +582,20 @@ class Enumerable
 		return ret;
 	}
 	
+	public static function Average_IEnumerable_FuncDouble<T>(a:Array<T>, func:T->Float):Float
+	{
+		var sum:Float = 0;
+		var count:Int = 0;
+		
+		for (e in a)
+		{
+			sum += func(e);
+			count++;
+		}
+		
+		return sum / count;
+	}
+	
 	public static function Cast<T>(a:Array<T>):Array<Dynamic>
 	{
 		return a;

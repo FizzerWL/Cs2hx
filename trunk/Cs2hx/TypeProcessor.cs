@@ -27,6 +27,7 @@ namespace Cs2hx
 			}
 		}
 
+
 		public static string TryConvertType(SyntaxNode node)
 		{
 			if (node == null)

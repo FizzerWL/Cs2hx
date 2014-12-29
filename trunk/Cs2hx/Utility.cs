@@ -157,7 +157,7 @@ namespace Cs2hx
             return sb.ToString();
         }
 
-        private static string GetAttributeName(AttributeArgumentSyntax attr)
+        public static string GetAttributeName(AttributeArgumentSyntax attr)
         {
 			return attr.NameEquals.Name.ToString();
         }

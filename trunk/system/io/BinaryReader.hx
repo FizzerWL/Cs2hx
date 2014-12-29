@@ -2,7 +2,6 @@ package system.io;
 
 import haxe.io.BytesInput;
 import haxe.io.Bytes;
-import system.NotImplementedException;
 import system.text.StringBuilder;
 import system.Exception;
 import system.text.UTF8Encoding;
@@ -20,14 +19,10 @@ class BinaryReader
 	private var reader:BytesInput;
 	#end
 	
-	public function new(readFrom:Stream, a:ByteArray = null )
+	public function new(readFrom:Stream)
 	{
 		#if flash
-		if (a != null)
-			arr = a;
-		else
-			arr = readFrom.ToArray().getData();
-			
+		arr = readFrom.ToArray().getData();
 		arr.position = 0;
 		arr.endian = Endian.LITTLE_ENDIAN;
 		#else
@@ -109,7 +104,9 @@ class BinaryReader
 		return arr.readUTFBytes(bytes);
 
 		#else
-		return throw new NotImplementedException();
+		
+		return reader.readString(bytes);
+		
 		#end
 	}
 	public function ReadBoolean():Bool

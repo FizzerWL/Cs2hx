@@ -28,4 +28,14 @@ class Regex
 	{
 		return throw new NotImplementedException();
 	}
+	
+	public function Replace_String_MatchEvaluator(input:String, eval:Match->String):String
+	{
+		return throw new NotImplementedException();
+	}
+	
+	public static function Escape(str:String):String
+	{
+		return throw new NotImplementedException();
+	}
 }
