@@ -78,6 +78,7 @@ namespace Cs2hx
 
             }
 
+
 			foreach (var field in TypeState.Instance.AllMembers
 						.OfType<BaseFieldDeclarationSyntax>()
 						.Where(o => !o.Modifiers.Any(SyntaxKind.StaticKeyword))
@@ -85,10 +86,12 @@ namespace Cs2hx
 						.Where(o =>
 							(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<BaseFieldDeclarationSyntax>().Modifiers, o.Initializer, o.Parent.As<VariableDeclarationSyntax>().Type))
 							||
-							(o.Initializer == null && TypeProcessor.ValueToReference(o.Parent.As<VariableDeclarationSyntax>().Type))
+							(o.Initializer == null && GenerateInitializerForFieldWithoutInitializer(o.Parent.As<VariableDeclarationSyntax>().Type))
 							||
 							o.Parent.Parent is EventFieldDeclarationSyntax))
             {
+                var parentType = field.Parent.As<VariableDeclarationSyntax>().Type;
+
                 writer.WriteIndent();
                 writer.Write(field.Identifier.ValueText);
                 writer.Write(" = ");
@@ -96,15 +99,21 @@ namespace Cs2hx
 				if (field.Parent.Parent is EventFieldDeclarationSyntax)
 				{
 					writer.Write("new CsEvent<");
-					writer.Write(TypeProcessor.ConvertType(field.Parent.As<VariableDeclarationSyntax>().Type));
+					writer.Write(TypeProcessor.ConvertType(parentType));
 					writer.Write(">()");
 				}
 				else if (field.Initializer == null)
 				{
-					//The only way to get here with a null initializer is for a TypeProcess.ValueToReference field.
-					writer.Write("new ");
-					writer.Write(TypeProcessor.ConvertType(field.Parent.As<VariableDeclarationSyntax>().Type));
-					writer.Write("()");
+                    if (TypeProcessor.ValueToReference(parentType))
+                    {
+                        writer.Write("new ");
+                        writer.Write(TypeProcessor.ConvertType(parentType));
+                        writer.Write("()");
+                    }
+                    else
+                    {
+                        writer.Write(TypeProcessor.DefaultValue(TypeProcessor.ConvertType(parentType)));
+                    }
 				}
 				else
 				{
@@ -128,6 +137,14 @@ namespace Cs2hx
         }
 
 
+        private static bool GenerateInitializerForFieldWithoutInitializer(TypeSyntax parentType)
+        {
+            //Determine if we need to write an initializer for this field which does not have an initializer.  
+            if (TypeProcessor.ValueToReference(parentType))
+                return true;
+            else
+                return TypeProcessor.DefaultValue(TypeProcessor.ConvertType(parentType)) != "null";
+        }
 
         public static void WriteStaticConstructor(HaxeWriter writer, ConstructorDeclarationSyntax staticConstructorOpt)
         {
@@ -138,7 +155,7 @@ namespace Cs2hx
 				.Where(o =>
 					(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<BaseFieldDeclarationSyntax>().Modifiers, o.Initializer, o.Parent.As<VariableDeclarationSyntax>().Type))
 					||
-					(o.Initializer == null && TypeProcessor.ValueToReference(o.Parent.As<VariableDeclarationSyntax>().Type))
+					(o.Initializer == null && GenerateInitializerForFieldWithoutInitializer(o.Parent.As<VariableDeclarationSyntax>().Type))
 					||
 					o.Parent.Parent is EventFieldDeclarationSyntax)
 				.ToList();
@@ -151,6 +168,8 @@ namespace Cs2hx
 
 			foreach (var field in staticFieldsNeedingInitialization)
             {
+                var parentType = field.Parent.As<VariableDeclarationSyntax>().Type;
+
                 writer.WriteIndent();
                 writer.Write(field.Identifier.ValueText);
 				writer.Write(" = ");
@@ -158,15 +177,21 @@ namespace Cs2hx
 				if (field.Parent.Parent is EventFieldDeclarationSyntax)
 				{
 					writer.Write("new CsEvent<");
-					writer.Write(TypeProcessor.ConvertType(field.Parent.As<VariableDeclarationSyntax>().Type));
+					writer.Write(TypeProcessor.ConvertType(parentType));
 					writer.Write(">()");
 				}
 				else if (field.Initializer == null)
 				{
-					//The only way to get here without an initializer is if it's a TypeProcessor.ValueToReference.
-					writer.Write("new ");
-					writer.Write(TypeProcessor.ConvertType(field.Parent.As<VariableDeclarationSyntax>().Type));
-					writer.Write("()");
+                    if (TypeProcessor.ValueToReference(parentType))
+                    {
+                        writer.Write("new ");
+                        writer.Write(TypeProcessor.ConvertType(parentType));
+                        writer.Write("()");
+                    }
+                    else
+                    {
+                        writer.Write(TypeProcessor.DefaultValue(TypeProcessor.ConvertType(parentType)));
+                    }
 				}
 				else
 				{

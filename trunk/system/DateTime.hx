@@ -13,14 +13,14 @@ class DateTime
 	
 	public var date:Date;
 	
-	public function new(first:Float = 0, second:Int = -1, third:Int = -1)
+	public function new(first:Float = 0, second:Int = -1, third:Int = -1, forth:Int = -1, fifth:Int = -1, sixth:Int = -1)
 	{
 		if (first == 0)
 			date = Date.fromTime(0);
 		else if (first == -1)
 			date = Date.now();
 		else if (second != -1 && third != -1)
-			date = new Date(Std.int(first), second - 1, third, 0, 0, 0);
+			date = new Date(Std.int(first), second - 1, third, forth, fifth, sixth);
 		else
 			date = Date.fromTime(first); //load it as ticks, but these ticks aren't the same as C#'s ticks
 	}

@@ -7,67 +7,70 @@ using Roslyn.Compilers.CSharp;
 
 namespace Cs2hx
 {
-	static class WriteThrowStatement
-	{
-		public static void Go(HaxeWriter writer, ThrowStatementSyntax statement)
-		{
-			writer.WriteIndent();
+    static class WriteThrowStatement
+    {
+        public static void Go(HaxeWriter writer, ThrowStatementSyntax statement)
+        {
+            writer.WriteIndent();
 
-			if (!ReturnsVoid(statement))
-				writer.Write("return "); //"return" the throw statement. This works around the "return missing" haxe limitation
+            if (!ReturnsVoid(statement))
+                writer.Write("return "); //"return" the throw statement. This works around the "return missing" haxe limitation
 
-			writer.Write("throw ");
+            writer.Write("throw ");
 
-			if (statement.Expression == null)
-			{
-				//On just "throw" with no exception name, navigate up the stack to find the nearest catch block and insert the exception's name
-				CatchClauseSyntax catchBlock;
-				SyntaxNode node = statement;
-				do
-					catchBlock = (node = node.Parent) as CatchClauseSyntax;
-				while (catchBlock == null);
+            if (statement.Expression == null)
+            {
+                //On just "throw" with no exception name, navigate up the stack to find the nearest catch block and insert the exception's name
+                CatchClauseSyntax catchBlock;
+                SyntaxNode node = statement;
+                do
+                    catchBlock = (node = node.Parent) as CatchClauseSyntax;
+                while (catchBlock == null);
 
-				if (catchBlock == null)
-					throw new Exception("throw statement with no exception name, and could not locate a catch block " + Utility.Descriptor(statement));
+                if (catchBlock == null)
+                    throw new Exception("throw statement with no exception name, and could not locate a catch block " + Utility.Descriptor(statement));
 
-				var exName = catchBlock.Declaration.Identifier.ValueText;
+                var exName = catchBlock.Declaration.Identifier.ValueText;
 
-				if (string.IsNullOrWhiteSpace(exName))
-					exName = "__ex";
+                if (string.IsNullOrWhiteSpace(exName))
+                    exName = "__ex";
 
-				writer.Write(exName);
-			}
-			else
-				Core.Write(writer, statement.Expression);
-			writer.Write(";\r\n");
-		}
+                writer.Write(exName);
+            }
+            else
+                Core.Write(writer, statement.Expression);
+            writer.Write(";\r\n");
+        }
 
-		static bool ReturnsVoid(SyntaxNode node)
-		{
-			while (node != null)
-			{
-				var method = node as MethodDeclarationSyntax;
-				if (method != null)
-					return method.ReturnType.ToString() == "void";
+        static bool ReturnsVoid(SyntaxNode node)
+        {
+            while (node != null)
+            {
+                var method = node as MethodDeclarationSyntax;
+                if (method != null)
+                    return method.ReturnType.ToString() == "void";
 
-				var prop = node as PropertyDeclarationSyntax;
-				if (prop != null)
-					return prop.Type.ToString() == "void";
+                var prop = node as PropertyDeclarationSyntax;
+                if (prop != null)
+                    return prop.Type.ToString() == "void";
 
-				var lambda1 = node as ParenthesizedLambdaExpressionSyntax;
-				var lambda2 = node as SimpleLambdaExpressionSyntax;
-				if (lambda1 != null || lambda2 != null)
-				{
-					var lambda = lambda1 == null ? (ExpressionSyntax)lambda2 : (ExpressionSyntax)lambda1;
-					var methodSymbol = Program.GetModel(lambda).GetTypeInfo(lambda).ConvertedType.As<NamedTypeSymbol>().DelegateInvokeMethod.As<MethodSymbol>();
+                if (node is ConstructorDeclarationSyntax)
+                    return true;
 
-					return methodSymbol.ReturnsVoid;
-				}
+                var lambda1 = node as ParenthesizedLambdaExpressionSyntax;
+                var lambda2 = node as SimpleLambdaExpressionSyntax;
+                if (lambda1 != null || lambda2 != null)
+                {
+                    var lambda = lambda1 == null ? (ExpressionSyntax)lambda2 : (ExpressionSyntax)lambda1;
+                    var methodSymbol = Program.GetModel(lambda).GetTypeInfo(lambda).ConvertedType.As<NamedTypeSymbol>().DelegateInvokeMethod.As<MethodSymbol>();
 
-				node = node.Parent;
-			}
+                    return methodSymbol.ReturnsVoid;
+                }
 
-			throw new Exception("Node not in a body");
-		}
-	}
+                node = node.Parent;
+            }
+
+            throw new Exception("Node not in a body");
+        }
+    }
 }

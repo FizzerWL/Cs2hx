@@ -473,6 +473,39 @@ class Enumerable
 		}
 		return min;
 	}
+	public static function Max_IEnumerable_FuncDouble<T>(a:Array<T>, func:T->Float):Float
+	{
+		var max = -999900000000000000;
+		for (e in a)
+		{
+			var m = func(e);
+			if (m > max)
+				max = m;
+		}
+		return max;
+	}
+	public static function Max_IEnumerable_FuncSingle<T>(a:Array<T>, func:T->Float):Float
+	{
+		var max = -999900000000000000;
+		for (e in a)
+		{
+			var m = func(e);
+			if (m > max)
+				max = m;
+		}
+		return max;
+	}
+	public static function Min_IEnumerable_FuncSingle<T>(a:Array<T>, func:T->Float):Float
+	{
+		var min = 999900000000000000;
+		for (e in a)
+		{
+			var m = func(e);
+			if (m < min)
+				min = m;
+		}
+		return min;
+	}
 	
 	
 	public static function Max_IEnumerable_FuncInt64<T>(a:Array<T>, func:T->Float):Float
@@ -486,7 +519,6 @@ class Enumerable
 		}
 		return max;
 	}
-	
 	public static function Max_IEnumerable_FuncInt32<T>(a:Array<T>, func:T->Int):Int
 	{
 		var max = -2147483647;

@@ -137,9 +137,9 @@ class TimeSpan
 	}
 	
 
-	public static var MILLISECONDS_IN_DAY : Float = 86400000;
-	public static var MILLISECONDS_IN_HOUR : Float = 3600000;
-	public static var MILLISECONDS_IN_MINUTE : Float = 60000;
-	public static var MILLISECONDS_IN_SECOND : Float = 1000;
+	public static inline var MILLISECONDS_IN_DAY : Float = 86400000;
+	public static inline var MILLISECONDS_IN_HOUR : Float = 3600000;
+	public static inline var MILLISECONDS_IN_MINUTE : Float = 60000;
+	public static inline var MILLISECONDS_IN_SECOND : Float = 1000;
 }
 

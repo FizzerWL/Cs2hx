@@ -3,7 +3,7 @@ package system.text.regularexpressions;
 class Match
 {
 
-	public function new() 
+	public function new(e:EReg) 
 	{
 		
 	}

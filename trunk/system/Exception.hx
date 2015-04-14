@@ -7,9 +7,7 @@ class Exception extends Error
 class Exception
 #end
 {
-	#if !flash
 	public var Message:String;
-	#end
 	
 	public var StackTrace:String; //not populated.  This just exists to prevent build errors on code that accesses it.
 	
@@ -17,9 +15,8 @@ class Exception
 	{
 		#if flash
 		super(msg);
-		#else
-		this.Message = msg;
 		#end
+		this.Message = msg;
 		
 		this.InnerException = innerException;
 	}
