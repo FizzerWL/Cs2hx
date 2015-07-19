@@ -2339,7 +2339,7 @@ class Utilities
         {
             system.Console.WriteLine(""In try"");
         }
-        catch (ex:system.Exception)
+        catch (ex:Dynamic)
         {
             system.Console.WriteLine(""In catch"");
         }

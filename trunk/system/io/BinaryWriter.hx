@@ -85,8 +85,10 @@ class BinaryWriter
 		
 		#else
 		
-		this.Write7BitEncodedInt(data.length);
-		writer.writeString(data);
+		var bytes = Bytes.ofString(data);
+		
+		this.Write7BitEncodedInt(bytes.length);
+		writer.writeBytes(bytes, 0, bytes.length);
 		
 		#end
 	}

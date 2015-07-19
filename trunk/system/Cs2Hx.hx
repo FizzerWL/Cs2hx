@@ -81,7 +81,10 @@ class Cs2Hx
 	
 	public static function Equals_String_StringComparison(str1:String, str2:String, type:Int):Bool
 	{
-		return throw new NotImplementedException();
+		if (type == StringComparison.OrdinalIgnoreCase)
+			return str1 != null && str2 != null && str1.toLowerCase() == str2.toLowerCase();
+		else
+			return str1 == str2;
 	}
 	public static function EndsWith_String_StringComparison(str:String, endsWith:String, type:Int):Bool
 	{

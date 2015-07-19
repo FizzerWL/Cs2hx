@@ -30,7 +30,13 @@ namespace Cs2hx
 				else
 				{
 					writer.Write(string.IsNullOrWhiteSpace(catchClause.Declaration.Identifier.ValueText) ? "__ex" : catchClause.Declaration.Identifier.ValueText);
-					writer.Write(TypeProcessor.ConvertTypeWithColon(catchClause.Declaration.Type));
+
+                    var type = TypeProcessor.ConvertTypeWithColon(catchClause.Declaration.Type);
+
+                    if (type == ":system.Exception")
+                        writer.Write(":Dynamic"); //when the C# code catches Exception, we assume they want to catch everything, and in haxe we do that by catching Dynamic
+                    else
+					    writer.Write(type);
 				}
 				writer.Write(")\r\n");
 				Core.Write(writer, catchClause.Block);

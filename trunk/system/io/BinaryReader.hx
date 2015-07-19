@@ -105,7 +105,8 @@ class BinaryReader
 
 		#else
 		
-		return reader.readString(bytes);
+		var arr = ReadBytes(bytes);
+		return arr.readString(0, arr.length);
 		
 		#end
 	}
