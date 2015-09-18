@@ -61,6 +61,7 @@
   <Method SourceObject="System.Collections.Generic.List" Match="Sort" ArgumentTypes="int int System.Collections.Generic.IComparer&lt;T&gt;" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="Insert" ReplaceWith="insert" />
   <Method SourceObject="System.Collections.Generic.List" Match="IndexOf" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="LastIndexOf" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="RemoveRange" ReplaceWith="splice" />
   <Method SourceObject="System.Collections.Generic.List" Match="Remove" ReplaceWith="remove" />
   <Method SourceObject="*" Match="RemoveAt" ReplaceWith="splice">

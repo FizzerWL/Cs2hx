@@ -186,6 +186,13 @@ class Cs2Hx
 				return i;
 		return -1;
 	}
+	public static function LastIndexOf<T>(a:Array<T>, item:T):Int
+	{
+		for (i in 0...a.length)
+			if (a[a.length - i - 1] == item)
+				return i;
+		return -1;
+	}
 	
 	static var digitMap:Map<Int, Bool>;
 	public static function IsDigit(ch:Int):Bool
