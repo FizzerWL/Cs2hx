@@ -20,6 +20,11 @@ class Cs2Hx
 		for (e in a)
 			b.push(e);
 	}
+	public static function InsertRange<T>(b:Array<T>, index:Int, a:Array<T>):Void
+	{
+		for (e in a)
+			b.insert(index++, e);
+	}
 	public static function ForEach<T>(a:Array<T>, func:T->Void):Void
 	{
 		for (e in a)
