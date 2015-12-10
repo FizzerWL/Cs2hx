@@ -44,8 +44,26 @@ namespace Cs2hx
 			{
 
 				var translate = PropertyTranslation.Get(typeStr, memberName);
-				if (translate != null)
-					memberName = translate.ReplaceWith;
+
+                if (translate != null && translate.ExtensionNamespace != null)
+                {
+                    writer.Write(translate.ExtensionNamespace);
+                    writer.Write(".");
+                    writer.Write(translate.ReplaceWith);
+                    writer.Write("(");
+
+                    if (!translate.SkipExtensionParameter)
+                        WriteMember(writer, expression.Expression);
+
+                    writer.Write(")");
+                    return;
+                }
+
+                if (translate != null)
+                {
+                    memberName = translate.ReplaceWith;
+
+                }
 
 				if (type != null) //if type is null, then we're just a namespace.  We can ignore these.
 				{

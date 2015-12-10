@@ -195,7 +195,7 @@ class Cs2Hx
 	{
 		for (i in 0...a.length)
 			if (a[a.length - i - 1] == item)
-				return i;
+				return a.length - i - 1;
 		return -1;
 	}
 	
@@ -353,6 +353,11 @@ class Cs2Hx
 		if (ret.length != 32)
 			throw new Exception();
 		return ret;
+	}
+	
+	public static function EmptyGuid():String
+	{
+		return "00000000000000000000000000000000";
 	}
 	
 	public static function IsUpper(char:Int):Bool

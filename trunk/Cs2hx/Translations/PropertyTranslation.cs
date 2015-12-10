@@ -16,9 +16,11 @@ namespace Cs2hx.Translations
 		public string SourceObject { get; set; }
 		public string Match { get; set; }
         public string ReplaceWith { get; set; }
+        public string ExtensionNamespace { get; set; }
+        public bool SkipExtensionParameter { get; set; }
 
 
-		public static PropertyTranslation Get(string typeStr, string memberName)
+        public static PropertyTranslation Get(string typeStr, string memberName)
 		{
 			var sourceObj = TranslationManager.MatchString(typeStr);
 

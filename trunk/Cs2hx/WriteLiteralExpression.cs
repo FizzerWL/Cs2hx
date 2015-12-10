@@ -39,7 +39,9 @@ namespace Cs2hx
 
         public static string FromObject(object obj)
         {
-            if (obj is bool)
+            if (obj == null)
+                return "null";
+            else if (obj is bool)
                 return obj.ToString().ToLower();
             else if (obj is string)
                 return "\"" + obj.ToString().Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
