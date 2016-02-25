@@ -371,18 +371,19 @@ class Cs2Hx
 	
 	public static function TryParseInt(s:String, out:CsRef<Int>):Bool
 	{
-		var i = Std.parseInt(s);
+		var i:Int = Std.parseInt(s); //the :Int is required, otherwise Std.parseInt can return null
 		
 		if (i == 0 && s != "0")
 			return false;
-			
+		
+		trace("TryParseInt got " + i + " from " + s);
 		out.Value = i;
 		return true;
 	}
 	
 	public static function TryParseFloat(s:String, out:CsRef<Float>):Bool
 	{
-		var i = Std.parseFloat(s);
+		var i:Float = Std.parseFloat(s);
 		
 		if (i == 0 && s != "0")
 			return false;

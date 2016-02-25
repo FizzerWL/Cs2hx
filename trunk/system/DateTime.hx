@@ -94,7 +94,7 @@ class DateTime
 	
 	public inline function get_Month():Int
 	{
-		return date.getMonth();
+		return date.getMonth() + 1;
 	}
 	
 	public inline function get_Day():Int
