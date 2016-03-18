@@ -98,8 +98,8 @@ class Dictionary<K, V>
 	{
 		var ret = new Array<V>();
 		var i:Int = 0;
-		for (e in store)
-			ret[i++] = e;
+		for (k in keys)
+			ret[i++] = store.get(Cs2Hx.Hash(k));
 		return ret;
 	}
 	

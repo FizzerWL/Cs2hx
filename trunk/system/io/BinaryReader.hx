@@ -106,7 +106,7 @@ class BinaryReader
 		#else
 		
 		var arr = ReadBytes(bytes);
-		return arr.readString(0, arr.length);
+		return arr.getString(0, arr.length);
 		
 		#end
 	}
@@ -120,12 +120,7 @@ class BinaryReader
 	}
 	public function ReadDouble():Float
 	{
-		#if js
-		reader.bigEndian = true;
-		var r = reader.readDouble();
-		reader.bigEndian = false;
-		return r;
-		#elseif flash
+		#if flash
 		return arr.readDouble();
 		#else
 		return reader.readDouble();
@@ -133,12 +128,7 @@ class BinaryReader
 	}
 	public function ReadSingle():Float
 	{
-		#if js
-		reader.bigEndian = true;
-		var r = reader.readFloat();
-		reader.bigEndian = false;
-		return r;
-		#elseif flash
+		#if flash
 		return arr.readFloat();
 		#else
 		return reader.readFloat();

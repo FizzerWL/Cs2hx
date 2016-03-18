@@ -462,6 +462,10 @@ class Enumerable
 	{
 		return Min(a);
 	}
+	public static function Min_IEnumerableDouble(a:Array<Float>):Float
+	{
+		return Min_Float(a);
+	}
 	public static function Min_IEnumerable_FuncInt32<T>(a:Array<T>, func:T->Int):Int
 	{
 		var min = 2147483647;
@@ -614,6 +618,27 @@ class Enumerable
 		return ret;
 	}
 	
+	public static function Sum_IEnumerable_FuncDouble<T>(a:Array<T>, func:T->Float):Float
+	{
+		var ret:Float = 0;
+		for (i in a)
+			ret += func(i);
+		return ret;
+	}
+	
+	public static function Average_IEnumerableDouble(a:Array<Float>):Float
+	{
+		var sum:Float = 0;
+		var count:Int = 0;
+		
+		for (e in a)
+		{
+			sum += e;
+			count++;
+		}
+		
+		return sum / count;
+	}
 	public static function Average_IEnumerable_FuncDouble<T>(a:Array<T>, func:T->Float):Float
 	{
 		var sum:Float = 0;

@@ -11,6 +11,11 @@ class HashSet<T>
 		store = new Map<String, Int>();
 		keys = new Array<T>();
 	}
+	public function Clear():Void
+	{
+		store = new Map<String, Int>();
+		keys = new Array<T>();
+	}
 	
 	public function Add(key:T):Bool
 	{
@@ -57,4 +62,5 @@ class HashSet<T>
 	{
 		return keys.length;
 	}
+	
 }

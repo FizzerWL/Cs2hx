@@ -11,9 +11,9 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, IEnumerable<EnumMemberDeclarationSyntax> allChildren)
 		{
-			int lastEnumValue = 0;
+			int nextEnumValue = 0;
 
-			var values = allChildren.Select(o => new { Syntax = o, Value = DetermineEnumValue(o, ref lastEnumValue) }).ToList();
+			var values = allChildren.Select(o => new { Syntax = o, Value = DetermineEnumValue(o, ref nextEnumValue) }).ToList();
 
 			foreach (var value in values)
 				writer.WriteLine("public static inline var " + value.Syntax.Identifier.ValueText + ":Int = " + value.Value + ";");
@@ -28,7 +28,7 @@ namespace Cs2hx
 			foreach (var value in values)
 				writer.WriteLine("case " + value.Value + ": return \"" + value.Syntax.Identifier.ValueText + "\";");
 
-			writer.WriteLine("default: throw new InvalidOperationException(Std.string(e));");
+			writer.WriteLine("default: return Std.string(e);");
 
 			writer.WriteCloseBrace();
 			writer.WriteCloseBrace();
@@ -58,16 +58,15 @@ namespace Cs2hx
 
 		}
 
-		private static int DetermineEnumValue(EnumMemberDeclarationSyntax syntax, ref int lastEnumValue)
+		private static int DetermineEnumValue(EnumMemberDeclarationSyntax syntax, ref int nextEnumValue)
 		{
 			if (syntax.EqualsValue == null)
-				return ++lastEnumValue;
+				return nextEnumValue++;
 
-
-			if (!int.TryParse(syntax.EqualsValue.Value.ToString(), out lastEnumValue))
+			if (!int.TryParse(syntax.EqualsValue.Value.ToString(), out nextEnumValue))
 				throw new Exception("Enums must be assigned with an integer " + Utility.Descriptor(syntax));
 
-			return lastEnumValue;
+			return nextEnumValue++;
 		}
 
 

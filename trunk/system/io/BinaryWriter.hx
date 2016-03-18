@@ -102,24 +102,11 @@ class BinaryWriter
 	}
 	public function Write_Double(data:Float):Void
 	{
-		#if js
-		writer.bigEndian = true;
 		writer.writeDouble(data);
-		writer.bigEndian = false;
-		#else
-		
-		writer.writeDouble(data);
-		#end
 	}
 	public function Write_Single(data:Float):Void
 	{
-		#if js
-		writer.bigEndian = true;
 		writer.writeFloat(data);
-		writer.bigEndian = false;
-		#else
-		writer.writeFloat(data);
-		#end
 	}
 	public function Write_Byte(data:Int):Void
 	{

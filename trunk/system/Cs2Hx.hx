@@ -217,6 +217,13 @@ class Cs2Hx
 	{
 		return Std.string(o);
 	}
+	public static inline function MathMin(f:Int, s:Int):Int
+	{
+		if (f > s)
+			return s;
+		else
+			return f;
+	}
 	
 	public static inline function IsNullOrEmpty(str:String):Bool
 	{
@@ -376,7 +383,6 @@ class Cs2Hx
 		if (i == 0 && s != "0")
 			return false;
 		
-		trace("TryParseInt got " + i + " from " + s);
 		out.Value = i;
 		return true;
 	}

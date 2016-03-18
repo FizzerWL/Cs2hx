@@ -98,4 +98,9 @@ class MathCS
 	}
 
 	public static inline var PI:Float = 3.1415926535897932384626433832795;
+	
+	public static inline function Pow(x:Float, y:Float):Float
+	{
+		return Math.pow(x, y);
+	}
 }
