@@ -15,7 +15,26 @@ class Cs2Hx
 		return s.substr(0, startIndex) + s.substr(startIndex + count - 1);
 	}
 	
-	public static function AddRange<T>(b:Array<T>, a:Array<T>):Void
+	public static function RemoveAll<T>(a:Array<T>, match:T->Bool):Int
+	{
+		var numRemoved = 0;
+		var i = a.length - 1;
+		while (i >= 0)
+		{
+			var e = a[i];
+			if (match(e))
+			{
+				a.splice(i, 1);
+				numRemoved++;
+			}
+			else
+				i--;
+		}
+		
+		return numRemoved;
+	}
+	
+	public static function AddRange<T, K:T>(b:Array<T>, a:Array<K>):Void 
 	{
 		for (e in a)
 			b.push(e);

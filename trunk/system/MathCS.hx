@@ -103,4 +103,8 @@ class MathCS
 	{
 		return Math.pow(x, y);
 	}
+	public static inline function Round(a:Float):Float
+	{
+		return Math.round(a);
+	}
 }
