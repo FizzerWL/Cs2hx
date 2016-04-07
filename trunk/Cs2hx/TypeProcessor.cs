@@ -175,7 +175,6 @@ namespace Cs2hx
 				case "System.Collections.Generic.List<>":
 				case "System.Collections.Generic.IList<>":
 				case "System.Collections.Generic.Queue<>":
-				case "System.Collections.Generic.Stack<>":
 				case "System.Collections.Generic.IEnumerable<>":
 				case "System.Collections.Generic.Dictionary<,>.ValueCollection":
 				case "System.Collections.Generic.Dictionary<,>.KeyCollection":

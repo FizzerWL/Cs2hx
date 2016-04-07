@@ -73,12 +73,6 @@
     <Argument Location="0" Action="DeleteIfPresent" />
   </Method>
 
-  <Method SourceObject="System.Collections.Generic.Stack" Match="Push" ReplaceWith="push" />
-  <Method SourceObject="System.Collections.Generic.Stack" Match="Pop" ReplaceWith="pop" />
-  <Property SourceObject="System.Collections.Generic.Stack" Match="Count" ReplaceWith="length" />
-  <Method SourceObject="System.Collections.Generic.Stack" Match=".ctor">
-    <Argument Location="0" Action="DeleteIfPresent" />
-  </Method>
 
   <Method SourceObject="System.IO.MemoryStream" Match=".ctor" ArgumentTypes="int">
     <Argument Location="0" Action="DeleteIfPresent" />

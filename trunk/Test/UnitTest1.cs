@@ -1571,13 +1571,13 @@ class MostlyNumbered
 	public static function ToString(e:Int):String 
 	{ 
 		switch (e) 
-		{ 
+		{
 			case 1: return ""One""; 
 			case 2: return ""Two""; 
 			case 3: return ""Three""; 
 			case 4: return ""Unnumbered""; 
 			case 50: return ""SomethingElse""; 
-			default: throw new InvalidOperationException(Std.string(e)); 
+			default: return Std.string(e);
 		}
 	} 
 	
@@ -1603,17 +1603,17 @@ package blargh;
 " + WriteImports.StandardImports + @"
 class UnNumbered
 {
-	public static inline var One:Int = 1; 
-    public static inline var Two:Int = 2;
-    public static inline var Three:Int = 3;
+	public static inline var One:Int = 0;
+    public static inline var Two:Int = 1;
+    public static inline var Three:Int = 2;
 	public static function ToString(e:Int):String 
 	{ 
 		switch (e) 
 		{ 
-			case 1: return ""One""; 
-			case 2: return ""Two""; 
-			case 3: return ""Three""; 
-			default: throw new InvalidOperationException(Std.string(e)); 
+			case 0: return ""One""; 
+			case 1: return ""Two""; 
+			case 2: return ""Three""; 
+			default: return Std.string(e);
 		}
 	} 
 	
@@ -1621,15 +1621,15 @@ class UnNumbered
 	{ 
 		switch (s) 
 		{ 
-			case ""One"": return 1; 
-			case ""Two"": return 2;		
-			case ""Three"": return 3; 
+			case ""One"": return 0; 
+			case ""Two"": return 1;		
+			case ""Three"": return 2; 
 			default: throw new InvalidOperationException(s); 
 		} 
 	}
 	public static function Values():Array<Int>
 	{
-		return [1, 2, 3];
+		return [0, 1, 2];
 	}
 }", @"
 package blargh;
@@ -1688,18 +1688,18 @@ package blargh;
 " + WriteImports.StandardImports + @"
 class Foo_TestEnum
 {
-	public static inline var One:Int = 1; 
-    public static inline var Two:Int = 2;
-    public static inline var Three:Int = 3;
+	public static inline var One:Int = 0; 
+    public static inline var Two:Int = 1;
+    public static inline var Three:Int = 2;
 
 	public static function ToString(e:Int):String 
 	{ 
 		switch (e) 
 		{ 
-			case 1: return ""One""; 
-			case 2: return ""Two""; 
-			case 3: return ""Three""; 
-			default: throw new InvalidOperationException(Std.string(e)); 
+			case 0: return ""One""; 
+			case 1: return ""Two""; 
+			case 2: return ""Three""; 
+			default: return Std.string(e);
 		}
 	} 
 	
@@ -1707,15 +1707,15 @@ class Foo_TestEnum
 	{ 
 		switch (s) 
 		{ 
-			case ""One"": return 1; 
-			case ""Two"": return 2;		
-			case ""Three"": return 3; 
+			case ""One"": return 0; 
+			case ""Two"": return 1;		
+			case ""Three"": return 2; 
 			default: throw new InvalidOperationException(s); 
 		} 
 	}
 	public static function Values():Array<Int>
 	{
-		return [1, 2, 3];
+		return [0, 1, 2];
 	}
 }" });
 		}
@@ -2456,11 +2456,6 @@ namespace Blargh
             list.RemoveAt(0);
             list.Insert(4, ""Seven"");
 			list.Sort();
-
-            var stack = new Stack<int>();
-            stack.Push(9);
-            stack.Push(3);
-            Math.Max(stack.Pop(), stack.Pop());
         }
     }
 }", @"
@@ -2482,11 +2477,6 @@ class Utilities
         list.splice(0, 1);
         list.insert(4, ""Seven"");
 		list.sort(Cs2Hx.SortStrings);
-
-        var stack:Array<Int> = new Array<Int>();
-        stack.push(9);
-        stack.push(3);
-        system.MathCS.Max_Int32_Int32(stack.pop(), stack.pop());
     }
     public function new()
     {
