@@ -2297,7 +2297,8 @@ namespace Blargh
             }
             catch (Exception ex)
             {
-                Console.WriteLine(""In catch"");
+                Console.WriteLine(""In catch "" + ex + "" "" + ex.ToString());
+                TakesObject(ex);
             }
 
             try
@@ -2321,6 +2322,8 @@ namespace Blargh
             throw new InvalidOperationException(""err"");
         }
 
+        public static void TakesObject(object o) { }
+
 		public static string ReturnsSomething()
 		{
 			throw new Exception();
@@ -2341,7 +2344,8 @@ class Utilities
         }
         catch (ex:Dynamic)
         {
-            system.Console.WriteLine(""In catch"");
+            system.Console.WriteLine(""In catch "" + ex + "" "" + ex.toString());
+            TakesObject(ex);
         }
         try
         {
@@ -2362,6 +2366,9 @@ class Utilities
 
         throw new system.InvalidOperationException(""err"");
     }
+    public static function TakesObject(o:Dynamic):Void
+    {
+    }
 	public static function ReturnsSomething():String
 	{
 		return throw new system.Exception();
@@ -2373,8 +2380,67 @@ class Utilities
 		}
 
 
+        [ExpectedException(typeof(AggregateException), "When catching an Exception, you cannot use the object as an Exception object.")]
+        [TestMethod]
+        public void CatchException()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.IO;
 
-		[TestMethod]
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction()
+        {
+            try
+            {
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("""", ex);
+            }
+        }
+
+    }
+}", @"");
+        }
+
+
+        [ExpectedException(typeof(AggregateException), "When catching an Exception, you cannot use the object as an Exception object.")]
+        [TestMethod]
+        public void CatchException2()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.IO;
+
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction()
+        {
+            try
+            {
+            }
+            catch (Exception ex)
+            {
+                TakesEx(ex);
+            }
+        }
+
+        public static void TakesEx(Exception ex)
+        {
+        }
+
+    }
+}", @"");
+        }
+
+
+        [TestMethod]
 		public void Generics()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
