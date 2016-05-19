@@ -19,7 +19,7 @@ class BinaryWriter
 	private var writer:BytesOutput;
 	#end
 	
-	public function new(streamOpt:MemoryStream = null) //parameter is ignored. it's just for compatibility with C# code.  Instead get the bytes by calling BaseStream
+	public function new(unused:MemoryStream = null) //parameter is ignored. it's just for compatibility with C# code.  Instead get the bytes by calling BaseStream
 	{
 		#if flash
 		writer = new ByteArray();

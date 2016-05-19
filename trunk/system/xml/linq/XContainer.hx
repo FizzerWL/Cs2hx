@@ -88,14 +88,34 @@ class XContainer extends XNode
 		return _x.toString();
 	}
 	
+	private var _valueChild:Xml;
+	private function CheckValueChild():Void
+	{
+		if (_valueChild != null)
+			return;
+		for (child in _x.iterator())
+			if (child.nodeType == Xml.PCData)
+			{
+				_valueChild = child;
+				return;
+			}
+	}
 	public var Value(get, set):String;
 	public function get_Value():String
 	{
-		return _x.nodeValue;
+		CheckValueChild();
+		if (_valueChild == null)
+			return "";
+		else
+			return _valueChild.nodeValue;
 	}
 	public function set_Value(s:String):String
 	{
-		_x.nodeValue = s;
+		CheckValueChild();
+		if (_valueChild == null)
+			_x.addChild(_valueChild = Xml.createPCData(s));
+		else
+			_valueChild.nodeValue = s;
 		return s;
 	}
 	
