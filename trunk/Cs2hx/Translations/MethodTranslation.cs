@@ -4,15 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Diagnostics;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx.Translations
 {
     class MethodTranslation
     {
-		public static MethodTranslation Get(MethodSymbol origMethodSymbol)
+		public static MethodTranslation Get(IMethodSymbol origMethodSymbol)
 		{
-			var methodSymbol = origMethodSymbol.OriginalDefinition.As<MethodSymbol>().UnReduce();
+			var methodSymbol = origMethodSymbol.OriginalDefinition.As<IMethodSymbol>().UnReduce();
 
 			var sourceName = methodSymbol.ContainingNamespace.FullNameWithDot() + methodSymbol.ContainingType.Name;
 			var arguments = string.Join(" ", methodSymbol.Parameters.ToList().Select(o => o.Type.ToString()));
@@ -42,7 +44,7 @@ namespace Cs2hx.Translations
 			return matches.SingleOrDefault();
 		}
 
-		private bool TypeParametersMatch(MethodSymbol methodSymbol)
+		private bool TypeParametersMatch(IMethodSymbol methodSymbol)
 		{
 			foreach (var match in this.MatchTypeParameters)
 				if (methodSymbol.TypeArguments[match.TypeParameterIndex].ToString() != match.Match)

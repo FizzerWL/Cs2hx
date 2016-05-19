@@ -9,3 +9,4 @@ syntax: glob
 *.user
 *_ReSharper*
 *.ide
+trunk/packages

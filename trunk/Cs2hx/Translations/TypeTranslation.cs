@@ -19,7 +19,7 @@ namespace Cs2hx.Translations
         public string ReplaceWith { get; set; }
 		public bool SkipGenericTypes { get; set; }
 
-		internal string Replace(Roslyn.Compilers.CSharp.NamedTypeSymbol typeInfo)
+		internal string Replace(Microsoft.CodeAnalysis.INamedTypeSymbol typeInfo)
 		{
 			if (ReplaceWith.StartsWith("{"))
 			{

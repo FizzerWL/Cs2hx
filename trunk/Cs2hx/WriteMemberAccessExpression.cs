@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cs2hx.Translations;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -98,14 +100,14 @@ namespace Cs2hx
 		public static void WriteMember(HaxeWriter writer, ExpressionSyntax expression)
 		{
 			var symbol = Program.GetModel(expression).GetSymbolInfo(expression).Symbol;
-			if (symbol is NamedTypeSymbol)
+			if (symbol is INamedTypeSymbol)
 			{
 				var translateOpt = TypeTranslation.Get(symbol.ContainingNamespace.FullNameWithDot() + symbol.Name);
 
 				if (translateOpt != null)
 					writer.Write(translateOpt.ReplaceWith);
 				else
-					writer.Write(symbol.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(symbol.As<NamedTypeSymbol>()));
+					writer.Write(symbol.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(symbol.As<INamedTypeSymbol>()));
 			}
 			else
 				Core.Write(writer, expression);

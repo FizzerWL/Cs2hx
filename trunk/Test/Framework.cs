@@ -5,10 +5,9 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Roslyn.Compilers.CSharp;
-using Roslyn.Compilers.Common;
-using Roslyn.Compilers;
 using Cs2hx;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Test
 {
@@ -40,11 +39,15 @@ namespace Test
 
             Console.WriteLine("Parsing into " + dir);
 
-			var compilation = Compilation.Create(testName, new CompilationOptions(OutputKind.DynamicallyLinkedLibrary)) //dll so we don't require a main method
-				.AddReferences(MetadataReference.CreateAssemblyReference("mscorlib"))
-				.AddReferences(MetadataReference.CreateAssemblyReference("System"))
-				.AddReferences(MetadataReference.CreateAssemblyReference("System.Core"))
-				.AddSyntaxTrees(cSharp.Select(o => SyntaxTree.ParseText(o)));
+            var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location); //https://roslyn.codeplex.com/discussions/541557
+
+            var compilation = CSharpCompilation.Create(testName, options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)) //dll so we don't require a main method
+				.AddReferences(
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "mscorlib.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Core.dll"))
+                )
+                .AddSyntaxTrees(cSharp.Select(o => CSharpSyntaxTree.ParseText(o)));
 
             Cs2hx.Program.Go(compilation, dir, extraTranslation);
 

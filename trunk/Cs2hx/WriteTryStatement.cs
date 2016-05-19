@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -55,12 +57,11 @@ namespace Cs2hx
                                 return true;
 
                             //Using them as concatenation in strings is OK
-                            if (node.Parent is BinaryExpressionSyntax
-                                && node.Parent.As<BinaryExpressionSyntax>().OperatorToken.Kind == SyntaxKind.PlusToken)
+                            if (node.Parent is BinaryExpressionSyntax && node.Parent.As<BinaryExpressionSyntax>().OperatorToken.Kind() == SyntaxKind.PlusToken)
                                 return true; //we only check that it's a PlusToken, which could be addition or string concatenation, but C# doesn't allow adding exceptions so it's not necessary to check further
 
                             var typeInfo = Program.GetModel(node).GetTypeInfo(node);
-                            if (typeInfo.ConvertedType.SpecialType == Roslyn.Compilers.SpecialType.System_Object)
+                            if (typeInfo.ConvertedType.SpecialType == SpecialType.System_Object)
                                 return true; //OK to use it as an object, since that becomes Dynamic in haxe
 
                             return false;

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using Roslyn.Compilers;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.IO;
-using Roslyn.Compilers.Common;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
@@ -35,7 +35,7 @@ namespace Cs2hx
 		}
 
 		public static ConcurrentDictionary<SyntaxNode, object> DoNotWrite = new ConcurrentDictionary<SyntaxNode, object>();
-		public static ConcurrentDictionary<Symbol, object> RefOutSymbols = new ConcurrentDictionary<Symbol, object>();
+		public static ConcurrentDictionary<ISymbol, object> RefOutSymbols = new ConcurrentDictionary<ISymbol, object>();
 		public static string OutDir;
 
 		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation)

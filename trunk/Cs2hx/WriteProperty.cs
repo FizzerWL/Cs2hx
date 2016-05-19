@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -57,8 +59,8 @@ namespace Cs2hx
 				writer.WriteLine();
             };
 
-            var getter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind == SyntaxKind.GetKeyword);
-            var setter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind == SyntaxKind.SetKeyword);
+            var getter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind() == SyntaxKind.GetKeyword);
+            var setter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind() == SyntaxKind.SetKeyword);
 
             if (getter == null && setter == null)
                 throw new Exception("Property must have either a get or a set");

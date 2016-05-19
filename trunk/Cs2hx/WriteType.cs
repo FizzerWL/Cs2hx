@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers.Common;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -24,7 +25,7 @@ namespace Cs2hx
 					.Select(o => o.Syntax.BaseList)
 					.Where(o => o != null)
 					.SelectMany(o => o.Types)
-					.Select(o => (TypeSymbol)Program.GetModel(o).GetTypeInfo(o).ConvertedType)
+					.Select(o => Program.GetModel(o).GetTypeInfo(o.Type).ConvertedType)
 					.Distinct()
 					.ToList();
 
@@ -36,7 +37,7 @@ namespace Cs2hx
 
 				WriteImports.Go(writer);
 
-				switch (first.Syntax.Kind)
+				switch (first.Syntax.Kind())
 				{
 					case SyntaxKind.ClassDeclaration:
 					case SyntaxKind.StructDeclaration:
@@ -47,7 +48,7 @@ namespace Cs2hx
 						writer.Write("interface ");
 						break;
 					default:
-						throw new Exception(first.Syntax.Kind.ToString());
+						throw new Exception(first.Syntax.Kind().ToString());
 				}
 				
 				writer.Write(TypeState.Instance.TypeName);
@@ -112,7 +113,7 @@ namespace Cs2hx
 						}
 					}
 
-					if (first.Syntax.Kind != SyntaxKind.InterfaceDeclaration)
+					if (first.Syntax.Kind() != SyntaxKind.InterfaceDeclaration)
 					{
 						//Normally constructors will be written as we traverse the tree.  However, if there are no constructors, we must manually write them out since there are cases where we need a constructor in haxe while C# had none.
 						var ctors = TypeState.Instance.AllMembers.OfType<ConstructorDeclarationSyntax>().ToList();
@@ -134,7 +135,7 @@ namespace Cs2hx
 		}
 
 
-		public static string TypeName(NamedTypeSymbol type)
+		public static string TypeName(INamedTypeSymbol type)
 		{
 			var sb = new StringBuilder(type.Name);
 

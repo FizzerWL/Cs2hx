@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -21,7 +23,7 @@ namespace Cs2hx
 				castingFrom = model.GetTypeInfo(expression).Type;
 
 			var castingFromStr = TypeProcessor.GenericTypeName(castingFrom);
-			var castingFromHaxe = TypeProcessor.ConvertType((TypeSymbol)castingFrom);
+			var castingFromHaxe = TypeProcessor.ConvertType((ITypeSymbol)castingFrom);
 			var destType = model.GetTypeInfo(expression.Type).Type;
 			var destTypeHaxe = TypeProcessor.TryConvertType(expression.Type);
 
@@ -36,7 +38,7 @@ namespace Cs2hx
 			if (symbol.Symbol != null && castingFromHaxe != "Int" && castingFromHaxe != "String" && castingFromHaxe != "Bool")
 			{
 				//when the symbol is non-null, this indicates we're calling a cast operator function
-				WriteCastOperator(writer, expression, (MethodSymbol)symbol.Symbol, destTypeHaxe);
+				WriteCastOperator(writer, expression, (IMethodSymbol)symbol.Symbol, destTypeHaxe);
 			}
 			else if (destTypeHaxe.StartsWith("Nullable"))
 			{
@@ -45,12 +47,12 @@ namespace Cs2hx
 				writer.Write(destTypeHaxe);
 				writer.Write("(");
 
-				if (subExpression.Kind != SyntaxKind.NullLiteralExpression)
+				if (subExpression.Kind() != SyntaxKind.NullLiteralExpression)
 					Core.Write(writer, subExpression);
 
 				writer.Write(")");
 			}
-			else if (subExpression.Kind == SyntaxKind.NullLiteralExpression)
+			else if (subExpression.Kind() == SyntaxKind.NullLiteralExpression)
 			{
 				//no cast necessary for null. haxe can infer the type better than C#
 				writer.Write("null"); 
@@ -67,7 +69,7 @@ namespace Cs2hx
 				//Eat casts to and from dynamic.  haxe auto converts.
 				Core.Write(writer, expression.Expression);
 			}
-			else if (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind == SyntaxKind.SlashToken).None())
+			else if (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind() == SyntaxKind.SlashToken).None())
 			{
 				//Eat casts from Int to Int.  Enums getting casted to int fall here, and since we use ints to represent enums anyway, it's not necessary.  However, if we contain the division operator, and since haxe division always produces floating points and C# integer division produces integers, we can't rely on the C# expression type so cast anyway.
 				Core.Write(writer, expression.Expression);
@@ -109,7 +111,7 @@ namespace Cs2hx
 			}
 		}
 
-		private static void WriteCastOperator(HaxeWriter writer, CastExpressionSyntax expression, MethodSymbol symbol, string destTypeHaxe)
+		private static void WriteCastOperator(HaxeWriter writer, CastExpressionSyntax expression, IMethodSymbol symbol, string destTypeHaxe)
 		{
 			writer.Write(TypeProcessor.ConvertType(symbol.ContainingType));
 			writer.Write(".op_Explicit_");

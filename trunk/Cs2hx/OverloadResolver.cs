@@ -5,15 +5,17 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
 	public static class OverloadResolver
 	{
-		static ConcurrentDictionary<MethodSymbol, string> _methodNameCache = new ConcurrentDictionary<MethodSymbol, string>();
+		static ConcurrentDictionary<IMethodSymbol, string> _methodNameCache = new ConcurrentDictionary<IMethodSymbol, string>();
 
-		public static string MethodName(MethodSymbol method)
+		public static string MethodName(IMethodSymbol method)
 		{
 			string ret;
 			if (_methodNameCache.TryGetValue(method, out ret))
@@ -25,9 +27,9 @@ namespace Cs2hx
 			return ret;
 		}
 
-		private static string MethodNameUncached(MethodSymbol method)
+		private static string MethodNameUncached(IMethodSymbol method)
 		{
-			var overloadedGroup = method.ContainingType.GetMembers(method.Name).OfType<MethodSymbol>().ToList();
+			var overloadedGroup = method.ContainingType.GetMembers(method.Name).OfType<IMethodSymbol>().ToList();
 
 			if (overloadedGroup.Count == 0)
 				throw new Exception("Symbols not found");
@@ -43,7 +45,7 @@ namespace Cs2hx
 			return ExpandedMethodName(method);
 		}
 
-		private static string ExpandedMethodName(MethodSymbol method)
+		private static string ExpandedMethodName(IMethodSymbol method)
 		{
 			
 			var ret = new StringBuilder(20);
@@ -55,7 +57,7 @@ namespace Cs2hx
 			{
 				ret.Append(param.Type.Name);
 
-				var named = param.Type as NamedTypeSymbol;
+				var named = param.Type as INamedTypeSymbol;
 				if (named != null)
 					foreach(var typeArg in named.TypeArguments)
 						if (typeArg.TypeKind != TypeKind.TypeParameter)
@@ -68,13 +70,13 @@ namespace Cs2hx
 			return ret.ToString();
 		}
 
-		private static MethodSymbol PickDefault(List<MethodSymbol> overloadedGroup)
+		private static IMethodSymbol PickDefault(List<IMethodSymbol> overloadedGroup)
 		{
 			var first = overloadedGroup.First();
 
 			//Hard-code the default overload for many common functions that we use. This isn't necessary to run correctly, but it produces nicer code.
 			if (first.Name == "WriteLine" && first.ContainingType.Name == "Console")
-				return overloadedGroup.Single(o => o.Parameters.Count == 1 && o.Parameters.Single().Type.Name == "String");
+				return overloadedGroup.Single(o => o.Parameters.Length == 1 && o.Parameters.Single().Type.Name == "String");
 			if (first.Name == "ToDictionary" && first.ContainingType.Name == "Enumerable")
 				return overloadedGroup[2];
 			if (first.Name == "Append" && first.ContainingType.Name == "StringBuilder")
@@ -83,9 +85,9 @@ namespace Cs2hx
 				return overloadedGroup[1];
 
 			//By default, use the overload that takes the fewest parameters as the default
-			int minParams = overloadedGroup.Min(o => o.Parameters.Count);
+			int minParams = overloadedGroup.Min(o => o.Parameters.Length);
 
-			var overloadsWithMinParams = overloadedGroup.Where(o => o.Parameters.Count == minParams).ToList();
+			var overloadsWithMinParams = overloadedGroup.Where(o => o.Parameters.Length == minParams).ToList();
 
 			if (overloadsWithMinParams.Count == 1)
 				return overloadsWithMinParams[0];

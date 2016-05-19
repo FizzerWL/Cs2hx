@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -139,7 +141,7 @@ namespace Cs2hx
             }
         }
 
-		private static bool ShouldUseOverrideKeyword(MethodDeclarationSyntax method, MethodSymbol symbol)
+		private static bool ShouldUseOverrideKeyword(MethodDeclarationSyntax method, IMethodSymbol symbol)
 		{
 			if (method.Modifiers.Any(SyntaxKind.StaticKeyword))
 				return false;

@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -31,7 +33,7 @@ namespace Cs2hx
 			writer.WriteCloseBrace();
 		}
 
-		private static void WriteEnumerator(HaxeWriter writer, ExpressionSyntax expression, TypeSymbol type)
+		private static void WriteEnumerator(HaxeWriter writer, ExpressionSyntax expression, ITypeSymbol type)
 		{
 			var typeStr = TypeProcessor.GenericTypeName(type);
 			

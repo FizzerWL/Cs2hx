@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -18,7 +20,7 @@ namespace Cs2hx
 			writer.WriteOpenBrace();
 
 			//First process all blocks except the section with the default block
-			foreach (var section in switchStatement.Sections.Where(o => o.Labels.None(z => z.CaseOrDefaultKeyword.Kind == SyntaxKind.DefaultKeyword)))
+			foreach (var section in switchStatement.Sections.Where(o => o.Labels.None(z => z.Keyword.Kind() == SyntaxKind.DefaultKeyword)))
 			{
 				writer.WriteIndent();
 				writer.Write("case ");
@@ -32,7 +34,7 @@ namespace Cs2hx
 					else
 						writer.Write(", ");
 
-					Core.Write(writer, label.Value);
+					Core.Write(writer, label.ChildNodes().Single());
 
 				}
 				writer.Write(":\r\n");
@@ -46,7 +48,7 @@ namespace Cs2hx
 			}
 
 			//Now write the default section
-			var defaultSection = switchStatement.Sections.SingleOrDefault(o => o.Labels.Any(z => z.CaseOrDefaultKeyword.Kind == SyntaxKind.DefaultKeyword));
+			var defaultSection = switchStatement.Sections.SingleOrDefault(o => o.Labels.Any(z => z.Keyword.Kind() == SyntaxKind.DefaultKeyword));
 			if (defaultSection != null)
 			{
 				if (defaultSection.Labels.Count > 1)

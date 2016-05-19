@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -11,7 +13,7 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, ConversionOperatorDeclarationSyntax method)
 		{
-			if (method.ImplicitOrExplicitKeyword.Kind != SyntaxKind.ExplicitKeyword)
+			if (method.ImplicitOrExplicitKeyword.Kind() != SyntaxKind.ExplicitKeyword)
 				throw new Exception("Implicit cast operators are not supported " + Utility.Descriptor(method));
 
 			writer.WriteIndent();

@@ -7,8 +7,10 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Xml;
 using System.Diagnostics;
-using Roslyn.Services;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Cs2hx
 {
@@ -80,7 +82,8 @@ Options available:
 				if (pathToSolution == null)
 					throw new Exception("/sln parameter not passed");
 
-				var solution = Solution.Load(pathToSolution, config);
+                var workspace = MSBuildWorkspace.Create();
+                var solution = workspace.OpenSolutionAsync(pathToSolution).Result;
 
 				var projectsList = solution.Projects.ToList();
 
@@ -88,7 +91,7 @@ Options available:
 					TrimList(projectsList, projects);
 
 				if (extraDefines.Length > 0)
-					projectsList = projectsList.Select(p => p.UpdateParseOptions(new ParseOptions(preprocessorSymbols: 
+					projectsList = projectsList.Select(p => p.WithParseOptions(new CSharpParseOptions(preprocessorSymbols: 
 						p.ParseOptions.As<ParseOptions>().PreprocessorSymbolNames
 						.Concat(extraDefines.Where(z => z.StartsWith("-") == false))
 						.Except(extraDefines.Where(z => z.StartsWith("-")).Select(z => z.Substring(1)))
@@ -99,7 +102,7 @@ Options available:
 				{
 					Console.WriteLine("Converting project " + project.Name + "...");
 					var sw = Stopwatch.StartNew();
-					Program.Go((Compilation)project.GetCompilation(), outDir, extraTranslations);
+					Program.Go(project.GetCompilationAsync().Result, outDir, extraTranslations);
 					Console.WriteLine("Finished project " + project.Name + " in " + sw.Elapsed);
 				}
 
@@ -113,7 +116,7 @@ Options available:
             }
         }
 
-		private static void TrimList(List<IProject> projectsList, string projectsCsv)
+		private static void TrimList(List<Project> projectsList, string projectsCsv)
 		{
 			var split = projectsCsv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 

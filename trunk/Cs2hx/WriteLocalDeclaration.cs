@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -60,7 +62,7 @@ namespace Cs2hx
 		/// <summary>
 		/// Determines if the passed symbol is used in any ref or out clauses
 		/// </summary>
-		private static bool UsedAsRef(VariableDeclaratorSyntax variable, Symbol symbol)
+		private static bool UsedAsRef(VariableDeclaratorSyntax variable, ISymbol symbol)
 		{
 			SyntaxNode node = variable;
 			BlockSyntax scope;
@@ -72,7 +74,7 @@ namespace Cs2hx
 
 			return scope.DescendantNodes().OfType<InvocationExpressionSyntax>()
 				.SelectMany(o => o.ArgumentList.Arguments)
-				.Where(o => o.RefOrOutKeyword.Kind != SyntaxKind.None)
+				.Where(o => o.RefOrOutKeyword.Kind() != SyntaxKind.None)
 				.Any(o => model.GetSymbolInfo(o.Expression).Symbol == symbol);
 
 		}

@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cs2hx.Translations;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -18,14 +20,14 @@ namespace Cs2hx
 			var model = Program.GetModel(expression);
 			var type = model.GetTypeInfo(expression).Type;
 
-			if (type.SpecialType == Roslyn.Compilers.SpecialType.System_Object)
+			if (type.SpecialType == SpecialType.System_Object)
 			{
 				//new object() results in the CsObject type being made.  This is only really useful for locking
 				writer.Write("new CsObject()");
 			}
 			else
 			{
-				var methodSymbol = model.GetSymbolInfo(expression).Symbol.As<MethodSymbol>();
+				var methodSymbol = model.GetSymbolInfo(expression).Symbol.As<IMethodSymbol>();
 
 				var translateOpt = MethodTranslation.Get(methodSymbol);
 				

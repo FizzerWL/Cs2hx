@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers.Common;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -24,7 +25,7 @@ namespace Cs2hx
 		public class SyntaxAndSymbol
 		{
 			public BaseTypeDeclarationSyntax Syntax;
-			public NamedTypeSymbol Symbol;
+			public INamedTypeSymbol Symbol;
 		}
 	}
 }

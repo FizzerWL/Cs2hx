@@ -4,8 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Cs2hx.Translations;
-using Roslyn.Compilers;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -17,9 +18,9 @@ namespace Cs2hx
 
 			var symbolInfo = model.GetSymbolInfo(invocationExpression);
 			var expressionSymbol = model.GetSymbolInfo(invocationExpression.Expression);
-			var methodSymbol = symbolInfo.Symbol.OriginalDefinition.As<MethodSymbol>().UnReduce();
+			var methodSymbol = symbolInfo.Symbol.OriginalDefinition.As<IMethodSymbol>().UnReduce();
 
-			var translateOpt = MethodTranslation.Get(symbolInfo.Symbol.As<MethodSymbol>());
+			var translateOpt = MethodTranslation.Get(symbolInfo.Symbol.As<IMethodSymbol>());
 			var memberReferenceExpressionOpt = invocationExpression.Expression as MemberAccessExpressionSyntax;
 			var returnTypeHaxe = TypeProcessor.ConvertType(methodSymbol.ReturnType);
 			var firstParameter = true;
@@ -43,7 +44,7 @@ namespace Cs2hx
 				}
 			}
 
-			if (expressionSymbol.Symbol is EventSymbol)
+			if (expressionSymbol.Symbol is IEventSymbol)
 			{
 				methodName = "Invoke"; //Would need to append the number of arguments to this to support events.  However, events are not currently supported
 			}
@@ -177,7 +178,7 @@ namespace Cs2hx
 						{
 							//calling ToString() on an enum forwards to our enum's special ToString method
 							writer.Write(memberType.ContainingNamespace.FullNameWithDot().ToLower());
-							writer.Write(WriteType.TypeName((NamedTypeSymbol)memberType));
+							writer.Write(WriteType.TypeName((INamedTypeSymbol)memberType));
 							writer.Write(".ToString(");
 							Core.Write(writer, memberReferenceExpressionOpt.Expression);
 							writer.Write(")");
@@ -248,13 +249,13 @@ namespace Cs2hx
 
 
 				if (arg.ArgumentOpt != null
-					&& arg.ArgumentOpt.RefOrOutKeyword.Kind != SyntaxKind.None
-					&& model.GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is FieldSymbol)
+					&& arg.ArgumentOpt.RefOrOutKeyword.Kind() != SyntaxKind.None
+					&& model.GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is IFieldSymbol)
 					throw new Exception("ref/out cannot reference fields, only local variables.  Consider using ref/out on a local variable and then assigning it into the field. " + Utility.Descriptor(invocationExpression));
 
 
 				//When passing an argument by ref or out, leave off the .Value suffix
-				if (arg.ArgumentOpt != null && arg.ArgumentOpt.RefOrOutKeyword.Kind != SyntaxKind.None)
+				if (arg.ArgumentOpt != null && arg.ArgumentOpt.RefOrOutKeyword.Kind() != SyntaxKind.None)
 					WriteIdentifierName.Go(writer, arg.ArgumentOpt.Expression.As<IdentifierNameSyntax>(), true);
 				else if (arg.ArgumentOpt != null)
 					WriteForEachStatement.CheckWriteEnumerator(writer, arg.ArgumentOpt.Expression);
@@ -270,7 +271,7 @@ namespace Cs2hx
             writer.Write(")");
 		}
 
-		private static bool IsParamsArgument(InvocationExpressionSyntax invocationExpression, ArgumentSyntax argumentOpt, MethodSymbol methodSymbol)
+		private static bool IsParamsArgument(InvocationExpressionSyntax invocationExpression, ArgumentSyntax argumentOpt, IMethodSymbol methodSymbol)
 		{
 			if (argumentOpt == null)
 				return false;
@@ -300,7 +301,7 @@ namespace Cs2hx
 
 			var type = Program.GetModel(invocationExpression).GetTypeInfo(args[0].Expression.As<TypeOfExpressionSyntax>().Type).Type;
 			writer.Write(type.ContainingNamespace.FullNameWithDot().ToLower());
-			writer.Write(WriteType.TypeName((NamedTypeSymbol)type));
+			writer.Write(WriteType.TypeName((INamedTypeSymbol)type));
 			writer.Write(".Parse(");
 			Core.Write(writer, args[1].Expression);
 			writer.Write(")");
@@ -314,7 +315,7 @@ namespace Cs2hx
 			var type = Program.GetModel(invocationExpression).GetTypeInfo(invocationExpression.ArgumentList.Arguments[0].Expression.As<TypeOfExpressionSyntax>().Type).Type;
 
 			writer.Write(type.ContainingNamespace.FullNameWithDot().ToLower());
-			writer.Write(WriteType.TypeName((NamedTypeSymbol)type));
+			writer.Write(WriteType.TypeName((INamedTypeSymbol)type));
 			writer.Write(".Values()");
 		}
 
@@ -326,7 +327,7 @@ namespace Cs2hx
 		/// <param name="method"></param>
 		/// <param name="arguments"></param>
 		/// <returns></returns>
-		public static IEnumerable<TransformedArgument> SortArguments(MethodSymbol method, IEnumerable<ArgumentSyntax> arguments, ExpressionSyntax expressionForErr)
+		public static IEnumerable<TransformedArgument> SortArguments(IMethodSymbol method, IEnumerable<ArgumentSyntax> arguments, ExpressionSyntax expressionForErr)
 		{
 			if (arguments.All(o => o.NameColon == null))
 				return arguments.Select(o => new TransformedArgument(o)); //no named parameters. Return them as-is.
@@ -354,7 +355,7 @@ namespace Cs2hx
 				}
                 else if (namedArgs.Count > 0)
                 {
-                    ret.Add(new TransformedArgument(WriteLiteralExpression.FromObject(param.DefaultValue)));
+                    ret.Add(new TransformedArgument(WriteLiteralExpression.FromObject(param.ExplicitDefaultValue)));
                 }
 			}
 

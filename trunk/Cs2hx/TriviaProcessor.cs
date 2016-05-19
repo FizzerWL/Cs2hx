@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
 	static class TriviaProcessor
 	{
-		static ConcurrentHashSet<SyntaxTrivia> _triviaProcessed = new ConcurrentHashSet<SyntaxTrivia>();
+		static ConcurrentDictionary<SyntaxTrivia, object> _triviaProcessed = new ConcurrentDictionary<SyntaxTrivia, object>();
 		public static void ProcessNode(HaxeWriter writer, SyntaxNode node)
 		{
 			ProcessTrivias(writer, node.GetLeadingTrivia());
@@ -23,15 +25,15 @@ namespace Cs2hx
 
 			foreach (var trivia in trivias)
 			{
-				if (_triviaProcessed.Add(trivia)) //ensure we don't look at the same trivia multiple times
+				if (_triviaProcessed.TryAdd(trivia, null)) //ensure we don't look at the same trivia multiple times
 				{
 
-					if (trivia.Kind == SyntaxKind.IfDirectiveTrivia)
+					if (trivia.Kind() == SyntaxKind.IfDirectiveTrivia)
 					{
 						if (GetConditions(trivia, "#if ").Contains("CS2HX"))
 							literalCode = true;
 					}
-					else if (trivia.Kind == SyntaxKind.DisabledTextTrivia && literalCode)
+					else if (trivia.Kind() == SyntaxKind.DisabledTextTrivia && literalCode)
 					{
 						writer.Write(trivia.ToString());
 						literalCode = false;
@@ -62,7 +64,7 @@ namespace Cs2hx
 		/// <returns></returns>
 		public static IEnumerable<SyntaxNode> DoNotWrite(SyntaxTree tree)
 		{
-			var triviaProcessed = new ConcurrentHashSet<SyntaxTrivia>();
+			var triviaProcessed = new ConcurrentDictionary<SyntaxTrivia, object>();
 
 			var skipCount = 0; //set to 1 if we encounter a #if !CS2HX directive (while it's 0).  Incremented for each #if that's started inside of that, and decremented for each #endif
 			var elseCount = 0; //set to 1 if we encounter an #if CS2HX directive (while it's 0).  Incremented for each #if that's started inside of that, and decremented for each #endif
@@ -74,17 +76,17 @@ namespace Cs2hx
 				{
 					Action<SyntaxTrivia> doTrivia = trivia =>
 						{
-							if (!triviaProcessed.Add(trivia))
+							if (!triviaProcessed.TryAdd(trivia, null))
 								return;
 
-							if (trivia.Kind == SyntaxKind.EndIfDirectiveTrivia)
+							if (trivia.Kind() == SyntaxKind.EndIfDirectiveTrivia)
 							{
 								if (skipCount > 0)
 									skipCount--;
 								if (elseCount > 0)
 									elseCount--;
 							}
-							else if (trivia.Kind == SyntaxKind.IfDirectiveTrivia)
+							else if (trivia.Kind() == SyntaxKind.IfDirectiveTrivia)
 							{
 								if (skipCount > 0)
 									skipCount++;
@@ -99,7 +101,7 @@ namespace Cs2hx
 									elseCount = 1;
 
 							}
-							else if (trivia.Kind == SyntaxKind.ElseDirectiveTrivia)
+							else if (trivia.Kind() == SyntaxKind.ElseDirectiveTrivia)
 							{
 								if (elseCount == 1)
 								{

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cs2hx
 {
@@ -40,7 +42,7 @@ namespace Cs2hx
 			{
 				writer.Write(".GetValue");
 
-				var symbol = Program.GetModel(expression).GetSymbolInfo(expression).Symbol.OriginalDefinition.As<PropertySymbol>();
+				var symbol = Program.GetModel(expression).GetSymbolInfo(expression).Symbol.OriginalDefinition.As<IPropertySymbol>();
 
 				writer.Write(string.Join("", symbol.Parameters.ToArray().Select(o => "_" + o.Type.Name)));
 
