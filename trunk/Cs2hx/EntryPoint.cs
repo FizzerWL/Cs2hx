@@ -92,7 +92,7 @@ Options available:
 
 				if (extraDefines.Length > 0)
 					projectsList = projectsList.Select(p => p.WithParseOptions(new CSharpParseOptions(preprocessorSymbols: 
-						p.ParseOptions.As<ParseOptions>().PreprocessorSymbolNames
+						p.ParseOptions.PreprocessorSymbolNames
 						.Concat(extraDefines.Where(z => z.StartsWith("-") == false))
 						.Except(extraDefines.Where(z => z.StartsWith("-")).Select(z => z.Substring(1)))
 						.ToArray())

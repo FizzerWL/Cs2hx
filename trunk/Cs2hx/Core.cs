@@ -45,7 +45,6 @@ namespace Cs2hx
 
 		private static void Factory(HaxeWriter writer, SyntaxNode node)
 		{
-
             if (node is MethodDeclarationSyntax)
                 WriteMethod.Go(writer, node.As<MethodDeclarationSyntax>());
             else if (node is PropertyDeclarationSyntax)

@@ -6,9 +6,10 @@ class XAttribute extends XObject
 	public var Value:String;
 	public var Name:XName;
 	
-	public function new(val:String)
+	public function new(name:String, val:String)
 	{
 		super();
+		Name = new XName(name);
 		Value = val;
 	}
 	

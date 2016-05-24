@@ -1,4 +1,5 @@
 package system.xml.linq;
+import system.Exception;
 import system.linq.Enumerable;
 import system.NotImplementedException;
 
@@ -16,6 +17,8 @@ class XContainer extends XNode
 
 	public function SetAttributeValue(attrName:String, attrValue:String):Void
 	{
+		if (attrValue == null)
+			throw new Exception("Attribute value cannot be null");
 		_x.set(attrName, attrValue);
 	}
 	
@@ -71,7 +74,7 @@ class XContainer extends XNode
 		var a = _x.get(name);
 		if (a == null)
 			return null;
-		return new XAttribute(a);
+		return new XAttribute(name, a);
 	}
 	
 	public function Attributes():Array<XAttribute>
@@ -79,7 +82,7 @@ class XContainer extends XNode
 		var ret = new Array<XAttribute>();
 		
 		for (a in _x.attributes())
-			ret.push(new XAttribute(a));
+			ret.push(new XAttribute(a, _x.get(a)));
 		return ret;
 	}
 	
