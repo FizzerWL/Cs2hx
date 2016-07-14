@@ -10,3 +10,4 @@ syntax: glob
 *_ReSharper*
 *.ide
 trunk/packages
+push.cmd

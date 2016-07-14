@@ -133,7 +133,7 @@ namespace Cs2hx
 					firstParameter = false;
 
 					if (methodSymbol.IsExtensionMethod)
-						WriteForEachStatement.CheckWriteEnumerator(writer, subExpressionOpt);
+						WriteForEachStatement.CheckWriteEnumerator(writer, subExpressionOpt, true);
 					else
 						Core.Write(writer, subExpressionOpt);
 				}
@@ -258,7 +258,7 @@ namespace Cs2hx
 				if (arg.ArgumentOpt != null && arg.ArgumentOpt.RefOrOutKeyword.Kind() != SyntaxKind.None)
 					WriteIdentifierName.Go(writer, arg.ArgumentOpt.Expression.As<IdentifierNameSyntax>(), true);
 				else if (arg.ArgumentOpt != null)
-					WriteForEachStatement.CheckWriteEnumerator(writer, arg.ArgumentOpt.Expression);
+					WriteForEachStatement.CheckWriteEnumerator(writer, arg.ArgumentOpt.Expression, false);
 				else
 					arg.Write(writer);
 

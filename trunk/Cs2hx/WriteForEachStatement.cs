@@ -18,7 +18,7 @@ namespace Cs2hx
 			writer.Write("for (");
 			writer.Write(foreachStatement.Identifier.ValueText);
 			writer.Write(" in ");
-			WriteEnumerator(writer, foreachStatement.Expression, Program.GetModel(foreachStatement).GetTypeInfo(foreachStatement.Expression).Type);
+			WriteEnumerator(writer, foreachStatement.Expression, Program.GetModel(foreachStatement).GetTypeInfo(foreachStatement.Expression).Type, false);
 			
 			
 			writer.Write(")\r\n");
@@ -33,7 +33,7 @@ namespace Cs2hx
 			writer.WriteCloseBrace();
 		}
 
-		private static void WriteEnumerator(HaxeWriter writer, ExpressionSyntax expression, ITypeSymbol type)
+		private static void WriteEnumerator(HaxeWriter writer, ExpressionSyntax expression, ITypeSymbol type, bool isFirstParameterToExtensionMethod)
 		{
 			var typeStr = TypeProcessor.GenericTypeName(type);
 			
@@ -45,22 +45,33 @@ namespace Cs2hx
 			}
 			else
 			{
-				
+                var haxeType = TypeProcessor.ConvertType(type);
 
-				Core.Write(writer, expression);
+                if (haxeType == "haxe.io.Bytes")
+                    throw new Exception("Cannot use byte[] as an enumerable.  Consider using a for loop instead " + Utility.Descriptor(expression));
 
-				var haxeType = TypeProcessor.ConvertType(type);
-
-				if (haxeType == "haxe.io.Bytes")
-					throw new Exception("Cannot use byte[] as an enumerable.  Consider using a for loop instead " + Utility.Descriptor(expression));
-
-				//Array types support enumerating natively.  For other types, we append GetEnumerator so they can be enumerated on.  We check type.Name != "Array" as a special case for the System.Array type for which ConvertType returns null, yet haxe supports enumerating natively.
-				if ((haxeType == null || !haxeType.StartsWith("Array")) && type.Name != "Array")
-					writer.Write(".GetEnumerator()");
-			}
+                //Array types support enumerating natively.  For other types, we append GetEnumerator so they can be enumerated on.  We check type.Name != "Array" as a special case for the System.Array type for which ConvertType returns null, yet haxe supports enumerating natively.
+                if ((haxeType == null || !haxeType.StartsWith("Array")) && type.Name != "Array")
+                {
+                    if (isFirstParameterToExtensionMethod)
+                    {
+                        //When we're being called as the first parameter to an extension method, we also have to take care not to call .GetEnumerator() on something that's null. Since we could be calling an extension method on this, and in C# calling extension methods on something that's null will not generate a nullref exception.
+                        writer.Write("Cs2Hx.GetEnumeratorNullCheck(");
+                        Core.Write(writer, expression);
+                        writer.Write(")");
+                    }
+                    else
+                    {
+                        Core.Write(writer, expression);
+                        writer.Write(".GetEnumerator()");
+                    }
+                }
+                else
+                    Core.Write(writer, expression);
+            }
 		}
 
-		public static void CheckWriteEnumerator(HaxeWriter writer, ExpressionSyntax expression)
+		public static void CheckWriteEnumerator(HaxeWriter writer, ExpressionSyntax expression, bool isFirstParameterToExtensionMethod)
 		{
 			var type = Program.GetModel(expression).GetTypeInfo(expression);
 
@@ -70,7 +81,7 @@ namespace Cs2hx
 			{
 
 				if (type.ConvertedType.Name == "IEnumerable" && type.ConvertedType.ContainingNamespace.FullName().StartsWith("System.Collections"))
-					WriteEnumerator(writer, expression, type.Type);
+					WriteEnumerator(writer, expression, type.Type, isFirstParameterToExtensionMethod);
 				else
 					Core.Write(writer, expression);
 

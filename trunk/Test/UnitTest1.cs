@@ -1378,7 +1378,7 @@ class Utilities
 		{
 			system.Console.WriteLine(kv.Key + "" "" + kv.Value);
 		}
-		var dict2:system.collections.generic.Dictionary<Int, Int> = system.linq.Enumerable.ToDictionary(dict.GetEnumerator(), function (o:system.collections.generic.KeyValuePair<Int, Int>):Int { return o.Key; } , function (o:system.collections.generic.KeyValuePair<Int, Int>):Int { return o.Value; } );
+		var dict2:system.collections.generic.Dictionary<Int, Int> = system.linq.Enumerable.ToDictionary(Cs2Hx.GetEnumeratorNullCheck(dict), function (o:system.collections.generic.KeyValuePair<Int, Int>):Int { return o.Key; } , function (o:system.collections.generic.KeyValuePair<Int, Int>):Int { return o.Value; } );
 		var vals:Array<Int> = dict.Values;
         
         var hash:system.collections.generic.HashSet<Int> = new system.collections.generic.HashSet<Int>();
@@ -1390,8 +1390,8 @@ class Utilities
         {
             system.Console.WriteLine_Int32(hashItem);
         }
-		var z:Array<Int> = system.linq.Enumerable.ToArray(system.linq.Enumerable.Select(hash.GetEnumerator(), function (o:Int):Int { return 3; } ));
-		var g:Int = system.linq.Enumerable.Min(system.linq.Enumerable.Select(system.linq.Enumerable.GroupBy(hash.GetEnumerator(), function (o:Int):Int { return o; } ), function (o:system.linq.IGrouping<Int, Int>):Int { return system.linq.Enumerable.Count(o.GetEnumerator()); } ));
+		var z:Array<Int> = system.linq.Enumerable.ToArray(system.linq.Enumerable.Select(Cs2Hx.GetEnumeratorNullCheck(hash), function (o:Int):Int { return 3; } ));
+		var g:Int = system.linq.Enumerable.Min(system.linq.Enumerable.Select(system.linq.Enumerable.GroupBy(Cs2Hx.GetEnumeratorNullCheck(hash), function (o:Int):Int { return o; } ), function (o:system.linq.IGrouping<Int, Int>):Int { return system.linq.Enumerable.Count(Cs2Hx.GetEnumeratorNullCheck(o)); } ));
 
     }
     public function new()
@@ -3251,5 +3251,45 @@ class Bar
 }");
 		}
 
+
+        [TestMethod]
+        public void PassNullToEnumerableExtensionMethod()
+        {
+
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Collections.Generic;
+
+namespace NS
+{
+    public static class C
+    {
+        public static void Foo<T>(this IEnumerable<T> a)
+		{
+		}
+		public static void Bar()
+		{
+			Dictionary<int, string> dict = null;
+            dict.Foo();
+		}
+    }
+}", @"
+package ns;
+" + WriteImports.StandardImports + @"
+
+class C
+{
+    public static function Foo<T>(a:Array<T>):Void
+	{
 	}
+    public static function Bar():Void
+	{
+        var dict:system.collections.generic.Dictionary<Int, String> = null;
+        ns.C.Foo(Cs2Hx.GetEnumeratorNullCheck(dict));
+	}
+    public function new() { }
+}");
+        }
+
+    }
 }

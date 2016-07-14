@@ -111,7 +111,7 @@ class Dictionary<K, V>
 	
 	public function GetEnumerator():Array<KeyValuePair<K, V>>
 	{
-		var ret = new Array < KeyValuePair < K, V >> ();
+		var ret = new Array<KeyValuePair<K, V>>();
 		for (k in keys)
 			ret.push(new KeyValuePair(k, store.get(Cs2Hx.Hash(k))));
 		return ret;

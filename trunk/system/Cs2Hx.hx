@@ -431,5 +431,13 @@ class Cs2Hx
 		}
 	}
 	
+	public static inline function GetEnumeratorNullCheck(obj:Dynamic):Dynamic
+	{
+		if (obj == null)
+			return null;
+		else
+			return obj.GetEnumerator();
+	}
+	
 
 }
