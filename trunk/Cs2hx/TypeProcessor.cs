@@ -31,20 +31,38 @@ namespace Cs2hx
 		{
 			if (node == null)
 				return null;
+            var symbol = TryGetTypeSymbol(node);
 
-			var symbol = Program.GetModel(node).GetSymbolInfo(node);
+            return ConvertType(symbol);
+		}
+
+
+        public static ITypeSymbol GetTypeSymbol(SyntaxNode node)
+        {
+            var r = TryGetTypeSymbol(node);
+            if (r == null)
+                throw new Exception("Could not get type symbol for " + Utility.Descriptor(node));
+            return r;
+        }
+
+        private static ITypeSymbol TryGetTypeSymbol(SyntaxNode node)
+        {
+            if (node == null)
+                return null;
+
+            var symbol = Program.GetModel(node).GetSymbolInfo(node);
 
             if (symbol.Symbol is ITypeSymbol)
-                return ConvertType((ITypeSymbol)symbol.Symbol);
+                return (ITypeSymbol)symbol.Symbol;
             else if (symbol.Symbol is ILocalSymbol)
-                return ConvertType(symbol.Symbol.As<ILocalSymbol>().Type);
+                return symbol.Symbol.As<ILocalSymbol>().Type;
             else if (symbol.Symbol is IFieldSymbol)
-                return ConvertType(symbol.Symbol.As<IFieldSymbol>().Type);
+                return symbol.Symbol.As<IFieldSymbol>().Type;
             else if (symbol.Symbol is IParameterSymbol)
-                return ConvertType(symbol.Symbol.As<IParameterSymbol>().Type);
+                return symbol.Symbol.As<IParameterSymbol>().Type;
             else
                 return null;
-		}
+        }
 
 		public static string ConvertTypeWithColon(SyntaxNode node)
 		{

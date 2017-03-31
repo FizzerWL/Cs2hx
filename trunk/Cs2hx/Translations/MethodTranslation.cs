@@ -98,6 +98,27 @@ namespace Cs2hx.Translations
 								case "Expression":
 									Core.Write(writer, expression.Expression);
 									break;
+                                case "Argument":
+                                    int argIndex = int.Parse(element.Attribute("Index").Value);
+                                    var invoke = expression.Parent.As<InvocationExpressionSyntax>();
+                                    Core.Write(writer, invoke.ArgumentList.Arguments.ElementAt(argIndex).Expression);
+                                    break;
+                                case "TypeParameter":
+                                    var typePrmIndex = int.Parse(element.Attribute("Index").Value);
+                                    var convert = element.Attribute("Convert") == null ? true : bool.Parse(element.Attribute("Convert").Value);
+
+                                    var type = expression.Name.As<GenericNameSyntax>().TypeArgumentList.Arguments[typePrmIndex];
+
+                                    if (convert)
+                                        writer.Write(TypeProcessor.ConvertType(type));
+                                    else
+                                    {
+                                        var typeSymbol = TypeProcessor.GetTypeSymbol(type);
+                                        writer.Write(typeSymbol.ContainingNamespace.ToString().ToLower());
+                                        writer.Write(".");
+                                        writer.Write(typeSymbol.Name);
+                                    }
+                                    break;
 								default:
 									throw new Exception("Unexpected element name " + element.Name);
 							}
