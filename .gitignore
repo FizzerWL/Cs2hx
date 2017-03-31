@@ -1,0 +1,12 @@
+bin/
+obj/
+Bin/
+ClientBin/
+TestResults/
+*.suo
+*.vsmdi
+*.user
+*.ide
+trunk/packages
+.hg
+
