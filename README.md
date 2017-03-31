@@ -28,4 +28,4 @@ However, even with the limitations it's still very possible to write quality C# 
 
 Further, CS2HX will transform your code to support some C# features that haXe does not support, such as partial classes, extension methods, field initializers, and using blocks.
 
-Please see the [[limitations page]] for a detailed analysis of what is and is not supported.
+Please see the [limitations page](https://github.com/FizzerWL/Cs2hx/wiki/Limitations) for a detailed analysis of what is and is not supported.
