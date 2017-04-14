@@ -97,6 +97,8 @@ namespace Cs2hx
                 WriteCastExpression.Go(writer, node.As<CastExpressionSyntax>());
             else if (node is ThrowStatementSyntax)
                 WriteThrowStatement.Go(writer, node.As<ThrowStatementSyntax>());
+            else if (node is ThrowExpressionSyntax)
+                WriteThrowStatement.GoExpression(writer, node.As<ThrowExpressionSyntax>());
             else if (node is PrefixUnaryExpressionSyntax)
                 WriteUnaryExpression.Go(writer, node.As<PrefixUnaryExpressionSyntax>());
             else if (node is PostfixUnaryExpressionSyntax)

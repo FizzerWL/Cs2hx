@@ -74,5 +74,11 @@ namespace Cs2hx
 
             throw new Exception("Node not in a body");
         }
+
+        public static void GoExpression(HaxeWriter writer, ThrowExpressionSyntax expr)
+        {
+            writer.Write("throw ");
+            Core.Write(writer, expr.Expression);
+        }
     }
 }
