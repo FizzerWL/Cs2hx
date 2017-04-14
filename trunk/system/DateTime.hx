@@ -99,7 +99,7 @@ class DateTime
 	
 	public inline function get_Day():Int
 	{
-		return date.getDay();
+		return date.getDate();
 	}
 
 	
