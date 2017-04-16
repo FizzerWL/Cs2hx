@@ -15,6 +15,18 @@ class Cs2Hx
 		return s.substr(0, startIndex) + s.substr(startIndex + count - 1);
 	}
 	
+	public static function FindIndex<T>(a:Array<T>, match:T->Bool):Int
+	{
+		var i:Int = 0;
+		for (e in a)
+		{
+			if (match(e))
+				return i;
+			i++;
+		}
+		return -1;
+	}
+	
 	public static function RemoveAll<T>(a:Array<T>, match:T->Bool):Int
 	{
 		var numRemoved = 0;
