@@ -31,7 +31,7 @@ namespace Cs2hx
 		{
 			if (node == null)
 				return null;
-            var symbol = TryGetTypeSymbol(node);
+            var symbol = GetTypeSymbol(node);
 
             return ConvertType(symbol);
 		}
@@ -60,6 +60,8 @@ namespace Cs2hx
                 return symbol.Symbol.As<IFieldSymbol>().Type;
             else if (symbol.Symbol is IParameterSymbol)
                 return symbol.Symbol.As<IParameterSymbol>().Type;
+            else if (symbol.Symbol is IMethodSymbol)
+                return symbol.Symbol.As<IMethodSymbol>().ReturnType;
             else
                 return null;
         }
@@ -99,6 +101,8 @@ namespace Cs2hx
 
 		public static string ConvertType(ITypeSymbol typeInfo)
 		{
+            if (typeInfo == null)
+                throw new Exception("ConvertType passed null");
 			string cachedValue;
 			if (_cachedTypes.TryGetValue(typeInfo, out cachedValue))
 				return cachedValue;

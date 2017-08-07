@@ -50,6 +50,10 @@ class DateTime
 	{
 		return new DateTime(date.getTime() + TimeSpan.FromSeconds(seconds).Ticks);
 	}
+	public inline function AddMilliseconds(ms:Float):DateTime
+	{
+		return new DateTime(date.getTime() + TimeSpan.FromMilliseconds(ms).Ticks);
+	}
 	
 	public inline function toString(format:String = null):String
 	{

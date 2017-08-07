@@ -43,6 +43,10 @@ namespace Cs2hx
                 {
                     writer.WriteLine("return throw new Exception(\"Abstract item called\");");
                 }
+                else if (region.Body == null)
+                {
+                    throw new NotImplementedException("Properties in interfaces are not supported " + Utility.Descriptor(region));
+                }
                 else
                 {
 					foreach(var statement in region.Body.As<BlockSyntax>().Statements)
