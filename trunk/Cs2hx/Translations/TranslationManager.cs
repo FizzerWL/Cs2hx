@@ -21,12 +21,14 @@ namespace Cs2hx.Translations
 		internal static List<MethodTranslation> Methods;
 		internal static List<PropertyTranslation> Properties;
 		internal static List<TypeTranslation> Types;
+        internal static List<string> References;
 		
 		public static void Init(IEnumerable<string> extraDocs)
 		{
 			Methods = new List<MethodTranslation>();
 			Properties = new List<PropertyTranslation>();
 			Types = new List<TypeTranslation>();
+            References = new List<string>();
 
 			foreach(var element in BuildTranslationDocs(extraDocs).SelectMany(o => o.Root.Elements()))
 			{
@@ -41,6 +43,9 @@ namespace Cs2hx.Translations
 					case "Property":
 						Properties.Add(new PropertyTranslation(element));
 						break;
+                    case "Reference":
+                        References.Add(element.Value);
+                        break;
 					default:
 						throw new Exception("Unexpected type name " + element.Name);
 				}

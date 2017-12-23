@@ -36,16 +36,21 @@ namespace Cs2hx
                 else
                     writer.Write("(value:" + type + "):" + type);
 
+                var isAbstract = property.Modifiers.Any(SyntaxKind.AbstractKeyword);
+
+                if (!isAbstract && region.Body == null)
+                {
+                    //This only happens in an interface, so it's OK to just leave off the body
+                    writer.Write(";");
+                    return;
+                }
+
                 writer.WriteLine();
 				writer.WriteOpenBrace();
 
-                if (property.Modifiers.Any(SyntaxKind.AbstractKeyword))
+                if (isAbstract)
                 {
                     writer.WriteLine("return throw new Exception(\"Abstract item called\");");
-                }
-                else if (region.Body == null)
-                {
-                    throw new NotImplementedException("Properties in interfaces are not supported " + Utility.Descriptor(region));
                 }
                 else
                 {

@@ -115,6 +115,14 @@ class Enumerable
 		throw new Exception("First() called on empty collection");
 	}
 	
+	public static function FirstOrDefault<T>(a:Array<T>):T
+	{
+		for (e in a)
+			return e;
+			
+		return null;
+	}
+	
 	
 	public static function First_IEnumerable_FuncBoolean<T>(a:Array<T>, match:T -> Bool):T
 	{

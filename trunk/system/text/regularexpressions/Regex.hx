@@ -27,6 +27,7 @@ class Regex
 		return throw new NotImplementedException();
 	}
 
+	
 	public static inline function Replace_String_String_MatchEvaluator(input:String, pattern:String, eval:Match->String):String
 	{
 		return new Regex(pattern).Replace_String_MatchEvaluator(input, eval);
@@ -37,6 +38,11 @@ class Regex
 		return throw new NotImplementedException();
 	}
 	
+	public function Replace_String_String(input:String, replace:String):String
+	{
+		return Replace_String_MatchEvaluator(input, function(m) return replace);
+	}
+
 	public function Replace_String_MatchEvaluator(input:String, eval:Match->String):String
 	{
 		#if flash

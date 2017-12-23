@@ -40,10 +40,12 @@ namespace Cs2hx
 
 		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation)
 		{
-			Compilation = compilation;
-			OutDir = outDir;
+            TranslationManager.Init(extraTranslation);
 
-			Task.WaitAll(Task.Run(() => Build()), Task.Run(() => Generate(extraTranslation)));
+            Compilation = compilation.AddReferences(TranslationManager.References.Select(o => MetadataReference.CreateFromFile(o)));
+            OutDir = outDir;
+
+            Utility.Parallel(new Action[] { Build, Generate }, a => a());
 		}
 
 		private static void Build()
@@ -51,20 +53,18 @@ namespace Cs2hx
 			Console.WriteLine("Building...");
 			var sw = Stopwatch.StartNew();
 
-			//Test if it builds so we can fail early if we don't.  This isn't required for anything else to work.
-			var buildResult = Compilation.Emit(new MemoryStream());
+            //Test if it builds so we can fail early if we don't.  This isn't required for anything else to work.
+            var buildResult = Compilation.Emit(new MemoryStream());
 			if (buildResult.Success == false)
 				throw new Exception("Build failed. " + buildResult.Diagnostics.Count() + " errors: " + string.Join("", buildResult.Diagnostics.Select(o => "\n  " + o.ToString())));
 			Console.WriteLine("Built in " + sw.Elapsed);
 		}
 
-		private static void Generate(IEnumerable<string> extraTranslation)
+		private static void Generate()
 		{
 			Console.WriteLine("Parsing...");
 			var sw = Stopwatch.StartNew();
 
-
-			TranslationManager.Init(extraTranslation);
 
 			if (!Directory.Exists(OutDir))
 				Directory.CreateDirectory(OutDir);

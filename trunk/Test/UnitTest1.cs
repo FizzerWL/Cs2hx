@@ -3291,5 +3291,71 @@ class C
 }");
         }
 
+
+        [TestMethod]
+        public void OverloadedOperators()
+        {
+
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+
+    class Vector
+    {
+        public float X;
+        public float Y;
+
+        public Vector(float x, float y)
+        {
+            this.X = x;
+            this.Y = y;
+        }
+
+        public static Vector operator +(Vector a, Vector b)
+        {
+            return new Vector(a.X + b.X, a.Y + b.Y);
+        }
+
+
+        public static void SomeFunction()
+        {
+            var v1 = new Vector(1, 1);
+            var v2 = new Vector(1, 1);
+            var v3 = v1 + v2;
+        }
+    }
+
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Vector
+{
+    public var X:Float;
+    public var Y:Float;
+    public function new(x:Float, y:Float)
+    {
+        X = 0;
+        Y = 0;
+        this.X = x;
+        this.Y = y;
+    }
+
+    public static function op_Addition(a:blargh.Vector, b:blargh.Vector):blargh.Vector
+    {
+        return new blargh.Vector(a.X + b.X, a.Y + b.Y);
+    }
+
+    public static function SomeFunction():Void
+    {
+        var v1:blargh.Vector = new blargh.Vector(1, 1);
+        var v2:blargh.Vector = new blargh.Vector(1, 1);
+        var v3:blargh.Vector = blargh.Vector.op_Addition(v1, v2);
+    }
+}");
+        }
+
     }
 }

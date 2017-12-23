@@ -13,6 +13,18 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, BinaryExpressionSyntax expression)
         {
+            //check for invocation of overloaded operator
+            var symbolInfo = Program.GetModel(expression).GetSymbolInfo(expression);
+            if (symbolInfo.Symbol != null && symbolInfo.Symbol is IMethodSymbol)
+            {
+                var method = (IMethodSymbol)symbolInfo.Symbol;
+                if (method.Name.StartsWith("op_") && !method.ContainingNamespace.FullNameWithDot().StartsWith("System."))
+                {
+                    WriteOverloadedOperatorInvocation(writer, expression, method);
+                    return;
+                }
+            }
+
             Go(writer, expression.Left, expression.OperatorToken, expression.Right);
         }
 
@@ -161,5 +173,21 @@ namespace Cs2hx
 
 		}
 
-	}
+
+        private static void WriteOverloadedOperatorInvocation(HaxeWriter writer, BinaryExpressionSyntax expression, IMethodSymbol method)
+        {
+            var type = Program.GetModel(expression).GetTypeInfo(expression).Type;
+
+            writer.Write(type.ContainingNamespace.FullNameWithDot().ToLower());
+            writer.Write(type.Name);
+            writer.Write(".");
+            writer.Write(method.Name);
+            writer.Write("(");
+            Core.Write(writer, expression.Left);
+            writer.Write(", ");
+            Core.Write(writer, expression.Right);
+            writer.Write(")");
+        }
+
+    }
 }

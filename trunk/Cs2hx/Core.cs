@@ -143,6 +143,8 @@ namespace Cs2hx
                 WriteConversionOperatorDeclaration.Go(writer, node.As<ConversionOperatorDeclarationSyntax>());
             else if (node is AssignmentExpressionSyntax)
                 WriteAssignmentExpressionSyntax.Go(writer, node.As<AssignmentExpressionSyntax>());
+            else if (node is OperatorDeclarationSyntax)
+                WriteMethod.WriteOperatorDeclaration(writer, node.As<OperatorDeclarationSyntax>());
             else
                 throw new NotImplementedException(node.GetType().Name + " is not supported. " + Utility.Descriptor(node));
         }

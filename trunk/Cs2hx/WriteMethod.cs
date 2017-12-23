@@ -13,21 +13,31 @@ namespace Cs2hx
     {
         public static void Go(HaxeWriter writer, MethodDeclarationSyntax method)
         {
-			if (method.Modifiers.Any(SyntaxKind.PartialKeyword) && method.Body == null)
+            GoInternal(writer, method, method.ReturnType, method.TypeParameterList, method.ConstraintClauses);
+        }
+
+        public static void WriteOperatorDeclaration(HaxeWriter writer, OperatorDeclarationSyntax decl)
+        {
+            GoInternal(writer, decl, decl.ReturnType, null, null);
+        }
+
+        private static void GoInternal(HaxeWriter writer, BaseMethodDeclarationSyntax method, TypeSyntax returnType, TypeParameterListSyntax typeParameterListOpt, SyntaxList<TypeParameterConstraintClauseSyntax>? constraintClassesOpt)
+        {
+            var methodSymbol = Program.GetModel(method).GetDeclaredSymbol(method);
+
+            if (method.Modifiers.Any(SyntaxKind.PartialKeyword) && method.Body == null)
 			{
 				//We only want to render out one of the two partial methods.  If there's another, skip this one.
 				if (TypeState.Instance.Partials.SelectMany(o => o.Syntax.As<ClassDeclarationSyntax>().Members)
 					.OfType<MethodDeclarationSyntax>()
-					.Except(method)
-					.Where(o => o.Identifier.ValueText == method.Identifier.ValueText)
+					.Except(method as MethodDeclarationSyntax)
+					.Where(o => o.Identifier.ValueText == methodSymbol.Name)
 					.Any())
 					return;
 			}
 
-			if (method.Identifier.ValueText == "GetEnumerator")
+            if (methodSymbol.Name == "GetEnumerator")
 				return; //skip GetEnumerator methods -- haxe can't enumerate on objects.  TODO: Render these out, but convert them to array-returning methods
-
-			var methodSymbol = Program.GetModel(method).GetDeclaredSymbol(method);
 
             writer.WriteIndent();
 
@@ -48,10 +58,10 @@ namespace Cs2hx
 
             writer.Write(methodName);
 
-            if (method.TypeParameterList != null)
+            if (typeParameterListOpt != null)
             {
                 writer.Write("<");
-				writer.Write(string.Join(", ", method.TypeParameterList.Parameters.Select(o => TypeParameter(o, method.ConstraintClauses))));
+				writer.Write(string.Join(", ", typeParameterListOpt.Parameters.Select(o => TypeParameter(o, constraintClassesOpt))));
                 writer.Write(">");
             }
 
@@ -96,7 +106,7 @@ namespace Cs2hx
             }
 
             writer.Write(")");
-            writer.Write(TypeProcessor.ConvertTypeWithColon(method.ReturnType));
+            writer.Write(TypeProcessor.ConvertTypeWithColon(returnType));
 
             if (method.Modifiers.Any(SyntaxKind.AbstractKeyword))
             {
@@ -104,7 +114,7 @@ namespace Cs2hx
                 writer.WriteOpenBrace();
 				writer.WriteIndent();
 
-				if (method.ReturnType.ToString() != "void")
+				if (returnType.ToString() != "void")
 					writer.Write("return "); //"return" the throw statement to work around haxe limitations
 
                 writer.Write("throw new Exception(\"Abstract item called\");\r\n");
@@ -141,12 +151,12 @@ namespace Cs2hx
             }
         }
 
-		private static bool ShouldUseOverrideKeyword(MethodDeclarationSyntax method, IMethodSymbol symbol)
+		private static bool ShouldUseOverrideKeyword(BaseMethodDeclarationSyntax method, IMethodSymbol symbol)
 		{
 			if (method.Modifiers.Any(SyntaxKind.StaticKeyword))
 				return false;
 
-			if (method.Identifier.ValueText == "ToString")
+			if (symbol.Name == "ToString")
 				return !TypeState.Instance.DerivesFromObject;
 			if (method.Modifiers.Any(SyntaxKind.NewKeyword))
 				return true;
