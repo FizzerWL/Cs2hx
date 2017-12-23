@@ -195,5 +195,28 @@ namespace Cs2hx
 			return null;
 
 		}
-	}
+
+        internal static IEnumerable<ITypeSymbol> AllTypes(ITypeSymbol type)
+        {
+            yield return type;
+
+            if (type is INamedTypeSymbol)
+            {
+                foreach (var ta in type.As<INamedTypeSymbol>().TypeArguments)
+                    foreach (var t in AllTypes(ta))
+                        yield return t;
+            }
+            else if (type is IArrayTypeSymbol)
+                yield return type.As<IArrayTypeSymbol>().ElementType;
+        }
+
+        public static IEnumerable<ITypeSymbol> PassTypeArgsToMethod(IMethodSymbol methodSymbol)
+        {
+            
+            var types = methodSymbol.TypeParameters.Except(methodSymbol.Parameters.SelectMany(o => Utility.AllTypes(o.Type))).Distinct().ToList();
+
+            foreach (var t in types)
+                yield return t;
+        }
+    }
 }

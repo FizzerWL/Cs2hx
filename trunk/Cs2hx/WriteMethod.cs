@@ -66,7 +66,8 @@ namespace Cs2hx
             }
 
             writer.Write("(");
-			var deferredDefaults = new Dictionary<string, ExpressionSyntax>();
+
+            var deferredDefaults = new Dictionary<string, ExpressionSyntax>();
 
 			var firstParam = true;
             foreach (var parameter in method.ParameterList.Parameters)
@@ -103,6 +104,22 @@ namespace Cs2hx
 					else 
 						Core.Write(writer, parameter.Default.Value);
 				}
+            }
+
+
+            int tIndex = 1;
+            foreach (var genericVar in Utility.PassTypeArgsToMethod(methodSymbol))
+            {
+                if (firstParam)
+                    firstParam = false;
+                else
+                    writer.Write(", ");
+
+                writer.Write("t" + tIndex.ToString());
+                writer.Write(":Class<");
+                writer.Write(TypeProcessor.ConvertType(genericVar));
+                writer.Write(">");
+                tIndex++;
             }
 
             writer.Write(")");

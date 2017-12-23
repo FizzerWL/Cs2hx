@@ -661,9 +661,12 @@ class Enumerable
 		return sum / count;
 	}
 	
-	public static function Cast<T>(a:Array<T>):Array<Dynamic>
+	public static function Cast<FROM,TO>(a:Array<FROM>, type:Class<TO>):Array<TO>
 	{
-		return a;
+		var ret = new Array<TO>();
+		for (e in a)
+			ret.push(cast e);
+		return ret;
 	}
 	
 	public static function Aggregate<T>(a:Array<T>, func:T->T->T):T

@@ -82,9 +82,9 @@
 
   <Method SourceObject="System.Linq.Enumerable" Match="Contains" ReplaceWith="Contains" ExtensionNamespace="system.Cs2Hx" />
 
-  <Method SourceObject="System.Linq.Enumerable" Match="OfType">
+  <!--<Method SourceObject="System.Linq.Enumerable" Match="OfType">
     <Argument Location="0" Action="Insert {genericType}" />
-  </Method>
+  </Method>-->
 
   <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_Int">
     <MatchTypeParameter TypeParameterIndex="1" Match="int" />

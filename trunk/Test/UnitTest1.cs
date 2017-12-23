@@ -2498,7 +2498,60 @@ class Utilities
 }");
 		}
 
-		[TestMethod]
+
+        [TestMethod]
+        public void GenericNoParam()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+namespace Blargh
+{
+    public class Foo
+    {
+        public static void ToQueue<T>()
+        {
+        }
+
+        public Foo()
+        {
+            ToQueue<int>();
+            ToQueue<Foo>();
+            var l = ToList(1,2,3);
+        }
+
+
+        public static List<T> ToList<T>(params T[] items)
+        {
+            return items.ToList();
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Foo
+{
+    public static function ToQueue<T>(t1:Class<T>):Void
+    {
+    }
+    public function new()
+    {
+        ToQueue(Int);
+        ToQueue(blargh.Foo);
+        var l:Array<Int> = ToList([ 1, 2, 3 ]);
+    }
+
+    public static function ToList<T>(items:Array<T>):Array<T>
+    {
+        return system.linq.Enumerable.ToList(items);
+    }
+}");
+        }
+
+        [TestMethod]
 		public void Objects()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
@@ -3124,7 +3177,7 @@ package blargh;
 
 class Utilities
 {
-    public static function SomeFunction<T: (system.IComparable<T>)>():Void
+    public static function SomeFunction<T: (system.IComparable<T>)>(t1:Class<T>):Void
     {
     }
     public function new()

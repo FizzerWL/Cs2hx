@@ -233,8 +233,23 @@ namespace Cs2hx
 				writer.Write("(");
 			}
 
-			bool inParams = false;
-            foreach (var arg in TranslateParameters(translateOpt, SortArguments(methodSymbol, invocationExpression.ArgumentList.Arguments, invocationExpression), invocationExpression))
+            var prms = TranslateParameters(translateOpt, SortArguments(methodSymbol, invocationExpression.ArgumentList.Arguments, invocationExpression), invocationExpression).ToList();
+
+            //If we invoke a method with type parameters that aren't used in the argument list, the haxe function won't have a way to see what args were used. To give it a way, add those as parameters at the end
+            foreach (var typePrm in Utility.PassTypeArgsToMethod(methodSymbol))
+            {
+                var name = invocationExpression.Expression.DescendantNodesAndSelf().OfType<GenericNameSyntax>().ToList();
+                if (name.Count > 0 && name.Single().TypeArgumentList.Arguments.Count > 0)
+                {
+                    var typePrmIndex = methodSymbol.TypeParameters.IndexOf(methodSymbol.TypeParameters.Single(o => o == typePrm));
+                    var genericVar = name.Single().TypeArgumentList.Arguments.ElementAt(typePrmIndex);
+                    prms.Add(new TransformedArgument(TypeProcessor.ConvertType(genericVar)));
+                }
+            }
+
+
+            bool inParams = false;
+            foreach (var arg in prms)
             {
                 if (firstParameter)
                     firstParameter = false;
