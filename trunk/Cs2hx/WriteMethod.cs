@@ -178,5 +178,51 @@ namespace Cs2hx
 
 			return identifier + ": (" + string.Join(", ", constraint.Constraints.OfType<TypeConstraintSyntax>().ToList().Select(o => TypeProcessor.ConvertType(o.Type))) + ")";
 		}
+
+        public static void WriteIndexerDeclaration(HaxeWriter writer, IndexerDeclarationSyntax decl)
+        {
+            foreach (var accessor in decl.AccessorList.Accessors)
+            {
+                writer.WriteIndent();
+
+                if (decl.Modifiers.Any(SyntaxKind.OverrideKeyword) || decl.Modifiers.Any(SyntaxKind.NewKeyword))
+                    writer.Write("override ");
+                if (decl.Modifiers.Any(SyntaxKind.PublicKeyword) || decl.Modifiers.Any(SyntaxKind.ProtectedKeyword) || decl.Modifiers.Any(SyntaxKind.InternalKeyword))
+                    writer.Write("public ");
+                if (decl.Modifiers.Any(SyntaxKind.PrivateKeyword))
+                    writer.Write("private ");
+
+                var isGet = accessor.Kind() == SyntaxKind.GetAccessorDeclaration;
+
+
+                writer.Write("function ");
+                writer.Write(isGet ? "Get" : "Set");
+                writer.Write("Value_");
+                writer.Write(Program.GetModel(decl).GetTypeInfo(decl.ParameterList.Parameters.Single().Type).Type.Name);
+                writer.Write("(");
+
+                foreach (var prm in decl.ParameterList.Parameters)
+                {
+                    writer.Write(prm.Identifier.ValueText);
+                    writer.Write(TypeProcessor.ConvertTypeWithColon(prm.Type));
+                }
+
+                if (isGet)
+                {
+                    writer.Write(")");
+                    writer.Write(TypeProcessor.ConvertTypeWithColon(decl.Type));
+                }
+                else
+                {
+                    writer.Write(", value");
+                    writer.Write(TypeProcessor.ConvertTypeWithColon(decl.Type));
+                    writer.Write("):Void");
+                }
+                writer.WriteLine();
+
+                if (accessor.Body != null)
+                    Core.Write(writer, accessor.Body);
+            }
+        }
     }
 } 

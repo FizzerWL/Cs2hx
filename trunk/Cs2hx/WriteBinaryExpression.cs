@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Diagnostics;
 
 namespace Cs2hx
 {
@@ -18,9 +19,10 @@ namespace Cs2hx
             if (symbolInfo.Symbol != null && symbolInfo.Symbol is IMethodSymbol)
             {
                 var method = (IMethodSymbol)symbolInfo.Symbol;
-                if (method.Name.StartsWith("op_") && !method.ContainingNamespace.FullNameWithDot().StartsWith("System."))
+                var type = Program.GetModel(expression).GetTypeInfo(expression).Type;
+                if (method.Name.StartsWith("op_") && !type.ContainingNamespace.FullNameWithDot().StartsWith("System."))
                 {
-                    WriteOverloadedOperatorInvocation(writer, expression, method);
+                    WriteOverloadedOperatorInvocation(writer, expression, method, type);
                     return;
                 }
             }
@@ -159,10 +161,14 @@ namespace Cs2hx
 			{
 				var leftTypeHaxe = TypeProcessor.ConvertType(elementAccess.Expression);
 
-				if (leftTypeHaxe == "haxe.io.Bytes")
-					writer.Write("set(");
-				else
-					writer.Write("SetValue(");
+                if (leftTypeHaxe == "haxe.io.Bytes")
+                    writer.Write("set(");
+                else
+                {
+                    var symbol = Program.GetModel(elementAccess).GetSymbolInfo(elementAccess).Symbol.OriginalDefinition.As<IPropertySymbol>();
+                    var types = string.Join("", symbol.Parameters.ToArray().Select(o => "_" + o.Type.Name));
+                    writer.Write("SetValue" + types + "(");
+                }
 
 				writeArgs();
 				Core.Write(writer, subExpressionOpt);
@@ -174,10 +180,8 @@ namespace Cs2hx
 		}
 
 
-        private static void WriteOverloadedOperatorInvocation(HaxeWriter writer, BinaryExpressionSyntax expression, IMethodSymbol method)
+        private static void WriteOverloadedOperatorInvocation(HaxeWriter writer, BinaryExpressionSyntax expression, IMethodSymbol method, ITypeSymbol type)
         {
-            var type = Program.GetModel(expression).GetTypeInfo(expression).Type;
-
             writer.Write(type.ContainingNamespace.FullNameWithDot().ToLower());
             writer.Write(type.Name);
             writer.Write(".");

@@ -246,7 +246,7 @@ class Foo
     public function new()
     {
         var dict:system.collections.generic.Dictionary<Int, Int> = new system.collections.generic.Dictionary<Int, Int>();
-		dict.SetValue(3, 4);
+		dict.SetValue_TKey(3, 4);
 		var i:Int = dict.GetValue_TKey(3);
 		var array:Array<Int> = [ ];
 		array[0] = 1;
@@ -3353,6 +3353,91 @@ class Vector
         var v1:blargh.Vector = new blargh.Vector(1, 1);
         var v2:blargh.Vector = new blargh.Vector(1, 1);
         var v3:blargh.Vector = blargh.Vector.op_Addition(v1, v2);
+    }
+}");
+        }
+
+
+        [TestMethod]
+        public void IndexerDeclarations()
+        {
+
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+
+    class Vector
+    {
+        public float X;
+        public float Y;
+
+        public Vector(float x, float y)
+        {
+            this.X = x;
+            this.Y = y;
+        }
+
+
+        public float this[int index]
+        {
+            get { return index != 0 ? Y : X; }
+            set
+            {
+                if (index != 0)
+                    this.Y = value;
+                else
+                    this.X = value;
+            }
+        }
+
+        public static void SomeFunction()
+        {
+            var v1 = new Vector(1, 1);
+            var x = v1[0];
+            v1[1] = 3;
+        }
+    }
+
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Vector
+{
+    public var X:Float;
+    public var Y:Float;
+    public function new(x:Float, y:Float)
+    {
+        X = 0;
+        Y = 0;
+        this.X = x;
+        this.Y = y;
+    }
+
+    public function GetValue_Int32(index:Int):Float
+    {
+        return index != 0 ? Y : X;
+    }
+
+    public function SetValue_Int32(index:Int, value:Float):Void
+    {
+        if (index != 0)
+        {
+            this.Y = value;
+        }
+        else
+        {
+            this.X = value;
+        }
+    }
+
+    public static function SomeFunction():Void
+    {
+        var v1:blargh.Vector = new blargh.Vector(1, 1);
+        var x:Float = v1.GetValue_Int32(0);
+        v1.SetValue_Int32(1, 3);
     }
 }");
         }

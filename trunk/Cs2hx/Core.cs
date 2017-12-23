@@ -145,6 +145,8 @@ namespace Cs2hx
                 WriteAssignmentExpressionSyntax.Go(writer, node.As<AssignmentExpressionSyntax>());
             else if (node is OperatorDeclarationSyntax)
                 WriteMethod.WriteOperatorDeclaration(writer, node.As<OperatorDeclarationSyntax>());
+            else if (node is IndexerDeclarationSyntax)
+                WriteMethod.WriteIndexerDeclaration(writer, node.As<IndexerDeclarationSyntax>());
             else
                 throw new NotImplementedException(node.GetType().Name + " is not supported. " + Utility.Descriptor(node));
         }

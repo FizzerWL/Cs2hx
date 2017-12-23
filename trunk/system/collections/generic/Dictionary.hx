@@ -56,7 +56,11 @@ class Dictionary<K, V>
 		return true;
 	}
 	
-	public function SetValue(key:K, val:V):Void
+    public function SetValue(key:K, val:V):Void //exists for backcompat. Will never be called by CS2HX generated code.
+	{
+		SetValue_TKey(key, val);
+	}
+	public function SetValue_TKey(key:K, val:V):Void
 	{
 		var s:String = Cs2Hx.Hash(key);
 		
