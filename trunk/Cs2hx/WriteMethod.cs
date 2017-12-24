@@ -36,8 +36,14 @@ namespace Cs2hx
 					return;
 			}
 
+            if (methodSymbol.Name == "System.Collections.IEnumerable.GetEnumerator")
+                return; //we don't support the non-generic enumerator
+
             if (methodSymbol.Name == "GetEnumerator")
-				return; //skip GetEnumerator methods -- haxe can't enumerate on objects.  TODO: Render these out, but convert them to array-returning methods
+            {
+                WriteGetEnumeratorFunction(writer, method, methodSymbol);
+                return;
+            }
 
             writer.WriteIndent();
 
@@ -168,7 +174,44 @@ namespace Cs2hx
             }
         }
 
-		private static bool ShouldUseOverrideKeyword(BaseMethodDeclarationSyntax method, IMethodSymbol symbol)
+        private static void WriteGetEnumeratorFunction(HaxeWriter writer, BaseMethodDeclarationSyntax method, IMethodSymbol methodSymbol)
+        {
+            var returnType = TypeProcessor.ConvertType(methodSymbol.ReturnType);
+
+            if (!returnType.StartsWith("system.collections.generic.IEnumerator<"))
+                return; //we only support the generic IEnumerator form of GetEnumerator.  Anything else, just don't write out the method.
+
+            var enumerableType = returnType.RemoveFromStartOfString("system.collections.generic.IEnumerator<").RemoveFromEndOfString(">");
+
+            //We only support very simple GetEnumerator functions that pass on their call to some other collection.  The body should be like "return <expr>.GetEnumerator();", otherwise don't write out the function at all.
+            if (method.Body == null)
+                return;
+            if (method.Body.Statements.Count > 1)
+                return;
+            var returnStatement = method.Body.Statements.Single() as ReturnStatementSyntax;
+            if (returnStatement == null)
+                return;
+            var invocation = returnStatement.Expression as InvocationExpressionSyntax;
+            if (invocation == null)
+                return;
+            var member = invocation.Expression as MemberAccessExpressionSyntax;
+            if (member == null)
+                return;
+
+            writer.WriteIndent();
+            writer.Write("public function iterator():Iterator<");
+            writer.Write(enumerableType);
+            writer.Write(">\r\n");
+            writer.WriteOpenBrace();
+
+            writer.WriteIndent();
+            writer.Write("return ");
+            Core.Write(writer, member.Expression);
+            writer.Write(".iterator();\r\n");
+            writer.WriteCloseBrace();
+        }
+
+        private static bool ShouldUseOverrideKeyword(BaseMethodDeclarationSyntax method, IMethodSymbol symbol)
 		{
 			if (method.Modifiers.Any(SyntaxKind.StaticKeyword))
 				return false;

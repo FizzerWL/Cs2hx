@@ -50,7 +50,7 @@ namespace Cs2hx
                 if (haxeType == "haxe.io.Bytes")
                     throw new Exception("Cannot use byte[] as an enumerable.  Consider using a for loop instead " + Utility.Descriptor(expression));
 
-                //Array types support enumerating natively.  For other types, we append GetEnumerator so they can be enumerated on.  We check type.Name != "Array" as a special case for the System.Array type for which ConvertType returns null, yet haxe supports enumerating natively.
+                //Array types support enumerating natively.  For other types, we append GetEnumerator so they can be enumerated on. (TODO: Use haxe iterator system instead, but to do this we'd have to change our hack of using Arrays all over the place).  We check type.Name != "Array" as a special case for the System.Array type for which ConvertType returns null, yet haxe supports enumerating natively.  
                 if ((haxeType == null || !haxeType.StartsWith("Array")) && type.Name != "Array")
                 {
                     if (isFirstParameterToExtensionMethod)

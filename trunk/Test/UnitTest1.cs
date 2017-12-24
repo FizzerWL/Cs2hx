@@ -3494,6 +3494,51 @@ class Vector
     }
 }");
         }
-        
+
+
+        [TestMethod]
+        public void GetEnumeratorMethods()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace Blargh
+{
+    public class SomeCollection : IEnumerable<string>
+    {
+        private List<string> coll = new List<string>();
+            
+        public IEnumerator<string> GetEnumerator()
+        {
+            return coll.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return coll.GetEnumerator();
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class SomeCollection
+{
+    private var coll:Array<String>;
+
+    public function iterator():Iterator<String>
+    {
+        return coll.iterator();
+    }
+	public function new()
+	{
+        coll = new Array<String>();
+	}
+
+
+}");
+        }
     }
 }
