@@ -37,13 +37,15 @@ namespace Cs2hx
 		public static ConcurrentDictionary<SyntaxNode, object> DoNotWrite = new ConcurrentDictionary<SyntaxNode, object>();
 		public static ConcurrentDictionary<ISymbol, object> RefOutSymbols = new ConcurrentDictionary<ISymbol, object>();
 		public static string OutDir;
+        public static string CtorHelperName;
 
-		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation)
+		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation, string ctorHelperName)
 		{
             TranslationManager.Init(extraTranslation);
 
             Compilation = compilation.AddReferences(TranslationManager.References.Select(o => MetadataReference.CreateFromFile(o)));
             OutDir = outDir;
+            CtorHelperName = ctorHelperName;
 
             Utility.Parallel(new Action[] { Build, Generate }, a => a());
 		}
@@ -102,7 +104,7 @@ namespace Cs2hx
 						WriteType.Go();
 				});
 
-			WriteConstructor.WriteConstructorsHelper(allTypes.SelectMany(o => o).Where(o => !DoNotWrite.ContainsKey(o.Syntax)).Select(o => o.Symbol));
+			WriteConstructor.WriteConstructorsHelper(allTypes.SelectMany(o => o).Where(o => !DoNotWrite.ContainsKey(o.Syntax)).Select(o => o.Symbol), CtorHelperName);
 
 			Console.WriteLine("Haxe written out in " + sw.Elapsed);
 		}

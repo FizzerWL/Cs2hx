@@ -215,12 +215,15 @@ namespace Cs2hx
 		static HashSet<string> AllTypes = new HashSet<string>();
 
 
-		public static void WriteConstructorsHelper(IEnumerable<INamedTypeSymbol> allTypes)
+		public static void WriteConstructorsHelper(IEnumerable<INamedTypeSymbol> allTypes, string nameArg)
 		{
 			foreach(var t in allTypes.Select(o => o.ContainingNamespace.FullNameWithDot().ToLower() + WriteType.TypeName(o)))
 				AllTypes.Add(t);
 
-			using (var writer = new HaxeWriter("", "Constructors"))
+            var name = string.IsNullOrWhiteSpace(nameArg) ? "Constructors" : nameArg;
+
+
+            using (var writer = new HaxeWriter("", name))
 			{
 				writer.WriteLine(@"/*
 This file serves two purposes:  
@@ -240,7 +243,7 @@ package ;");
 					writer.WriteLine("import " + type + ";");
 				writer.WriteLine("import system.TimeSpan;");
 
-				writer.WriteLine("class Constructors");
+				writer.WriteLine("class " + name);
 				writer.WriteOpenBrace();
 
 				writer.WriteLine("public static function init()");

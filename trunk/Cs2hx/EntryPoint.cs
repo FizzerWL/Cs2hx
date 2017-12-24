@@ -60,23 +60,26 @@ Options available:
 				string config = null;
 				string projects = null;
 				string[] extraDefines = new string[] { };
+                string ctorHelperName = null;
 
 				foreach (var arg in args)
 				{
-					if (arg.StartsWith("/extraTranslation:"))
-						extraTranslations.AddRange(arg.Substring(18).Split(';').Select(File.ReadAllText));
-					else if (arg.StartsWith("/out:"))
-						outDir = arg.Substring(5);
-					else if (arg.StartsWith("/sln:"))
-						pathToSolution = arg.Substring(5);
-					else if (arg.StartsWith("/config:"))
-						config = arg.Substring(8);
-					else if (arg.StartsWith("/projects:"))
-						projects = arg.Substring(10);
-					else if (arg.StartsWith("/define:"))
-						extraDefines = arg.Substring(8).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-					else
-						throw new Exception("Invalid argument: " + arg);
+                    if (arg.StartsWith("/extraTranslation:"))
+                        extraTranslations.AddRange(arg.Substring(18).Split(';').Select(File.ReadAllText));
+                    else if (arg.StartsWith("/out:"))
+                        outDir = arg.Substring(5);
+                    else if (arg.StartsWith("/sln:"))
+                        pathToSolution = arg.Substring(5);
+                    else if (arg.StartsWith("/config:"))
+                        config = arg.Substring(8);
+                    else if (arg.StartsWith("/projects:"))
+                        projects = arg.Substring(10);
+                    else if (arg.StartsWith("/define:"))
+                        extraDefines = arg.Substring(8).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    else if (arg.StartsWith("/ctorHelperName:"))
+                        ctorHelperName = arg.Substring(16);
+                    else
+                        throw new Exception("Invalid argument: " + arg);
 				}
 
 				if (pathToSolution == null)
@@ -102,7 +105,7 @@ Options available:
 				{
 					Console.WriteLine("Converting project " + project.Name + "...");
 					var sw = Stopwatch.StartNew();
-					Program.Go(project.GetCompilationAsync().Result, outDir, extraTranslations);
+					Program.Go(project.GetCompilationAsync().Result, outDir, extraTranslations, ctorHelperName);
 					Console.WriteLine("Finished project " + project.Name + " in " + sw.Elapsed);
 				}
 
