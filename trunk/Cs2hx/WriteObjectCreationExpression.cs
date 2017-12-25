@@ -19,36 +19,51 @@ namespace Cs2hx
 
 			var model = Program.GetModel(expression);
 			var type = model.GetTypeInfo(expression).Type;
+            var methodSymbol = model.GetSymbolInfo(expression).Symbol.As<IMethodSymbol>();
 
-			if (type.SpecialType == SpecialType.System_Object)
-			{
-				//new object() results in the CsObject type being made.  This is only really useful for locking
-				writer.Write("new CsObject()");
-			}
-			else
-			{
-				var methodSymbol = model.GetSymbolInfo(expression).Symbol.As<IMethodSymbol>();
+            if (type.SpecialType == SpecialType.System_Object)
+            {
+                //new object() results in the CsObject type being made.  This is only really useful for locking
+                writer.Write("new CsObject()");
+            }
+            else if (type.SpecialType == SpecialType.System_String)
+            {
+                //new String()
+                writer.Write("Cs2Hx.NewString(");
+                bool first = true;
+                foreach (var param in WriteInvocationExpression.SortArguments(methodSymbol, expression.ArgumentList.Arguments, expression))
+                {
+                    if (first)
+                        first = false;
+                    else
+                        writer.Write(", ");
 
-				var translateOpt = MethodTranslation.Get(methodSymbol);
-				
+                    param.Write(writer);
+                }
+                writer.Write(")");
+            }
+            else
+            {
+                var translateOpt = MethodTranslation.Get(methodSymbol);
 
-				writer.Write("new ");
-				writer.Write(TypeProcessor.ConvertType(expression.Type));
-				writer.Write("(");
 
-				bool first = true;
-				foreach (var param in TranslateParameters(translateOpt, WriteInvocationExpression.SortArguments(methodSymbol, expression.ArgumentList.Arguments, expression), expression))
-				{
-					if (first)
-						first = false;
-					else
-						writer.Write(", ");
+                writer.Write("new ");
+                writer.Write(TypeProcessor.ConvertType(expression.Type));
+                writer.Write("(");
 
-					param.Write(writer);
-				}
+                bool first = true;
+                foreach (var param in TranslateParameters(translateOpt, WriteInvocationExpression.SortArguments(methodSymbol, expression.ArgumentList.Arguments, expression), expression))
+                {
+                    if (first)
+                        first = false;
+                    else
+                        writer.Write(", ");
 
-				writer.Write(")");
-			}
+                    param.Write(writer);
+                }
+
+                writer.Write(")");
+            }
 		}
 
 		private static IEnumerable<TransformedArgument> TranslateParameters(MethodTranslation translateOpt, IEnumerable<TransformedArgument> list, ObjectCreationExpressionSyntax invoke)

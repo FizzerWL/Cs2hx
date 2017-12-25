@@ -12,6 +12,10 @@ namespace Cs2hx
     {
         public static void Go(HaxeWriter writer, PropertyDeclarationSyntax property)
         {
+            var propertySymbol = Program.GetModel(property).GetDeclaredSymbol(property);
+            var isInterface = propertySymbol.ContainingType.TypeKind == TypeKind.Interface;
+            bool isAutoProperty = false;
+
             Action<AccessorDeclarationSyntax, bool> writeRegion = (region, get) =>
             {
                 writer.WriteIndent();
@@ -38,13 +42,6 @@ namespace Cs2hx
 
                 var isAbstract = property.Modifiers.Any(SyntaxKind.AbstractKeyword);
 
-                if (!isAbstract && region.Body == null)
-                {
-                    //This only happens in an interface, so it's OK to just leave off the body
-                    writer.Write(";");
-                    return;
-                }
-
                 writer.WriteLine();
 				writer.WriteOpenBrace();
 
@@ -54,69 +51,84 @@ namespace Cs2hx
                 }
                 else
                 {
-					foreach(var statement in region.Body.As<BlockSyntax>().Statements)
-						Core.Write(writer, statement);
+                    if (region.Body == null)
+                    {
+                        //When we leave the body off in C#, it resolves to an automatic property.
+                        isAutoProperty = true;
+                        if (get)
+                        {
+                            writer.WriteLine("return __autoProp_" + property.Identifier.ValueText + ";");
+                        }
+                        else
+                        {
+                            writer.WriteLine("__autoProp_" + property.Identifier.Value + " = value;");
+                        }
+                    }
+                    else
+                    {
+                        foreach (var statement in region.Body.As<BlockSyntax>().Statements)
+                            Core.Write(writer, statement);
+                    }
 
                     if (!get)
                     {
-                        //Unfortunately, all haXe property setters must return a value.
-						writer.WriteLine("return " + TypeProcessor.DefaultValue(type) + ";");
+                        //all haXe property setters must return a value.
+						writer.WriteLine("return value;");
                     }
                 }
 
 				writer.WriteCloseBrace();
 				writer.WriteLine();
             };
-
+            
             var getter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind() == SyntaxKind.GetKeyword);
             var setter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind() == SyntaxKind.SetKeyword);
 
             if (getter == null && setter == null)
                 throw new Exception("Property must have either a get or a set");
 
-            if (getter != null && setter != null && setter.Body == null && getter.Body == null)
+
+			if (!property.Modifiers.Any(SyntaxKind.OverrideKeyword))
             {
-                //Both get and set are null, which means this is an automatic property.  This is the equivilant of a field in haxe.
-                WriteField.Go(writer, property.Modifiers, property.Identifier.ValueText, property.Type);
+                //Write the property declaration.  Overridden properties don't need this.
+                writer.WriteIndent();
+				if (property.Modifiers.Any(SyntaxKind.PublicKeyword) || property.Modifiers.Any(SyntaxKind.InternalKeyword))
+                    writer.Write("public ");
+				if (property.Modifiers.Any(SyntaxKind.StaticKeyword))
+                    writer.Write("static ");
+
+                writer.Write("var ");
+                writer.Write(property.Identifier.ValueText);
+                writer.Write("(");
+
+                if (getter != null)
+                    writer.Write("get_" + property.Identifier.ValueText);
+                else
+                    writer.Write("never");
+
+                writer.Write(", ");
+
+                if (setter != null)
+                    writer.Write("set_" + property.Identifier.ValueText);
+                else
+                    writer.Write("never");
+
+                writer.Write("):");
+                writer.Write(TypeProcessor.ConvertType(property.Type));
+                writer.Write(";\r\n");
             }
-            else
+
+            if (!isInterface) //interfaces get only the property decl, never the functions
             {
-
-
-				if (!property.Modifiers.Any(SyntaxKind.OverrideKeyword))
-                {
-                    //Write the property declaration.  Overridden properties don't need this.
-                    writer.WriteIndent();
-					if (property.Modifiers.Any(SyntaxKind.PublicKeyword) || property.Modifiers.Any(SyntaxKind.InternalKeyword))
-                        writer.Write("public ");
-					if (property.Modifiers.Any(SyntaxKind.StaticKeyword))
-                        writer.Write("static ");
-
-                    writer.Write("var ");
-                    writer.Write(property.Identifier.ValueText);
-                    writer.Write("(");
-
-                    if (getter != null)
-                        writer.Write("get_" + property.Identifier.ValueText);
-                    else
-                        writer.Write("never");
-
-                    writer.Write(", ");
-
-                    if (setter != null)
-                        writer.Write("set_" + property.Identifier.ValueText);
-                    else
-                        writer.Write("never");
-
-                    writer.Write("):");
-                    writer.Write(TypeProcessor.ConvertType(property.Type));
-                    writer.Write(";\r\n");
-                }
-
                 if (getter != null)
                     writeRegion(getter, true);
                 if (setter != null)
                     writeRegion(setter, false);
+            }
+
+            if (isAutoProperty)
+            {
+                writer.WriteLine("var __autoProp_" + property.Identifier.ValueText + TypeProcessor.ConvertTypeWithColon(property.Type) + ";");
             }
         }
     }

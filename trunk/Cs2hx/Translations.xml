@@ -67,7 +67,7 @@
   <Method SourceObject="System.Collections.Generic.List" Match="Remove" ReplaceWith="remove" />
   <Method SourceObject="System.Collections.Generic.List" Match="RemoveAll" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Collections.Generic.List" Match="FindIndex" ExtensionNamespace="system.Cs2Hx" />
-  <Method SourceObject="*" Match="RemoveAt" ReplaceWith="splice">
+  <Method SourceObject="System.Collections.Generic.List" Match="RemoveAt" ReplaceWith="splice">
     <Argument Location="1" Action="Insert 1" />
   </Method>
   <Method SourceObject="System.Collections.Generic.List" Match=".ctor">

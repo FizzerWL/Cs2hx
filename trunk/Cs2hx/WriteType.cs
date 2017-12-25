@@ -81,7 +81,7 @@ namespace Cs2hx
 
 						writer.Write(" ");
 
-						if (baseType.TypeKind == TypeKind.Interface)
+						if (baseType.TypeKind == TypeKind.Interface && first.Syntax.Kind() != SyntaxKind.InterfaceDeclaration)
 						{
 							writer.Write("implements ");
 							writer.Write(baseTypeHaxe);

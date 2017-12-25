@@ -17,10 +17,13 @@ class Console
 	{
 		trace(s); //note: trace implicitly adds newlines, so calls to Write() may not produce desired results.  Recommend you re-factor into calls to WriteLine if this matters to you.
 	}
+	public static function WriteLine_Object(obj:Dynamic):Void
+	{
+		trace(obj);
+	}
 
 	public static function ReadLine():String
 	{
 		return throw new InvalidOperationException();
 	}
-	
 }

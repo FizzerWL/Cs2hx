@@ -2,6 +2,7 @@ package system;
 using StringTools;
 import system.collections.generic.IComparer.IComparer;
 import system.Exception;
+import system.text.StringBuilder;
 
 class Cs2Hx
 {
@@ -450,6 +451,13 @@ class Cs2Hx
 		else
 			return obj.GetEnumerator();
 	}
-	
+
+	public static function NewString(ch:Int, repeat:Int):String
+	{
+		var buf = new StringBuilder();
+		for (i in 0...repeat)
+			buf.Append_Char(ch);
+		return buf.toString();
+	}
 
 }

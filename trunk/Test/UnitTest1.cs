@@ -754,7 +754,17 @@ package blargh;
 
 class Box
 {
-    public var Width:Float;
+    public var Width(get_Width, set_Width):Float;
+    public function get_Width():Float
+    {
+        return __autoProp_Width;
+    }
+    public function set_Width(value:Float):Float
+    {
+        __autoProp_Width = value;
+        return value;
+    }
+    var __autoProp_Width:Float;
     public function new()
     {
     }
@@ -2173,13 +2183,13 @@ class Box
     public function set_Width(value:Float):Float
     {
         _width = value;
-		return 0;
+		return value;
     }
     public var SetOnly(never, set_SetOnly):Float;
     public function set_SetOnly(value:Float):Float
     {
         system.Console.WriteLine_Single(value);
-		return 0;
+		return value;
     }
     public var GetOnly(get_GetOnly, never):Int;
     public function get_GetOnly():Int
@@ -2891,6 +2901,8 @@ namespace Blargh
             s = c + """";
             s = """" + c;
             var c2 = c + 3;
+
+            var rep = new String(c, 34);
         }
     }
 }", @"
@@ -2919,6 +2931,7 @@ class Utilities
         s = Cs2Hx.CharToString(c) + """";
         s = """" + Cs2Hx.CharToString(c);
         var c2:Int = c + 3;
+        var rep:String = Cs2Hx.NewString(c, 34);
     }
     public function new()
     {
