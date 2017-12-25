@@ -97,6 +97,7 @@ namespace Cs2hx
                 var parentType = field.Parent.As<VariableDeclarationSyntax>().Type;
 
                 writer.WriteIndent();
+                writer.Write("this.");
                 writer.Write(field.Identifier.ValueText);
                 writer.Write(" = ");
 
