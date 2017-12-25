@@ -158,13 +158,13 @@ namespace Cs2hx
 
 			var typeStr = GenericTypeName(typeSymbol);
 
-			var trans = TypeTranslation.Get(typeStr);
+
+            var trans = TypeTranslation.Get(typeStr);
 
 			if (named != null && named.IsGenericType && !named.IsUnboundGenericType && TypeArguments(named).Any() && (trans == null || trans.SkipGenericTypes == false))
 				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", TypeArguments(named).Select(o => ConvertType(o) ?? "Dynamic")) + ">";
-
-
-			switch (typeStr)
+            
+            switch (typeStr)
 			{
 				case "System.Void":
 					return "Void";

@@ -118,8 +118,11 @@ namespace Cs2hx
 						//Normally constructors will be written as we traverse the tree.  However, if there are no constructors, we must manually write them out since there are cases where we need a constructor in haxe while C# had none.
 						var ctors = TypeState.Instance.AllMembers.OfType<ConstructorDeclarationSyntax>().ToList();
 						var instanceCtors = ctors.Where(o => !o.Modifiers.Any(SyntaxKind.StaticKeyword));
-                        
-						if (ctors.None(o => o.Modifiers.Any(SyntaxKind.StaticKeyword)))
+
+                        if (instanceCtors.Count() > 1)
+                            throw new Exception("Haxe does not support overloaded constructors.  Consider changing all but one to static Create methods " + Utility.Descriptor(first.Syntax));
+
+                        if (ctors.None(o => o.Modifiers.Any(SyntaxKind.StaticKeyword)))
 							WriteConstructor.WriteStaticConstructor(writer, null);
 						if (instanceCtors.None())
 							WriteConstructor.WriteInstanceConstructor(writer, null);

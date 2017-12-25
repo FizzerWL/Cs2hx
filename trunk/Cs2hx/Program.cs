@@ -38,7 +38,7 @@ namespace Cs2hx
 		public static ConcurrentDictionary<ISymbol, object> RefOutSymbols = new ConcurrentDictionary<ISymbol, object>();
 		public static string OutDir;
         public static string CtorHelperName;
-
+        
 		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation, string ctorHelperName)
 		{
             TranslationManager.Init(extraTranslation);
@@ -85,12 +85,11 @@ namespace Cs2hx
 
 			Console.WriteLine("Parsed in " + sw.Elapsed + ". Writing out haxe...");
 			sw.Restart();
-
+            
 			Compilation.SyntaxTrees.SelectMany(o => o.GetRoot().DescendantNodes().OfType<AnonymousObjectCreationExpressionSyntax>())
 				.Select(o => new { Syntax = o, Name = WriteAnonymousObjectCreationExpression.TypeName(o) })
 				.GroupBy(o => o.Name)
 				.Parallel(o => WriteAnonymousObjectCreationExpression.WriteAnonymousType(o.First().Syntax));
-
 
 			allTypes.Parallel(type =>
 				{

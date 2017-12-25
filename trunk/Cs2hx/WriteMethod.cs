@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Cs2hx.Translations;
 
 namespace Cs2hx
 {
@@ -73,60 +74,8 @@ namespace Cs2hx
 
             writer.Write("(");
 
-            var deferredDefaults = new Dictionary<string, ExpressionSyntax>();
-
-			var firstParam = true;
-            foreach (var parameter in method.ParameterList.Parameters)
-            {
-				bool isRef = parameter.Modifiers.Any(SyntaxKind.OutKeyword) || parameter.Modifiers.Any(SyntaxKind.RefKeyword);
-
-				if (firstParam)
-					firstParam = false;
-				else
-                    writer.Write(", ");
-
-                writer.Write(parameter.Identifier.ValueText);
-
-				if (isRef)
-				{
-					writer.Write(":CsRef<");
-					writer.Write(TypeProcessor.ConvertType(parameter.Type));
-					writer.Write(">");
-
-					Program.RefOutSymbols.TryAdd(Program.GetModel(method).GetDeclaredSymbol(parameter), null);
-				}
-				else
-					writer.Write(TypeProcessor.ConvertTypeWithColon(parameter.Type));
-
-				if (parameter.Default != null)
-				{
-					writer.Write(" = ");
-
-					if (TypeProcessor.ConvertType(parameter.Type).StartsWith("Nullable"))
-					{
-						writer.Write("null");
-						deferredDefaults.Add(parameter.Identifier.ValueText, parameter.Default.Value);
-					}
-					else 
-						Core.Write(writer, parameter.Default.Value);
-				}
-            }
-
-
-            int tIndex = 1;
-            foreach (var genericVar in Utility.PassTypeArgsToMethod(methodSymbol))
-            {
-                if (firstParam)
-                    firstParam = false;
-                else
-                    writer.Write(", ");
-
-                writer.Write("t" + tIndex.ToString());
-                writer.Write(":Class<");
-                writer.Write(TypeProcessor.ConvertType(genericVar));
-                writer.Write(">");
-                tIndex++;
-            }
+            Dictionary<string, ExpressionSyntax> deferredDefaults;
+            WriteParameters(writer, method, methodSymbol, out deferredDefaults);
 
             writer.Write(")");
             writer.Write(TypeProcessor.ConvertTypeWithColon(returnType));
@@ -171,6 +120,74 @@ namespace Cs2hx
 				}
 
                 writer.WriteCloseBrace();
+            }
+        }
+
+        public static void WriteParameters(HaxeWriter writer, BaseMethodDeclarationSyntax method, IMethodSymbol methodSymbol, out Dictionary<string, ExpressionSyntax> deferredDefaults)
+        {
+            deferredDefaults = new Dictionary<string, ExpressionSyntax>();
+
+            var prms = method.ParameterList.Parameters.Select(o => new TransformedArgument(o)).ToList();
+
+            var translateOpt = MethodTranslation.Get(methodSymbol);
+            if (translateOpt != null)
+                prms = translateOpt.As<MethodTranslation>().TranslateParameters(prms, null).ToList();
+
+            var firstParam = true;
+            foreach (var parameter in prms)
+            {
+                bool isRef = parameter.ParameterOpt != null && (parameter.ParameterOpt.Modifiers.Any(SyntaxKind.OutKeyword) || parameter.ParameterOpt.Modifiers.Any(SyntaxKind.RefKeyword));
+
+                if (parameter.StringOpt != null)
+                    continue; //these are only used on invocations
+
+                if (firstParam)
+                    firstParam = false;
+                else
+                    writer.Write(", ");
+
+                writer.Write(parameter.ParameterOpt.Identifier.ValueText);
+
+
+                if (isRef)
+                {
+                    writer.Write(":CsRef<");
+                    writer.Write(TypeProcessor.ConvertType(parameter.ParameterOpt.Type));
+                    writer.Write(">");
+
+                    Program.RefOutSymbols.TryAdd(Program.GetModel(method).GetDeclaredSymbol(parameter.ParameterOpt), null);
+                }
+                else
+                    writer.Write(TypeProcessor.ConvertTypeWithColon(parameter.ParameterOpt.Type));
+
+                if (parameter.ParameterOpt.Default != null)
+                {
+                    writer.Write(" = ");
+
+                    if (TypeProcessor.ConvertType(parameter.ParameterOpt.Type).StartsWith("Nullable"))
+                    {
+                        writer.Write("null");
+                        deferredDefaults.Add(parameter.ParameterOpt.Identifier.ValueText, parameter.ParameterOpt.Default.Value);
+                    }
+                    else
+                        Core.Write(writer, parameter.ParameterOpt.Default.Value);
+                }
+            }
+
+
+            int tIndex = 1;
+            foreach (var genericVar in Utility.PassTypeArgsToMethod(methodSymbol))
+            {
+                if (firstParam)
+                    firstParam = false;
+                else
+                    writer.Write(", ");
+
+                writer.Write("t" + tIndex.ToString());
+                writer.Write(":Class<");
+                writer.Write(TypeProcessor.ConvertType(genericVar));
+                writer.Write(">");
+                tIndex++;
             }
         }
 

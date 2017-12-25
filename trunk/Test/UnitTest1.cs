@@ -3377,6 +3377,7 @@ namespace Blargh
             var v1 = new Vector(1, 1);
             var v2 = new Vector(1, 1);
             var v3 = v1 + v2;
+            v3 += v1;
         }
     }
 
@@ -3406,6 +3407,7 @@ class Vector
         var v1:blargh.Vector = new blargh.Vector(1, 1);
         var v2:blargh.Vector = new blargh.Vector(1, 1);
         var v3:blargh.Vector = blargh.Vector.op_Addition(v1, v2);
+        v3 = blargh.Vector.op_Addition(v3, v1);
     }
 }");
         }

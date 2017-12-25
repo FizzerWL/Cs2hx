@@ -12,12 +12,17 @@ namespace Cs2hx
 
 	public class TransformedArgument
 	{
-		//Either String will be populated, or Argument will be. Never both.
+		//Either String, Argument, or Parameter will be populated. Never more than one
 		public readonly string StringOpt;
 		public readonly ArgumentSyntax ArgumentOpt;
+        public readonly ParameterSyntax ParameterOpt;
 
+        public TransformedArgument(ParameterSyntax prm)
+        {
+            this.ParameterOpt = prm;
+        }
 
-		public TransformedArgument(ArgumentSyntax argument)
+        public TransformedArgument(ArgumentSyntax argument)
 		{
 			this.ArgumentOpt = argument;
 		}

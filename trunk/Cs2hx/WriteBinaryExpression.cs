@@ -185,7 +185,7 @@ namespace Cs2hx
             writer.Write(type.ContainingNamespace.FullNameWithDot().ToLower());
             writer.Write(type.Name);
             writer.Write(".");
-            writer.Write(method.Name);
+            writer.Write(OverloadResolver.MethodName(method));
             writer.Write("(");
             Core.Write(writer, expression.Left);
             writer.Write(", ");

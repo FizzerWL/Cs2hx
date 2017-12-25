@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Cs2hx.Translations;
 
 namespace Cs2hx
 {
@@ -27,30 +28,31 @@ namespace Cs2hx
 
             writer.Write("public function new(");
 
+            Dictionary<string, ExpressionSyntax> deferredDefaults = null;
 
-			if (ctorOpt != null)
+            if (ctorOpt != null)
 			{
-				var firstParameter = true;
-				foreach (var parameter in ctorOpt.ParameterList.Parameters)
-				{
-					if (firstParameter)
-						firstParameter = false;
-					else
-						writer.Write(", ");
-
-					writer.Write(parameter.Identifier.ValueText);
-					writer.Write(TypeProcessor.ConvertTypeWithColon(parameter.Type));
-
-					if (parameter.Default != null)
-					{
-						writer.Write(" = ");
-						Core.Write(writer, parameter.Default.Value);
-					}
-				}
+                var methodSymbol = Program.GetModel(ctorOpt).GetDeclaredSymbol(ctorOpt);
+                WriteMethod.WriteParameters(writer, ctorOpt, methodSymbol, out deferredDefaults);
 			}
 
             writer.Write(")\r\n");
             writer.WriteOpenBrace();
+
+            if (deferredDefaults != null)
+            {
+                foreach (var defer in deferredDefaults)
+                {
+                    writer.WriteLine("if (" + defer.Key + " == null)");
+                    writer.Indent++;
+                    writer.WriteIndent();
+                    writer.Write(defer.Key);
+                    writer.Write(" = ");
+                    Core.Write(writer, defer.Value);
+                    writer.Write(";\r\n");
+                    writer.Indent--;
+                }
+            }
 
             if (!TypeState.Instance.DerivesFromObject)
             {
