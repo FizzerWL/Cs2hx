@@ -459,5 +459,14 @@ class Cs2Hx
 			buf.Append_Char(ch);
 		return buf.toString();
 	}
+	public static inline function BoolCompare(b1:Bool, b2:Bool):Bool
+	{
+		#if js
+		//js target seems to leave things undefined, which means comparing booleans with == won't always give the correct answer
+		return !b1 == !b2;
+		#else
+		return b1 == b2;
+		#end
+	}
 
 }

@@ -109,6 +109,24 @@ namespace Cs2hx
 			}
 			else
 			{
+                var leftType = Program.GetModel(left).GetTypeInfo(left);
+                var rightType = Program.GetModel(right).GetTypeInfo(right);
+
+                if ((operatorToken.Kind() == SyntaxKind.EqualsEqualsToken || operatorToken.Kind() == SyntaxKind.ExclamationEqualsToken)
+                    && leftType.ConvertedType.SpecialType == SpecialType.System_Boolean
+                    && rightType.ConvertedType.SpecialType == SpecialType.System_Boolean)
+                {
+                    //Anytime we == or != booleans, we need to take special care when dealing with the js target.  haxe seems to leave some variables as undefined, which works fine as booleans in most comparisons, but not when comparing against each other such as "x == false"
+                    if (operatorToken.Kind() == SyntaxKind.ExclamationEqualsToken)
+                        writer.Write("!");
+                    writer.Write("Cs2Hx.BoolCompare(");
+                    Core.Write(writer, left);
+                    writer.Write(", ");
+                    Core.Write(writer, right);
+                    writer.Write(")");
+                    return;
+                }
+
 				Action<ExpressionSyntax, ExpressionSyntax> write = (e, otherSide) =>
 					{
                         var type = Program.GetModel(left).GetTypeInfo(e);
