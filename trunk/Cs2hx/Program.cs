@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using Cs2hx.Translations;
+using System.Text.RegularExpressions;
 
 namespace Cs2hx
 {
@@ -38,14 +39,16 @@ namespace Cs2hx
 		public static ConcurrentDictionary<ISymbol, object> RefOutSymbols = new ConcurrentDictionary<ISymbol, object>();
 		public static string OutDir;
         public static string CtorHelperName;
+        public static Regex Whitelist;
         
-		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation, string ctorHelperName)
+		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation, string ctorHelperName, string whitelistOpt)
 		{
             TranslationManager.Init(extraTranslation);
 
             Compilation = compilation.AddReferences(TranslationManager.References.Select(o => MetadataReference.CreateFromFile(o)));
             OutDir = outDir;
             CtorHelperName = ctorHelperName;
+            Whitelist = new Regex(whitelistOpt == null ? ".*" : whitelistOpt);
 
             Utility.Parallel(new Action[] { Build, Generate }, a => a());
 		}
@@ -75,7 +78,8 @@ namespace Cs2hx
 				.SelectMany(o => o.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
 				.Select(o => new { Syntax = o, Symbol = GetModel(o).GetDeclaredSymbol(o), TypeName = WriteType.TypeName(GetModel(o).GetDeclaredSymbol(o)) })
 				.GroupBy(o => o.Symbol.ContainingNamespace.FullName() + "." + o.TypeName)
-				.ToList();
+                .Where(o => Whitelist.IsMatch(o.Key))
+                .ToList();
 
 			Utility.Parallel(Compilation.SyntaxTrees.ToList(), tree =>
 				{

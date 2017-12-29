@@ -61,6 +61,7 @@ Options available:
 				string projects = null;
 				string[] extraDefines = new string[] { };
                 string ctorHelperName = null;
+                string whitelistOpt = null;
 
 				foreach (var arg in args)
 				{
@@ -78,6 +79,8 @@ Options available:
                         extraDefines = arg.Substring(8).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                     else if (arg.StartsWith("/ctorHelperName:"))
                         ctorHelperName = arg.Substring(16);
+                    else if (arg.StartsWith("/whitelist:"))
+                        whitelistOpt = arg.Substring(11);
                     else
                         throw new Exception("Invalid argument: " + arg);
 				}
@@ -105,7 +108,7 @@ Options available:
 				{
 					Console.WriteLine("Converting project " + project.Name + "...");
 					var sw = Stopwatch.StartNew();
-					Program.Go(project.GetCompilationAsync().Result, outDir, extraTranslations, ctorHelperName);
+					Program.Go(project.GetCompilationAsync().Result, outDir, extraTranslations, ctorHelperName, whitelistOpt);
 					Console.WriteLine("Finished project " + project.Name + " in " + sw.Elapsed);
 				}
 

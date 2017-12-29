@@ -436,7 +436,7 @@ class Outer_Inner
 	public var InnerField:Int;
     public function new()
     {
-		InnerField = 0;
+		this.InnerField = 0;
 		InnerField = 0;
     }
 }"
@@ -841,7 +841,7 @@ class KeyValueList<K, V> implements system.IEquatable<K>
 	}
     public function new()
     {
-        _list = new Array<system.collections.generic.KeyValuePair<K, V>>();
+        this._list = new Array<system.collections.generic.KeyValuePair<K, V>>();
     }
 }");
 		}
@@ -2226,15 +2226,15 @@ class Box
 
 	public function new()
 	{
-        _width = 0;
-		IsRectangular = true;
-		Characters = [ 97, 98 ];
-        MultipleOne = 0;
-        MultipleTwo = 0;
-        ReadonlyInt = 3;
-		UninitializedDate = new system.DateTime();
-		UnitializedNullableInt = new Nullable_Int();
-		UninitializedTimeSpan = new system.TimeSpan();
+        this._width = 0;
+		this.IsRectangular = true;
+		this.Characters = [ 97, 98 ];
+        this.MultipleOne = 0;
+        this.MultipleTwo = 0;
+        this.ReadonlyInt = 3;
+		this.UninitializedDate = new system.DateTime();
+		this.UnitializedNullableInt = new Nullable_Int();
+		this.UninitializedTimeSpan = new system.TimeSpan();
         system.Console.WriteLine(""ctor"");
 	}
 }");
@@ -2523,6 +2523,7 @@ namespace Blargh
     {
         public static void ToQueue<T>()
         {
+            ToQueue<T>();
         }
 
         public Foo()
@@ -2546,6 +2547,7 @@ class Foo
 {
     public static function ToQueue<T>(t1:Class<T>):Void
     {
+        ToQueue(t1);
     }
     public function new()
     {
@@ -3404,8 +3406,8 @@ class Vector
     public var Y:Float;
     public function new(x:Float, y:Float)
     {
-        X = 0;
-        Y = 0;
+        this.X = 0;
+        this.Y = 0;
         this.X = x;
         this.Y = y;
     }
@@ -3478,8 +3480,8 @@ class Vector
     public var Y:Float;
     public function new(x:Float, y:Float)
     {
-        X = 0;
-        Y = 0;
+        this.X = 0;
+        this.Y = 0;
         this.X = x;
         this.Y = y;
     }
@@ -3549,7 +3551,7 @@ class SomeCollection
     }
 	public function new()
 	{
-        coll = new Array<String>();
+        this.coll = new Array<String>();
 	}
 
 

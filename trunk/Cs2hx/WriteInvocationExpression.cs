@@ -243,7 +243,10 @@ namespace Cs2hx
                 {
                     var typePrmIndex = methodSymbol.TypeParameters.IndexOf(methodSymbol.TypeParameters.Single(o => o == typePrm));
                     var genericVar = name.Single().TypeArgumentList.Arguments.ElementAt(typePrmIndex);
-                    prms.Add(new TransformedArgument(TypeProcessor.ConvertType(genericVar)));
+                    if (genericVar.ToString() == typePrm.ToString())
+                        writer.Write("t" + (typePrmIndex + 1));
+                    else
+                        prms.Add(new TransformedArgument(TypeProcessor.ConvertType(genericVar)));
                 }
             }
 

@@ -49,7 +49,7 @@ namespace Test
                 )
                 .AddSyntaxTrees(cSharp.Select(o => CSharpSyntaxTree.ParseText(o)));
 
-            Cs2hx.Program.Go(compilation, dir, extraTranslation, null);
+            Cs2hx.Program.Go(compilation, dir, extraTranslation, null, null);
 
             Func<string, string> strip = i => Regex.Replace(i, "[\r\n \t]+", " ").Trim();
 
