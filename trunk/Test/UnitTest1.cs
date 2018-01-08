@@ -764,7 +764,7 @@ class Box
         __autoProp_Width = value;
         return value;
     }
-    var __autoProp_Width:Float;
+    var __autoProp_Width:Float = 0;
     public function new()
     {
     }

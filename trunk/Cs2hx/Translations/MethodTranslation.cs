@@ -137,11 +137,21 @@ namespace Cs2hx.Translations
 
 		private string ReplaceGenericVar(string rawString, ExpressionSyntax expression)
 		{
-			var name = expression.As<MemberAccessExpressionSyntax>().Name.As<GenericNameSyntax>();
+            var name = expression.As<MemberAccessExpressionSyntax>().Name;
 
-			var genericVar = TypeProcessor.ConvertType(name.TypeArgumentList.Arguments.Single());
+            if (name is GenericNameSyntax)
+            {
 
-			return rawString.Replace("{genericType}", genericVar);
+                var genericVar = TypeProcessor.ConvertType(name.As<GenericNameSyntax>().TypeArgumentList.Arguments.Single());
+
+                return rawString.Replace("{genericType}", genericVar);
+            }
+            else
+            {
+                var typeArg = Program.GetModel(expression).GetSymbolInfo(expression).Symbol.As<IMethodSymbol>().TypeArguments.Single();
+
+                return rawString.Replace("{genericType}", TypeProcessor.ConvertType(typeArg));
+            }
 		}
 
 

@@ -41,6 +41,10 @@ class StringBuilder
 	{
 		return buffer;  
 	}
+	public inline function Append_String(append:String):Void
+	{
+		Append(append);
+	}
 	
 	public inline function Append(append:String):Void
 	{

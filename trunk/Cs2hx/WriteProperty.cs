@@ -128,7 +128,7 @@ namespace Cs2hx
 
             if (isAutoProperty)
             {
-                writer.WriteLine("var __autoProp_" + property.Identifier.ValueText + TypeProcessor.ConvertTypeWithColon(property.Type) + ";");
+                writer.WriteLine("var __autoProp_" + property.Identifier.ValueText + TypeProcessor.ConvertTypeWithColon(property.Type) + " = " + TypeProcessor.DefaultValue(TypeProcessor.ConvertType(property.Type)) + ";");
             }
         }
     }
