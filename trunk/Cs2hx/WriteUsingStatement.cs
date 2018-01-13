@@ -11,6 +11,8 @@ namespace Cs2hx
 {
 	static class WriteUsingStatement
 	{
+        static Dictionary<MethodDeclarationSyntax, int> _identities = new Dictionary<MethodDeclarationSyntax, int>();
+
 		public static void Go(HaxeWriter writer, UsingStatementSyntax usingStatement)
 		{
 			if (usingStatement.DescendantNodes().OfType<ReturnStatementSyntax>().Any())
@@ -20,13 +22,28 @@ namespace Cs2hx
 			//if (expression is ExpressionStatement)
 			//	expression = expression.As<ExpressionStatement>().Expression;
 
-			//Ensure the using statement is a local variable - we can't deal with things we can't reliably repeat in the finally block
+			//Generate a resource to identify this using block.  If it's a local variable, we'll use that.
 			var resource = Utility.TryGetIdentifier(expression);
-			if (resource == null)
-				throw new Exception("Using statements must reference a local variable. " + Utility.Descriptor(usingStatement));
+            if (resource == null)
+            {
+                var parent = expression.Parent;
+                while (!(parent is MethodDeclarationSyntax))
+                    parent = parent.Parent;
+                var containingMethod = (MethodDeclarationSyntax)parent;
+                var id = _identities.ValueOrZero(containingMethod);
+                _identities.AddTo(containingMethod, 1);
+                
+                resource = "__" + id + "_using";
 
-			writer.WriteLine("var __disposed_" + resource + ":Bool = false;");
-			writer.WriteLine("try");
+                writer.WriteIndent();
+                writer.Write("var " + resource + " = ");
+                Core.Write(writer, expression);
+                writer.WriteLine(";");
+            }
+
+            writer.WriteLine("var __" + resource + "_usingDisposed:Bool = false;");
+
+            writer.WriteLine("try");
 			writer.WriteOpenBrace();
 
 			if (usingStatement.Statement is BlockSyntax)
@@ -35,13 +52,13 @@ namespace Cs2hx
 			else
 				Core.Write(writer, usingStatement.Statement);
 
-			writer.WriteLine("__disposed_" + resource + " = true;");
+			writer.WriteLine("__" + resource + "_usingDisposed = true;");
 			writer.WriteLine(resource + ".Dispose();");
 			writer.WriteCloseBrace();
 
 			writer.WriteLine("catch (__catch_" + resource + ":Dynamic)");
 			writer.WriteOpenBrace();
-			writer.WriteLine("if (!__disposed_" + resource + ")");
+			writer.WriteLine("if (!__" + resource + "_usingDisposed)");
 			writer.WriteLine("    " + resource + ".Dispose();");
 			writer.WriteLine("throw __catch_" + resource + ";");
 			writer.WriteCloseBrace();

@@ -1129,6 +1129,14 @@ namespace Blargh
             {
                 Console.WriteLine(""In using"");
             }
+
+            using (new MemoryStream())
+                Console.WriteLine(""In using 2"");
+
+            using (new MemoryStream())
+            using (new MemoryStream())
+                Console.WriteLine(""In using 3"");
+
         }
     }
 }", @"
@@ -1140,19 +1148,69 @@ class Utilities
     public static function SomeFunction():Void
     {
         var usingMe:system.io.MemoryStream = new system.io.MemoryStream();
-        var __disposed_usingMe:Bool = false;
+        var __usingMe_usingDisposed:Bool = false;
         try
         {
             system.Console.WriteLine(""In using"");
 
-            __disposed_usingMe = true;
+            __usingMe_usingDisposed = true;
             usingMe.Dispose();
         }
         catch (__catch_usingMe:Dynamic)
         {
-            if (!__disposed_usingMe)
+            if (!__usingMe_usingDisposed)
                 usingMe.Dispose();
             throw __catch_usingMe;
+        }
+
+        var __0_using = new system.io.MemoryStream() ;
+        var ____0_using_usingDisposed:Bool = false;
+        try
+        {
+            system.Console.WriteLine(""In using 2"");
+
+            ____0_using_usingDisposed = true;
+            __0_using.Dispose();
+        }
+        catch (__catch___0_using:Dynamic)
+        {
+            if (!____0_using_usingDisposed)
+                __0_using.Dispose();
+            throw __catch___0_using;
+        }
+
+
+        var __1_using = new system.io.MemoryStream() ;
+        var ____1_using_usingDisposed:Bool = false;
+        try
+        {
+            var __2_using = new system.io.MemoryStream() ;
+            var ____2_using_usingDisposed:Bool = false;
+            try
+            {
+
+                system.Console.WriteLine(""In using 3"");
+
+
+
+                ____2_using_usingDisposed = true;
+                __2_using.Dispose();
+            }
+            catch (__catch___2_using:Dynamic)
+            {
+                if (!____2_using_usingDisposed)
+                    __2_using.Dispose();
+                throw __catch___2_using;
+            }
+
+            ____1_using_usingDisposed = true;
+            __1_using.Dispose();
+        }
+        catch (__catch___1_using:Dynamic)
+        {
+            if (!____1_using_usingDisposed)
+                __1_using.Dispose();
+            throw __catch___1_using;
         }
     }
     public function new()

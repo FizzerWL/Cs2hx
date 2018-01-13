@@ -24,8 +24,24 @@ namespace Cs2hx
 #endif
 		}
 
+        public static int ValueOrZero<T>(this Dictionary<T, int> a, T key)
+        {
+            int i;
+            if (a.TryGetValue(key, out i))
+                return i;
+            else
+                return 0;
+        }
 
-		public static string FullName(this INamespaceSymbol ns)
+        public static void AddTo<T>(this Dictionary<T, int> a, T key, int sumToAdd)
+        {
+            if (a.ContainsKey(key))
+                a[key] += sumToAdd;
+            else
+                a.Add(key, sumToAdd);
+        }
+
+        public static string FullName(this INamespaceSymbol ns)
 		{
 			if (ns.IsGlobalNamespace)
 				return "";
