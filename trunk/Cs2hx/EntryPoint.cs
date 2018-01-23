@@ -62,6 +62,7 @@ Options available:
 				string[] extraDefines = new string[] { };
                 string ctorHelperName = null;
                 var whitelist = new HashSet<string>();
+                bool buildFirst = false;
 
 				foreach (var arg in args)
 				{
@@ -82,6 +83,8 @@ Options available:
                     else if (arg.StartsWith("/whitelist:"))
                         foreach (var line in File.ReadAllLines(arg.Substring(11)))
                             whitelist.Add(line);
+                    else if (arg.StartsWith("/buildFirst:"))
+                        buildFirst = bool.Parse(arg.Substring(12));
                     else
                         throw new Exception("Invalid argument: " + arg);
 				}
@@ -109,7 +112,7 @@ Options available:
 				{
 					Console.WriteLine("Converting project " + project.Name + "...");
 					var sw = Stopwatch.StartNew();
-					Program.Go(project.GetCompilationAsync().Result, outDir, extraTranslations, ctorHelperName, whitelist);
+					Program.Go(project.GetCompilationAsync().Result, outDir, extraTranslations, ctorHelperName, whitelist, buildFirst);
 					Console.WriteLine("Finished project " + project.Name + " in " + sw.Elapsed);
 				}
 

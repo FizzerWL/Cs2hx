@@ -14,14 +14,15 @@ namespace Cs2hx
     public static class Utility
     {
 
-		public static void Parallel<T>(this IEnumerable<T> list, Action<T> action)
+		public static void Parallel<T>(this IEnumerable<T> list, Action<T> action, bool parallel = true)
 		{
-#if true
-			System.Threading.Tasks.Parallel.ForEach(list, action);
-#else
-			foreach (var t in list)
-				action(t);
-#endif
+            if (parallel)
+                System.Threading.Tasks.Parallel.ForEach(list, action);
+            else
+            {
+                foreach (var t in list)
+                    action(t);
+            }
 		}
 
         public static int ValueOrZero<T>(this Dictionary<T, int> a, T key)

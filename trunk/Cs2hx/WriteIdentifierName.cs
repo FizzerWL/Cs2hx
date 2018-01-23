@@ -18,6 +18,8 @@ namespace Cs2hx
 			if (!byRef)
 			{
 				var symbol = Program.GetModel(identifier).GetSymbolInfo(identifier).Symbol;
+                if (symbol == null)
+                    throw new Exception("Symbol could not be resolved.  Are you sure the C# is valid? " + Utility.Descriptor(identifier));
 				if (Program.RefOutSymbols.ContainsKey(symbol))
 					writer.Write(".Value");
 			}

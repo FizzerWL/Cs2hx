@@ -41,7 +41,7 @@ namespace Cs2hx
         public static string CtorHelperName;
         public static List<Regex> Whitelist;
         
-		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation, string ctorHelperName, HashSet<string> whitelist)
+		public static void Go(Compilation compilation, string outDir, IEnumerable<string> extraTranslation, string ctorHelperName, HashSet<string> whitelist, bool buildFirst = false)
 		{
             TranslationManager.Init(extraTranslation);
 
@@ -54,7 +54,7 @@ namespace Cs2hx
                 Whitelist = whitelist.Select(o => new Regex(o)).ToList();
             
 
-            Utility.Parallel(new Action[] { Build, Generate }, a => a());
+            Utility.Parallel(new Action[] { Build, Generate }, a => a(), !buildFirst);
 		}
 
 		private static void Build()

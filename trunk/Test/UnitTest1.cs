@@ -352,8 +352,8 @@ namespace Blargh
 
         public Foo()
 		{
-			Bar(1,2,3,4);
-			Bar(1,2,3);
+			Bar(1, 2, 3, 4);
+			Bar(1, 2, 3);
 			Bar(a: 1, b: 2, c: 3, d: 4);
 			Bar(a: 1, b: 2, c: 3);
 			Bar(a: 1, c: 3, b: 2);
@@ -388,7 +388,103 @@ class Foo
 }");
 		}
 
-		[TestMethod]
+
+
+
+        [TestMethod]
+        public void NamedParametersExtension()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Text;
+
+namespace Blargh
+{
+
+    public static class Extenz
+    {
+		public static void Bar(this int a, int b, int c, int d = 3)
+		{
+		}
+
+        public static void Bar2(this int a, int b = 1, int c = 2, int d = 4)
+        {
+        }
+    }
+
+    public class Foo
+    {
+
+        public Foo()
+		{   
+			Extenz.Bar(1, 2, 3, 4);
+			Extenz.Bar(1, 2, 3);
+			Extenz.Bar(a: 1, b: 2, c: 3, d: 4);
+			Extenz.Bar(a: 1, b: 2, c: 3);
+			Extenz.Bar(a: 1, c: 3, b: 2);
+			Extenz.Bar(1, c: 3, b: 2);
+			Extenz.Bar(1, 2, c: 3, d: 4);
+            Extenz.Bar2(1, d: 5);
+            var i = 1;
+			i.Bar(2, 3, 4);
+			i.Bar(2, 3);
+			i.Bar(b: 2, c: 3, d: 4);
+			i.Bar(b: 2, c: 3);
+			i.Bar(c: 3, b: 2);
+			i.Bar(c: 3, b: 2);
+			i.Bar(2, c: 3, d: 4);
+            i.Bar2(d: 5);
+		}
+    }
+}", new[] { @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Extenz
+{
+	public static function Bar(a:Int, b:Int, c:Int, d:Int = 3):Void
+	{
+	}
+    public static function Bar2(a:Int, b:Int = 1, c:Int = 2, d:Int = 4):Void
+	{
+	}
+    public function new()
+    {
+    }
+}",
+
+            @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Foo
+{
+	
+    public function new()
+    {
+		blargh.Extenz.Bar(1, 2, 3, 4);
+		blargh.Extenz.Bar(1, 2, 3);
+		blargh.Extenz.Bar(1, 2, 3, 4);
+		blargh.Extenz.Bar(1, 2, 3);
+		blargh.Extenz.Bar(1, 2, 3);
+		blargh.Extenz.Bar(1, 2, 3);
+		blargh.Extenz.Bar(1, 2, 3, 4);
+        blargh.Extenz.Bar2(1, 1, 2, 5);
+        var i:Int = 1;
+        blargh.Extenz.Bar(i, 2, 3, 4);
+		blargh.Extenz.Bar(i, 2, 3);
+		blargh.Extenz.Bar(i, 2, 3, 4);
+		blargh.Extenz.Bar(i, 2, 3);
+		blargh.Extenz.Bar(i, 2, 3);
+		blargh.Extenz.Bar(i, 2, 3);
+		blargh.Extenz.Bar(i, 2, 3, 4);
+        blargh.Extenz.Bar2(i, 1, 2, 5);
+    }
+}"});
+        }
+
+
+        [TestMethod]
 		public void NestedClasses()
 		{
 			TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"

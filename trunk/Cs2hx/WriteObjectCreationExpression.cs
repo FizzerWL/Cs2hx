@@ -31,7 +31,7 @@ namespace Cs2hx
                 //new String()
                 writer.Write("Cs2Hx.NewString(");
                 bool first = true;
-                foreach (var param in WriteInvocationExpression.SortArguments(methodSymbol, expression.ArgumentList.Arguments, expression))
+                foreach (var param in WriteInvocationExpression.SortArguments(methodSymbol, expression.ArgumentList.Arguments, expression, false))
                 {
                     if (first)
                         first = false;
@@ -52,7 +52,7 @@ namespace Cs2hx
                 writer.Write("(");
 
                 bool first = true;
-                foreach (var param in TranslateParameters(translateOpt, WriteInvocationExpression.SortArguments(methodSymbol, expression.ArgumentList.Arguments, expression), expression))
+                foreach (var param in TranslateParameters(translateOpt, WriteInvocationExpression.SortArguments(methodSymbol, expression.ArgumentList.Arguments, expression, false), expression))
                 {
                     if (first)
                         first = false;

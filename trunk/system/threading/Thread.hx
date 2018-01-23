@@ -20,7 +20,7 @@ class Thread
 	
 	public static function Sleep(ms:Int):Void
 	{
-		#if flash
+		#if flash || js
 		throw new NotImplementedException();
 		#else
 		Sys.sleep(ms / 1000);

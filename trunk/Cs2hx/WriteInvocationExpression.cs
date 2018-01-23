@@ -18,6 +18,8 @@ namespace Cs2hx
 
 			var symbolInfo = model.GetSymbolInfo(invocationExpression);
 			var expressionSymbol = model.GetSymbolInfo(invocationExpression.Expression);
+            if (symbolInfo.Symbol == null)
+                throw new Exception("InvocationExpression could not be identified.  Are you sure the C# is valid? " + Utility.Descriptor(invocationExpression));
 			var methodSymbol = symbolInfo.Symbol.OriginalDefinition.As<IMethodSymbol>().UnReduce();
 
 			var translateOpt = MethodTranslation.Get(symbolInfo.Symbol.As<IMethodSymbol>());
@@ -233,7 +235,7 @@ namespace Cs2hx
 				writer.Write("(");
 			}
 
-            var prms = TranslateParameters(translateOpt, SortArguments(methodSymbol, invocationExpression.ArgumentList.Arguments, invocationExpression), invocationExpression).ToList();
+            var prms = TranslateParameters(translateOpt, SortArguments(methodSymbol, invocationExpression.ArgumentList.Arguments, invocationExpression, extensionNamespace != null), invocationExpression).ToList();
 
             //If we invoke a method with type parameters that aren't used in the argument list, the haxe function won't have a way to see what args were used. To give it a way, add those as parameters at the end
             foreach (var typePrm in Utility.PassTypeArgsToMethod(methodSymbol))
@@ -345,7 +347,7 @@ namespace Cs2hx
 		/// <param name="method"></param>
 		/// <param name="arguments"></param>
 		/// <returns></returns>
-		public static IEnumerable<TransformedArgument> SortArguments(IMethodSymbol method, IEnumerable<ArgumentSyntax> arguments, ExpressionSyntax expressionForErr)
+		public static IEnumerable<TransformedArgument> SortArguments(IMethodSymbol method, IEnumerable<ArgumentSyntax> arguments, ExpressionSyntax expressionForErr, bool isExtensionMethodCall)
 		{
 			if (arguments.All(o => o.NameColon == null))
 				return arguments.Select(o => new TransformedArgument(o)); //no named parameters. Return them as-is.
@@ -363,7 +365,7 @@ namespace Cs2hx
 
 			var namedArgs = arguments.Skip(ret.Count).ToDictionary(o => o.NameColon.Name.Identifier.ValueText, o => o);
 
-            var prms = method.Parameters.ToList().Skip(ret.Count).ToList();
+            var prms = method.Parameters.ToList().Skip(ret.Count + (isExtensionMethodCall ? 1 : 0)).ToList();
 			foreach (var param in prms)
 			{
 				if (namedArgs.ContainsKey(param.Name))
