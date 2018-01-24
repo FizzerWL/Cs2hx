@@ -5,6 +5,7 @@ import system.NotImplementedException;
 class StringBuilder
 {
 	private var buffer:String;
+	public var Capacity:Int; //unused
 	
 	public function new(initial:Dynamic = null)
 	{
@@ -41,14 +42,22 @@ class StringBuilder
 	{
 		return buffer;  
 	}
-	public inline function Append_String(append:String):Void
+	public inline function Append_String(append:String):StringBuilder
 	{
 		Append(append);
+		return this;
 	}
 	
-	public inline function Append(append:String):Void
+	public inline function Append(append:String):StringBuilder
 	{
 		buffer += append;
+		return this;
+	}
+	
+	public inline function Append_Double(d:Float):StringBuilder
+	{
+		buffer += Std.string(d);
+		return this;
 	}
 	
 	public inline function InsertChar(location:Int, char:Int):Void
@@ -56,15 +65,22 @@ class StringBuilder
 		Insert_Int32_String(location, String.fromCharCode(char));
 	}
 	
-	public inline function Append_Char(char:Int):Void
+	public inline function Append_Char(char:Int):StringBuilder
 	{
 		Append(String.fromCharCode(char));
+		return this;
+	}
+	public inline function Append_Char_Int32(char:Int, repeatCount:Int):Void
+	{
+		for (i in 0...repeatCount)
+			Append_Char(char);
 	}
 	
-	public inline function AppendLine(append:String = ""):Void
+	public inline function AppendLine(append:String = ""):StringBuilder
 	{
 		Append(append);
 		Append("\n");
+		return this;
 	}
 	
 	public inline function Append_Int32(i:Int):Void

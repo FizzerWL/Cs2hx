@@ -82,7 +82,8 @@ Options available:
                         ctorHelperName = arg.Substring(16);
                     else if (arg.StartsWith("/whitelist:"))
                         foreach (var line in File.ReadAllLines(arg.Substring(11)))
-                            whitelist.Add(line);
+                            if (!string.IsNullOrWhiteSpace(line))
+                                whitelist.Add(line);
                     else if (arg.StartsWith("/buildFirst:"))
                         buildFirst = bool.Parse(arg.Substring(12));
                     else

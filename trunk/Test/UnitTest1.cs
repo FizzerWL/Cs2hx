@@ -1345,6 +1345,8 @@ namespace Blargh
             i = (int)f;
 			var z = (i & hex) == 5;
 			var x = (int)(i / 3);
+            int w = i / 3;
+            var y = i / 3;
         }
     }
 }", @"
@@ -1373,6 +1375,8 @@ class Utilities
         i = Std.int(f);
 		var z:Bool = (i & hex) == 5;
 		var x:Int = Std.int(i / 3);
+		var w:Int = Std.int(i / 3);
+		var y:Int = Std.int(i / 3);
     }
     public function new()
     {

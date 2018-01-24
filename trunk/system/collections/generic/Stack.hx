@@ -19,6 +19,11 @@ class Stack<T>
 		return _store.pop();
 	}
 	
+	public function Peek():T
+	{
+		return _store[_store.length - 1];
+	}
+	
 	public function Clear():Void
 	{
 		_store = new Array<T>();

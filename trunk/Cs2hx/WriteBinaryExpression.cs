@@ -27,6 +27,24 @@ namespace Cs2hx
                 }
             }
 
+
+            //Check for integer division.  Integer division is handled automatically in C#, but must be explicit in haxe.
+            if (expression.OperatorToken.Kind() == SyntaxKind.SlashToken && Program.GetModel(expression).GetTypeInfo(expression).Type.SpecialType == SpecialType.System_Int32)
+            {
+                //If parent is a cast to int, skip this step.  This isn't necessary for correctness, but it makes cleaner code.
+                var castIsExplicit = expression.Parent is ParenthesizedExpressionSyntax && expression.Parent.Parent is CastExpressionSyntax && expression.Parent.Parent.As<CastExpressionSyntax>().Type.ToString() == "int";
+
+                if (!castIsExplicit)
+                {
+                    writer.Write("Std.int(");
+                    Go(writer, expression.Left, expression.OperatorToken, expression.Right);
+                    writer.Write(")");
+                    return;
+                }
+            }
+
+
+
             Go(writer, expression.Left, expression.OperatorToken, expression.Right);
         }
 
@@ -77,7 +95,6 @@ namespace Cs2hx
 					return;
 				}
 			}
-
 
 			if (operatorToken.Kind() == SyntaxKind.AsKeyword)
 			{

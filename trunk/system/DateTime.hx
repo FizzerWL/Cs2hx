@@ -10,6 +10,10 @@ class DateTime
 	public var Year(get, null):Int;
 	public var Month(get, null):Int;
 	public var Day(get, null):Int;
+	public var Hour(get, null):Int;
+	public var Minute(get, null):Int;
+	public var Second(get, null):Int;
+	public var Millisecond(get, nuill):Int;
 	
 	public var date:Date;
 	
@@ -104,6 +108,22 @@ class DateTime
 	public inline function get_Day():Int
 	{
 		return date.getDate();
+	}
+	public inline function get_Hour():Int
+	{
+		return date.getHours();
+	}
+	public inline function get_Minute():Int
+	{
+		return date.getMinutes();
+	}
+	public inline function get_Second():Int
+	{
+		return date.getSeconds();
+	}
+	public inline function get_Millisecond():Int
+	{
+		return Std.int(date.getTime() % 1000);
 	}
 
 	
