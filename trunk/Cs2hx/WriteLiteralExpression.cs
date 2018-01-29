@@ -18,18 +18,11 @@ namespace Cs2hx
 			if (str.StartsWith("@"))
 				str = "\"" + str.RemoveFromStartOfString("@\"").RemoveFromEndOfString("\"").Replace("\\", "\\\\").Replace("\"\"", "\\\"") + "\"";
 			
-			if (str.StartsWith("'") && str.EndsWith("'"))
+			if (expression.Token.Kind() == SyntaxKind.CharacterLiteralToken)
 			{
 				//chars just get written as integers
-
-				str = str.Substring(1, str.Length - 2);
-
-				if (str.StartsWith("\\"))
-					str = str.Substring(1);
-
-				if (str.Length != 1)
-					throw new Exception("Unexpected char string: " + str);
-				str = ((int)str[0]).ToString();
+                
+				str = ((int)(char)expression.Token.Value).ToString();
 			}
 
 			if (str.EndsWith("f") && !str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
