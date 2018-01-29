@@ -40,9 +40,22 @@ namespace Cs2hx
 				writer.Write(":\r\n");
 				writer.Indent++;
 
-				foreach (var statement in section.Statements)
-					if (!(statement is BreakStatementSyntax))
-						Core.Write(writer, statement);
+                //Remove any break statements at the end of the block.  If we have a single BlockSyntax node, eat it and repeat the process.
+                var statements = section.Statements.ToList();
+                Action clearBreaks = () =>
+                {
+                    if (statements.Last() is BreakStatementSyntax)
+                        statements.RemoveAt(statements.Count - 1);
+                };
+                clearBreaks();
+                if (statements.Count == 1 && statements[0] is BlockSyntax)
+                {
+                    statements = statements[0].As<BlockSyntax>().Statements.ToList();
+                    clearBreaks();
+                }
+
+                foreach (var statement in statements)
+					Core.Write(writer, statement);
 
 				writer.Indent--;
 			}
