@@ -5,7 +5,7 @@ import system.Cs2Hx;
 import system.CsRef.CsRef;
 import system.Exception;
 
-class Dictionary<K, V>
+class Dictionary<K, V> implements IEnumerable<KeyValuePair<K,V>>
 {
 	private var store:Map<String, V>;
 	private var keys:Array<K>;

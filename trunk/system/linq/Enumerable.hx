@@ -62,6 +62,15 @@ class Enumerable
 		return ret;
 	}
 	
+	public static function ToDictionary_IEnumerable_Func_Func<T, K, V>(a:Array<T>, getKey:T -> K, getValue:T -> V):Dictionary<K,V>
+	{
+		var ret:Dictionary<K,V> = new Dictionary();
+		
+		for (i in a)
+			ret.Add(getKey(i), getValue(i));
+		
+		return ret;
+	}
 	
 	public static function Concat<T>(a:Array<T>, b:Array<T>):Array<T>
 	{

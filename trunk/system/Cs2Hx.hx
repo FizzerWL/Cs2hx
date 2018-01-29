@@ -1,6 +1,7 @@
 package system;
 using StringTools;
 import system.collections.generic.IComparer.IComparer;
+import system.collections.generic.IEnumerable;
 import system.Exception;
 import system.text.StringBuilder;
 
@@ -444,7 +445,7 @@ class Cs2Hx
 		}
 	}
 	
-	public static inline function GetEnumeratorNullCheck(obj:Dynamic):Dynamic
+	public static inline function GetEnumeratorNullCheck<T>(obj:IEnumerable<T>):Array<T>
 	{
 		if (obj == null)
 			return null;

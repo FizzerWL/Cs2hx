@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Diagnostics;
 
 namespace Cs2hx
 {
@@ -74,10 +75,21 @@ namespace Cs2hx
 
 					foreach (var baseType in bases)
 					{
-						var baseTypeHaxe = TypeProcessor.ConvertType(baseType);
+                        
 
-						if (baseTypeHaxe.StartsWith("Array<"))
-							continue;
+                        var baseTypeHaxe = TypeProcessor.ConvertType(baseType);
+
+                        if (baseTypeHaxe.StartsWith("Array<"))
+                        {
+                            if (baseType.ToString().StartsWith("System.Collections.Generic.IEnumerable<"))
+                            {
+                                writer.Write(" implements ");
+                                writer.Write("system.collections.generic.IEnumerable<" + baseTypeHaxe.RemoveFromStartOfString("Array<"));
+                            }
+
+
+                            continue;
+                        }
 
 						writer.Write(" ");
 

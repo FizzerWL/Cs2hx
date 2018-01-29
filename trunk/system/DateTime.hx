@@ -13,7 +13,7 @@ class DateTime
 	public var Hour(get, null):Int;
 	public var Minute(get, null):Int;
 	public var Second(get, null):Int;
-	public var Millisecond(get, nuill):Int;
+	public var Millisecond(get, null):Int;
 	
 	public var date:Date;
 	

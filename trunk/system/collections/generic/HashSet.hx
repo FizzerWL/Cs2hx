@@ -1,7 +1,7 @@
 package system.collections.generic;
 import system.Cs2Hx;
 
-class HashSet<T>
+class HashSet<T> implements IEnumerable<T>
 {
 	private var store:Map<String, Int>;
 	private var keys:Array<T>;

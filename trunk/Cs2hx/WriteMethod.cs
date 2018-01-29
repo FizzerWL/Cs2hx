@@ -215,6 +215,9 @@ namespace Cs2hx
             if (member == null)
                 return;
 
+            var memberExpressionType = Program.GetModel(member).GetTypeInfo(member.Expression).Type;
+            var memberExpressionHaxeType = TypeProcessor.ConvertType(memberExpressionType);
+
             writer.WriteIndent();
             writer.Write("public function iterator():Iterator<");
             writer.Write(enumerableType);
@@ -226,6 +229,23 @@ namespace Cs2hx
             Core.Write(writer, member.Expression);
             writer.Write(".iterator();\r\n");
             writer.WriteCloseBrace();
+
+            //Also write out a GetEnumerator(), which returns the same thing but as an array
+            writer.WriteIndent();
+            writer.Write("public function GetEnumerator():Array<");
+            writer.Write(enumerableType);
+            writer.Write(">\r\n");
+            writer.WriteOpenBrace();
+
+            writer.WriteIndent();
+            writer.Write("return ");
+            Core.Write(writer, member.Expression);
+
+            if (!memberExpressionHaxeType.StartsWith("Array<"))
+                writer.Write(".GetEnumerator()");
+            writer.Write(";\r\n");
+            writer.WriteCloseBrace();
+
         }
 
         private static bool ShouldUseOverrideKeyword(BaseMethodDeclarationSyntax method, IMethodSymbol symbol)

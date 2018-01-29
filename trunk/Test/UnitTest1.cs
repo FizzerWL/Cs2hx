@@ -3699,13 +3699,17 @@ namespace Blargh
 package blargh;
 " + WriteImports.StandardImports + @"
 
-class SomeCollection
+class SomeCollection implements system.collections.generic.IEnumerable<String>
 {
     private var coll:Array<String>;
 
     public function iterator():Iterator<String>
     {
         return coll.iterator();
+    }
+    public function GetEnumerator():Array<String> 
+    { 
+        return coll; 
     }
 	public function new()
 	{
