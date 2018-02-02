@@ -424,7 +424,7 @@ class Cs2Hx
 	{
 		var i:Float = Std.parseFloat(s);
 		
-		if (i == 0 && s != "0")
+		if (Math.isNaN(i))
 			return false;
 			
 		out.Value = i;
@@ -470,4 +470,8 @@ class Cs2Hx
 		#end
 	}
 
+	public static inline function NullCheck(str:String):String
+	{
+		return str == null ? "" : str;
+	}
 }

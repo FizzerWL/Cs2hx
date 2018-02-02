@@ -2066,7 +2066,7 @@ class Utilities
 	}
     public static function OverOne_Int32_String(param:Int, prm:String):Void
     {
-        system.Console.WriteLine(param + prm);
+        system.Console.WriteLine(param + system.Cs2Hx.NullCheck(prm));
     }
 	public static function OverTwo():Int
 	{
@@ -2256,7 +2256,7 @@ class Derived extends blargh.TopLevel
 
     override public function get_VirtualProperty():String
     {
-        return super.VirtualProperty + ""Derived:VirtualProperty"";
+        return system.Cs2Hx.NullCheck(super.VirtualProperty) + ""Derived:VirtualProperty"";
     }
 
     override public function toString():String

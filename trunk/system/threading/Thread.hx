@@ -6,11 +6,10 @@ class Thread
 
 	public function new(fn:Dynamic->Void) 
 	{
-		throw new NotImplementedException();
 	}
 	
 	public var Name:String;
-	public var ManagedThreadId:Int;
+	public var ManagedThreadId:Int = 0;
 	public var IsAlive:Bool;
 	
 	public function Start():Void
@@ -27,7 +26,7 @@ class Thread
 		#end
 	}
 	
-	public static var CurrentThread:Thread;
+	public static var CurrentThread = new Thread(null);
 	
 	public function SetApartmentState(state:Int):Void
 	{
