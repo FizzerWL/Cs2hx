@@ -30,6 +30,8 @@ namespace Cs2hx
                 while (!(parent is MethodDeclarationSyntax))
                     parent = parent.Parent;
                 var containingMethod = (MethodDeclarationSyntax)parent;
+                if (_identities == null)
+                    throw new Exception("_identities is null");
                 var id = _identities.ValueOrZero(containingMethod);
                 _identities.AddTo(containingMethod, 1);
                 

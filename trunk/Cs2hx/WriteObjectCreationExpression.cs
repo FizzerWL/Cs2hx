@@ -14,8 +14,8 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, ObjectCreationExpressionSyntax expression)
 		{
-			if (expression.ArgumentList == null)
-				throw new Exception("Types must be initialized with parenthesis. Object initialization syntax is not supported. " + Utility.Descriptor(expression));
+			if (expression.ArgumentList == null || expression.Initializer != null)
+				throw new Exception("Object initialization syntax is not supported. " + Utility.Descriptor(expression));
 
 			var model = Program.GetModel(expression);
 			var type = model.GetTypeInfo(expression).Type;
