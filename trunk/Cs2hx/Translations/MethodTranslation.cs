@@ -14,6 +14,10 @@ namespace Cs2hx.Translations
     {
 		public static MethodTranslation Get(IMethodSymbol origMethodSymbol)
 		{
+            if (origMethodSymbol == null)
+                throw new Exception("origMethodSymbol is null");
+            if (origMethodSymbol.OriginalDefinition == null)
+                throw new Exception("origMethodSymbol.OrigionalDefinition is null");
 			var methodSymbol = origMethodSymbol.OriginalDefinition.As<IMethodSymbol>().UnReduce();
 
 			var sourceName = methodSymbol.ContainingNamespace.FullNameWithDot() + methodSymbol.ContainingType.Name;

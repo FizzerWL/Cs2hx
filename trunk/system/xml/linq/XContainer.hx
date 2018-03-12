@@ -22,9 +22,17 @@ class XContainer extends XNode
 		_x.set(attrName, attrValue);
 	}
 	
-	public function Add(element:XElement):Void
+	public function Add(obj:Dynamic):Void
 	{
-		_x.addChild(element._x);
+		if (Std.is(obj, XElement))
+			_x.addChild(cast(obj, XElement)._x);
+		else if (Std.is(obj, XAttribute))
+		{
+			var attr = cast(obj, XAttribute);
+			SetAttributeValue(attr.Name.LocalName, attr.Value);
+		}
+		else
+			throw new Exception("Unexpected type");
 	}
 	
 	public function Element(name:String):XElement
@@ -86,7 +94,7 @@ class XContainer extends XNode
 		return ret;
 	}
 	
-	public function toString():String
+	public function toString(options:Int = 0):String
 	{
 		return _x.toString();
 	}

@@ -669,6 +669,10 @@ class Enumerable
 		
 		return sum / count;
 	}
+	public static inline function Average_IEnumerable_FuncSingle<T>(a:Array<T>, func:T->Float):Float
+	{
+		return Average_IEnumerable_FuncDouble(a, func);
+	}
 	
 	public static function Cast<FROM,TO>(a:Array<FROM>, type:Class<TO>):Array<TO>
 	{

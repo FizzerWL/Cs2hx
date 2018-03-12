@@ -19,7 +19,10 @@ namespace Cs2hx
 
 			var model = Program.GetModel(expression);
 			var type = model.GetTypeInfo(expression).Type;
-            var methodSymbol = model.GetSymbolInfo(expression).Symbol.As<IMethodSymbol>();
+            var methodSymbolUntyped = model.GetSymbolInfo(expression).Symbol;
+            if (methodSymbolUntyped == null)
+                throw new Exception("methodSymbolUntyped is null");
+            var methodSymbol = (IMethodSymbol)methodSymbolUntyped;
 
             if (type.SpecialType == SpecialType.System_Object)
             {

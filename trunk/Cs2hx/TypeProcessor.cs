@@ -62,6 +62,8 @@ namespace Cs2hx
                 return symbol.Symbol.As<IParameterSymbol>().Type;
             else if (symbol.Symbol is IMethodSymbol)
                 return symbol.Symbol.As<IMethodSymbol>().ReturnType;
+            else if (symbol.Symbol is IPropertySymbol)
+                return symbol.Symbol.As<IPropertySymbol>().Type;
             else
                 return null;
         }

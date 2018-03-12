@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -16,10 +17,12 @@ namespace Cs2hx.Translations
 
 
 		public string Match { get; set; }
+        public bool MatchGenericArgs { get; set; } //if set to false (default), generic args will be stripped off before comparing to Match
         public string ReplaceWith { get; set; }
 		public bool SkipGenericTypes { get; set; }
+        
 
-		internal string Replace(Microsoft.CodeAnalysis.INamedTypeSymbol typeInfo)
+        internal string Replace(Microsoft.CodeAnalysis.INamedTypeSymbol typeInfo)
 		{
 			if (ReplaceWith.StartsWith("{"))
 			{
@@ -42,7 +45,7 @@ namespace Cs2hx.Translations
 		{
 			var match = TranslationManager.MatchString(typeStr);
 
-			var matches = TranslationManager.Types.Where(o => o.Match == match).ToList();
+            var matches = TranslationManager.Types.Where(o => o.Matches(typeStr, match)).ToList();
 
 			if (matches.Count > 1)
 				throw new Exception("Multiple matches for " + match);
@@ -50,5 +53,12 @@ namespace Cs2hx.Translations
 			return matches.SingleOrDefault();
 		}
 
-	}
+        private bool Matches(string typeStr, string typeStrStripped)
+        {
+            if (this.MatchGenericArgs)
+                return this.Match == typeStr;
+            else
+                return this.Match == typeStrStripped;
+        }
+    }
 }

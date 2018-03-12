@@ -6,9 +6,11 @@ class XDocument extends XContainer
 {
 	public var Root:XElement;
 	
-	public function new()
+	public function new(root:XElement = null)
 	{
 		super(null);
+		
+		this.Root = root;
 	}
 	
 	public static function Parse(str:String):XDocument

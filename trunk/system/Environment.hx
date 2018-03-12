@@ -21,7 +21,7 @@ class Environment
 		#if flash
 		return Lib.getTimer();
 		#else
-		return Std.int(Timer.stamp());
+		return Std.int(Timer.stamp() * 1000);
 		#end
 	}
 	

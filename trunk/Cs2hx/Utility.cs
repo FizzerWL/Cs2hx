@@ -36,6 +36,8 @@ namespace Cs2hx
 
         public static void AddTo<T>(this Dictionary<T, int> a, T key, int sumToAdd)
         {
+            if (a == null)
+                throw new Exception("AddTo passed null dictionary");
             if (a.ContainsKey(key))
                 a[key] += sumToAdd;
             else
@@ -123,6 +125,8 @@ namespace Cs2hx
 
 		public static IMethodSymbol UnReduce(this IMethodSymbol methodSymbol)
 		{
+            if (methodSymbol == null)
+                throw new Exception("methodSymbol is null");
 			while (methodSymbol.ReducedFrom != null)
 				methodSymbol = methodSymbol.ReducedFrom;
 
