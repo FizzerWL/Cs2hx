@@ -50,9 +50,9 @@ namespace Cs2hx.Translations
 
 		private bool TypeParametersMatch(IMethodSymbol methodSymbol)
 		{
-			foreach (var match in this.MatchTypeParameters)
-				if (methodSymbol.TypeArguments[match.TypeParameterIndex].ToString() != match.Match)
-					return false;
+            foreach (var match in this.MatchTypeParameters)
+                if (methodSymbol.TypeArguments[match.TypeParameterIndex].ToString() != match.Match)
+                    return false;
 
 			return true;
 

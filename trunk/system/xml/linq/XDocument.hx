@@ -27,10 +27,13 @@ class XDocument extends XContainer
 		return Parse(File.ReadAllText(path));
 	}
 
-	public override function Add(x:XElement):Void
+	public override function Add(x:Dynamic):Void
 	{
-		Root = x;
-		_x = x._x;
+		if (Std.is(x, XElement))
+		{
+			Root = x;
+			_x = x._x;
+		}
 	}
 	
 	public function DescendantNodes():Array<XNode>

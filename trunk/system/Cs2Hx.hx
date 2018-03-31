@@ -411,8 +411,10 @@ class Cs2Hx
 	
 	public static function TryParseInt(s:String, out:CsRef<Int>):Bool
 	{
-		var i:Int = Std.parseInt(s); //the :Int is required, otherwise Std.parseInt can return null
+		var i = Std.parseInt(s);
 		
+		if (i == null)
+			return false;
 		if (i == 0 && s != "0")
 			return false;
 		

@@ -16,15 +16,11 @@ namespace Cs2hx
         {
             //check for invocation of overloaded operator
             var symbolInfo = Program.GetModel(expression).GetSymbolInfo(expression);
-            if (symbolInfo.Symbol != null && symbolInfo.Symbol is IMethodSymbol)
+            var method = symbolInfo.Symbol as IMethodSymbol;
+            if (IsOverloadedOperator(expression, method))
             {
-                var method = (IMethodSymbol)symbolInfo.Symbol;
-                var type = Program.GetModel(expression).GetTypeInfo(expression).Type;
-                if (method.Name.StartsWith("op_") && !type.ContainingNamespace.FullNameWithDot().StartsWith("System."))
-                {
-                    WriteOverloadedOperatorInvocation(writer, expression, method, type);
-                    return;
-                }
+                WriteOverloadedOperatorInvocation(writer, expression, method);
+                return;
             }
 
 
@@ -46,6 +42,31 @@ namespace Cs2hx
 
 
             Go(writer, expression.Left, expression.OperatorToken, expression.Right);
+        }
+
+        private static bool IsOverloadedOperator(BinaryExpressionSyntax expression, IMethodSymbol method)
+        {
+            if (method == null)
+                return false;
+
+            if (!method.Name.StartsWith("op_"))
+                return false;
+
+            //Don't consider overloaded operators from the System namespace.  Things like string wind up here and we don't need them to.
+            if (method.ContainingNamespace.FullNameWithDot().StartsWith("System."))
+                return false;
+
+            if (method.ContainingType.TypeKind == TypeKind.Enum)
+                return false; //don't obey overloaded operators on enums.  We don't need them since we treat them as integers
+            if (method.ContainingType.TypeKind == TypeKind.Delegate)
+                return false;
+            
+            //Exclude anything that gets converted to a primitive type
+            var typeTranslation = Translations.TypeTranslation.Get(method.ContainingNamespace.FullNameWithDot() + method.ContainingType.Name);
+            if (typeTranslation != null && (typeTranslation.ReplaceWith == "Int" || typeTranslation.ReplaceWith == "String"))
+                return false;
+
+            return true;
         }
 
         public static void Go(HaxeWriter writer, ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
@@ -222,10 +243,10 @@ namespace Cs2hx
 		}
 
 
-        private static void WriteOverloadedOperatorInvocation(HaxeWriter writer, BinaryExpressionSyntax expression, IMethodSymbol method, ITypeSymbol type)
+        private static void WriteOverloadedOperatorInvocation(HaxeWriter writer, BinaryExpressionSyntax expression, IMethodSymbol method)
         {
-            writer.Write(type.ContainingNamespace.FullNameWithDot().ToLower());
-            writer.Write(type.Name);
+            writer.Write(method.ContainingType.ContainingNamespace.FullNameWithDot().ToLower());
+            writer.Write(method.ContainingType.Name);
             writer.Write(".");
             writer.Write(OverloadResolver.MethodName(method));
             writer.Write("(");

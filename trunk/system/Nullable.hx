@@ -4,27 +4,27 @@ import system.Exception;
 
 class Nullable<T>
 {
-	private var val:T;
+	public var ValueOpt:T;
 	
 	public function new(initial:T = null)
 	{
-		val = initial;
+		ValueOpt = initial;
 	}
 	
-	public var Value(get_Value, never):T;
-	public var HasValue(get_HasValue, never):Bool;
+	public var Value(get, never):T;
+	public var HasValue(get, never):Bool;
 	
 	public function get_Value():T
 	{
 		if (!HasValue)
 			throw new Exception("Tried to access the value of a null Nullable");
 			
-		return val;
+		return ValueOpt;
 	}
 	
 	public function get_HasValue():Bool
 	{
-		return val != null;
+		return ValueOpt != null;
 	}
 	
 	public function toString():String
@@ -32,7 +32,7 @@ class Nullable<T>
 		if (!HasValue)
 			return "";
 		else
-			return Std.string(val);
+			return Std.string(ValueOpt);
 	}
 	
 }

@@ -60,13 +60,14 @@ class Dictionary<K, V> implements IEnumerable<KeyValuePair<K,V>>
 	{
 		SetValue_TKey(key, val);
 	}
-	public function SetValue_TKey(key:K, val:V):Void
+	public function SetValue_TKey(key:K, val:V):V
 	{
 		var s:String = Cs2Hx.Hash(key);
 		
 		if (!store.exists(s))
 			keys.push(key);
 		store.set(s, val);
+		return val;
 	}
 	
 	public var Keys(get_Keys, never):Array<K>;
