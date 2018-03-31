@@ -42,11 +42,26 @@ namespace Cs2hx
             writer.Write(name);
 			writer.Write(TypeProcessor.ConvertTypeWithColon(type));
 
-			if (isConst)
-			{
-				writer.Write(" = ");
-				Core.Write(writer, initializerOpt.Value);
-			}
+            if (initializerOpt != null)
+            {
+                writer.Write(" = ");
+                Core.Write(writer, initializerOpt.Value);
+            }
+            else if (GenerateInitializerForFieldWithoutInitializer(type))
+            {
+                writer.Write(" = ");
+                if (TypeProcessor.ValueToReference(type))
+                {
+                    writer.Write("new ");
+                    writer.Write(TypeProcessor.ConvertType(type));
+                    writer.Write("()");
+                }
+                else
+                {
+                    writer.Write(TypeProcessor.DefaultValue(TypeProcessor.ConvertType(type)));
+                }
+            }
+
 
             writer.Write(";");
             writer.WriteLine();
@@ -60,5 +75,16 @@ namespace Cs2hx
 				|| (modifiers.Any(SyntaxKind.ReadOnlyKeyword) && modifiers.Any(SyntaxKind.StaticKeyword) && initializerOpt != null))
 				&& (t == "Int" || t == "String" || t == "Bool" || t == "Float");
 		}
+
+
+        private static bool GenerateInitializerForFieldWithoutInitializer(TypeSyntax parentType)
+        {
+            //Determine if we need to write an initializer for this field which does not have an initializer.  
+            if (TypeProcessor.ValueToReference(parentType))
+                return true;
+            else
+                return TypeProcessor.DefaultValue(TypeProcessor.ConvertType(parentType)) != "null";
+        }
+
     }
 }

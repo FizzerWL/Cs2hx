@@ -81,54 +81,7 @@ namespace Cs2hx
 				}
 
             }
-
-
-			foreach (var field in TypeState.Instance.AllMembers
-						.OfType<BaseFieldDeclarationSyntax>()
-						.Where(o => !o.Modifiers.Any(SyntaxKind.StaticKeyword))
-						.SelectMany(o => o.Declaration.Variables)
-						.Where(o =>
-							(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<BaseFieldDeclarationSyntax>().Modifiers, o.Initializer, o.Parent.As<VariableDeclarationSyntax>().Type))
-							||
-							(o.Initializer == null && GenerateInitializerForFieldWithoutInitializer(o.Parent.As<VariableDeclarationSyntax>().Type))
-							||
-							o.Parent.Parent is EventFieldDeclarationSyntax))
-            {
-                var parentType = field.Parent.As<VariableDeclarationSyntax>().Type;
-
-                writer.WriteIndent();
-                writer.Write("this.");
-                writer.Write(field.Identifier.ValueText);
-                writer.Write(" = ");
-
-				if (field.Parent.Parent is EventFieldDeclarationSyntax)
-				{
-					writer.Write("new CsEvent<");
-					writer.Write(TypeProcessor.ConvertType(parentType));
-					writer.Write(">()");
-				}
-				else if (field.Initializer == null)
-				{
-                    if (TypeProcessor.ValueToReference(parentType))
-                    {
-                        writer.Write("new ");
-                        writer.Write(TypeProcessor.ConvertType(parentType));
-                        writer.Write("()");
-                    }
-                    else
-                    {
-                        writer.Write(TypeProcessor.DefaultValue(TypeProcessor.ConvertType(parentType)));
-                    }
-				}
-				else
-				{
-					Core.Write(writer, field.Initializer.Value);
-				}
-
-                writer.Write(";\r\n");
-            }
-
-
+            
 
 			if (ctorOpt != null && ctorOpt.Body != null)
 			{
@@ -142,68 +95,14 @@ namespace Cs2hx
         }
 
 
-        private static bool GenerateInitializerForFieldWithoutInitializer(TypeSyntax parentType)
-        {
-            //Determine if we need to write an initializer for this field which does not have an initializer.  
-            if (TypeProcessor.ValueToReference(parentType))
-                return true;
-            else
-                return TypeProcessor.DefaultValue(TypeProcessor.ConvertType(parentType)) != "null";
-        }
-
         public static void WriteStaticConstructor(HaxeWriter writer, ConstructorDeclarationSyntax staticConstructorOpt)
         {
-			var staticFieldsNeedingInitialization = TypeState.Instance.AllMembers
-				.OfType<BaseFieldDeclarationSyntax>()
-				.Where(o => o.Modifiers.Any(SyntaxKind.StaticKeyword))
-				.SelectMany(o => o.Declaration.Variables)
-				.Where(o =>
-					(o.Initializer != null && !WriteField.IsConst(o.Parent.Parent.As<BaseFieldDeclarationSyntax>().Modifiers, o.Initializer, o.Parent.As<VariableDeclarationSyntax>().Type))
-					||
-					(o.Initializer == null && GenerateInitializerForFieldWithoutInitializer(o.Parent.As<VariableDeclarationSyntax>().Type))
-					||
-					o.Parent.Parent is EventFieldDeclarationSyntax)
-				.ToList();
-
-            if (staticConstructorOpt == null && staticFieldsNeedingInitialization.Count == 0)
+            if (staticConstructorOpt == null)
                 return; //No static constructor needed
 
             writer.WriteLine("public static function cctor():Void");
             writer.WriteOpenBrace();
-
-			foreach (var field in staticFieldsNeedingInitialization)
-            {
-                var parentType = field.Parent.As<VariableDeclarationSyntax>().Type;
-
-                writer.WriteIndent();
-                writer.Write(field.Identifier.ValueText);
-				writer.Write(" = ");
-
-				if (field.Parent.Parent is EventFieldDeclarationSyntax)
-				{
-					writer.Write("new CsEvent<");
-					writer.Write(TypeProcessor.ConvertType(parentType));
-					writer.Write(">()");
-				}
-				else if (field.Initializer == null)
-				{
-                    if (TypeProcessor.ValueToReference(parentType))
-                    {
-                        writer.Write("new ");
-                        writer.Write(TypeProcessor.ConvertType(parentType));
-                        writer.Write("()");
-                    }
-                    else
-                    {
-                        writer.Write(TypeProcessor.DefaultValue(TypeProcessor.ConvertType(parentType)));
-                    }
-				}
-				else
-				{
-					Core.Write(writer, field.Initializer.As<EqualsValueClauseSyntax>().Value);
-				}
-				writer.Write(";\r\n");
-            }
+            
 
 			if (staticConstructorOpt != null && staticConstructorOpt.Body != null)
 				foreach (var statement in staticConstructorOpt.Body.As<BlockSyntax>().Statements)
