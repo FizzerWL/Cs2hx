@@ -9,4 +9,4 @@ TestResults/
 *.ide
 trunk/packages
 .hg
-
+.vs
