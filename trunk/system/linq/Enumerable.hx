@@ -18,8 +18,8 @@ class Enumerable
 	public static function Range(start:Int, count:Int):Array<Int>
 	{
 		var ret = new Array<Int>();
-		for (i in start...count)
-			ret[i - start] = i;
+		for (i in 0...count)
+			ret[i] = i + start;
 		return ret;
 	}
 
