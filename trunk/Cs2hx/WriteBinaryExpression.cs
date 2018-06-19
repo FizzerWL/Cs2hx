@@ -170,7 +170,7 @@ namespace Cs2hx
                         var type = Program.GetModel(left).GetTypeInfo(e);
                         var otherType = Program.GetModel(left).GetTypeInfo(otherSide);
 						//Check for enums being converted to strings by string concatenation
-						if (operatorToken.Kind() == SyntaxKind.PlusToken && type.Type.TypeKind == TypeKind.Enum)
+						if (operatorToken.Kind() == SyntaxKind.PlusToken && type.Type.TypeKind == TypeKind.Enum && otherType.ConvertedType.SpecialType == SpecialType.System_String)
 						{
 							writer.Write(type.Type.ContainingNamespace.FullNameWithDot().ToLower());
 							writer.Write(WriteType.TypeName(type.Type.As<INamedTypeSymbol>()));

@@ -62,5 +62,9 @@ class HashSet<T> implements IEnumerable<T>
 	{
 		return keys.length;
 	}
-	
+
+	public function ToArray():Array<T>
+	{
+		return keys;
+	}
 }

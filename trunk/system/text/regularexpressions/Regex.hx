@@ -19,7 +19,7 @@ class Regex
 	
 	public function IsMatch(input:String):Bool
 	{
-		return throw new NotImplementedException();
+		return _reg.match(input);
 	}
 	
 	public function Match(input:String):Match
