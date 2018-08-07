@@ -64,10 +64,13 @@ namespace Cs2hx
 				Core.Write(writer, subExpression);
 				writer.Write(")");
 			}
-			else if (castingFromHaxe == "Dynamic" || destTypeHaxe == "Dynamic")
+            else if (castingFromHaxe == "Dynamic")
 			{
-				//Eat casts to and from dynamic.  haxe auto converts.
-				Core.Write(writer, expression.Expression);
+                //casts to and from dynamic will be automatic, however we have to manually specify the type.  Otherwise, we saw cases on the js target where haxe would not translate properties from "X" to "get_X()".
+                //The only way I've found to specify the type of an expression is to in-line an anonymous function.  Haxe optimizes this away so there's no runtime hit.
+                writer.Write("(function():" + destTypeHaxe + " return ");
+                Core.Write(writer, expression.Expression);
+                writer.Write(")()");
 			}
 			else if (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind() == SyntaxKind.SlashToken).None())
 			{

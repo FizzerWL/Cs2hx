@@ -924,7 +924,7 @@ class KeyValueList<K, V> implements system.IEquatable<K>
     public function Clear():Void
     {
 		system.Cs2Hx.Clear(_list);
-        var castTest:K = MemberwiseClone();
+        var castTest:K = (function():K return MemberwiseClone())();
     }
     public function RemoveAt(index:Int):Void
     {
@@ -1804,7 +1804,7 @@ class Clazz
         var f:Int = blargh.MostlyNumbered.One;
         var arr:Array<Int> = [ blargh.UnNumbered.One, blargh.UnNumbered.Two, blargh.UnNumbered.Three ];
         var i:Int = f;
-		var e:Int = blargh.MostlyNumbered.Parse(""One"");
+		var e:Int = (function():Int return blargh.MostlyNumbered.Parse(""One""))();
 		var s:String = blargh.MostlyNumbered.ToString(e);
 		s = blargh.MostlyNumbered.ToString(e) + ""asdf"";
 		s = ""asdf"" + blargh.MostlyNumbered.ToString(e);
@@ -2893,7 +2893,7 @@ class Test
     {
         var a:String = cast(system.DateTime.Now, String);
 		var o:Dynamic = 4;
-		var b:Int = o;
+		var b:Int = (function():Int return o)();
     }
     public function new()
     {
@@ -3725,6 +3725,46 @@ class Foo
 	public function new()
 	{
         var g:String = ""z"";
+	}
+
+
+}");
+        }
+
+
+
+        /// <summary>
+        /// We saw a case where accessing .Values on a casted dictionary in the js target failed to translate the code to .get_Values() property accessor.  To fix this, we cast expressions by declaring a one-use anonymous function that haxe will optimize away.
+        /// </summary>
+        [TestMethod]
+        public void InlineObjectCast()
+        {
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace Blargh
+{
+    public class Foo
+    {
+        public Foo()
+        {
+            object obj = new Dictionary<string, int>();
+            var i = ((Dictionary<string, int>)obj).Values;
+        }
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Foo
+{
+    
+	public function new()
+	{
+        var obj:Dynamic = new system.collections.generic.Dictionary<String, Int>(); 
+        var i:Array<Int> = ((function():system.collections.generic.Dictionary<String, Int> return obj)()).Values;
 	}
 
 
