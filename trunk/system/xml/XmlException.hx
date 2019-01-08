@@ -4,9 +4,9 @@ import system.Exception;
 class XmlException extends Exception
 {
 
-	public function new() 
+	public function new(msg:String = "XML Parse error") 
 	{
-		super();
+		super(msg);
 	}
 	
 }

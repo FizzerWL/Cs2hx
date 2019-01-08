@@ -1,6 +1,7 @@
 package system.xml.linq;
 import system.io.File;
 import system.NotImplementedException;
+import system.xml.XmlException;
 
 class XDocument extends XContainer
 {
@@ -16,7 +17,14 @@ class XDocument extends XContainer
 	public static function Parse(str:String):XDocument
 	{
 		var d = new XDocument();
-		d._x = Xml.parse(str);
+		try
+		{
+			d._x = Xml.parse(str);
+		}
+		catch (d:Dynamic)
+		{
+			throw new XmlException(Std.string(d));
+		}
 		d.Root = new XElement();
 		d.Root._x = d._x.firstElement();
 		return d;
@@ -39,5 +47,16 @@ class XDocument extends XContainer
 	public function DescendantNodes():Array<XNode>
 	{
 		return throw new NotImplementedException();
+	}
+	
+	override public function toString(options:Int = 0):String 
+	{
+		var ret = this.Root.toString();
+		
+		//TEMPORARY:  Verify it's valid xml, and throw if not.  Second param is "strict"
+		//haxe.xml.Parser.parse(ret, true);
+		
+		return ret;
+		
 	}
 }

@@ -28,6 +28,9 @@ namespace Cs2hx
 			if (str.EndsWith("f") && !str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				str = str.Substring(0, str.Length - 1);
 
+            if (str.EndsWith("L"))
+                str = str.Substring(0, str.Length - 1);
+
 
 			writer.Write(str);
 		}

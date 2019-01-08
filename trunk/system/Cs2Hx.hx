@@ -7,6 +7,15 @@ import system.text.StringBuilder;
 
 class Cs2Hx
 {
+	public static function ParseOrZero(str:String):Int
+	{
+		#if flash
+		return Std.parseInt(str);
+		#else
+		var r = Std.parseInt(str);
+		return r == null ? 0 : r;
+		#end
+	}
 	public static inline function GuidParse(s:String):String
 	{
 		return s;
