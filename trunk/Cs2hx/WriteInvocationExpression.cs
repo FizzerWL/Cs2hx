@@ -240,7 +240,11 @@ namespace Cs2hx
             //If we invoke a method with type parameters that aren't used in the argument list, the haxe function won't have a way to see what args were used. To give it a way, add those as parameters at the end
             foreach (var typePrm in Utility.PassTypeArgsToMethod(methodSymbol))
             {
-                var name = invocationExpression.Expression.DescendantNodesAndSelf().OfType<GenericNameSyntax>().ToList();
+                var name = invocationExpression.Expression.ChildNodes().OfType<GenericNameSyntax>().ToList();
+                if (name.Count == 0)
+                    name = invocationExpression.Expression.DescendantNodesAndSelf().OfType<GenericNameSyntax>().ToList(); //TODO: This will pick up false positives, we need a proper recursion function here
+                if (name.Count != 1)
+                    throw new Exception("Expected a single generic name, got " + string.Join(", ", name) + "  " + Utility.Descriptor(invocationExpression));
                 if (name.Count > 0 && name.Single().TypeArgumentList.Arguments.Count > 0)
                 {
                     var typePrmIndex = methodSymbol.TypeParameters.IndexOf(methodSymbol.TypeParameters.Single(o => o == typePrm));
