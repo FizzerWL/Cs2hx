@@ -255,9 +255,22 @@ class Cs2Hx
 		return !Math.isFinite(f);
 	}
 	
-	public static inline function Hash(o:Dynamic):String
+	private static var _identity:Int = 0;
+	public static function Hash(o:Dynamic):String
 	{
-		return Std.string(o);
+		if (o == null)
+			return "";
+		if (Std.is(o, String))
+			return o;
+		if (Std.is(o, Int))
+			return Std.string(o);
+		
+		//For now, every object gets a unique ID.  TODO: Wire up the GetHashCode function and use it here.
+		if (o.__csid__)
+			return o.__csid__;
+		var newID = Std.string(++_identity);
+		o.__csid__ = newID;
+		return newID;
 	}
 	public static inline function MathMin(f:Int, s:Int):Int
 	{

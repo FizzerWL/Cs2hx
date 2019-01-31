@@ -1,5 +1,6 @@
 package system.linq;
 
+import haxe.ds.ObjectMap;
 import system.collections.generic.Dictionary;
 import system.Exception;
 import system.DateTime;
@@ -84,9 +85,9 @@ class Enumerable
 	
 	public static function Union<T>(a:Array<T>, union:Array<T>):Array<T>
 	{
-		var keys:Map<String, Int> = new Map<String, Int>();
+		var keys = new Map<String, Int>();
 		var ret = new Array<T>();
-			
+
 		for (val in a)
 		{
 			ret.push(val);
@@ -103,7 +104,7 @@ class Enumerable
 	public static function Except<T>(a:Array<T>, except:Array<T>):Array<T>
 	{
 		//Convert except to keys
-		var keys:Map<String, Int> = new Map<String, Int>();
+		var keys = new Map<String, Int>();
 		for (e in except)
 			keys.set(Cs2Hx.Hash(e), 1);
 			
@@ -208,7 +209,7 @@ class Enumerable
 	
 	public static function Intersect<T>(a:Array<T>, b:Array<T>):Array<T>
 	{
-		var dict:Map<String, Int> = new Map<String, Int>();
+		var dict = new Map<String, Int>();
 		for (i in a)
 			dict.set(Cs2Hx.Hash(i), 1);
 			
@@ -394,7 +395,7 @@ class Enumerable
 	public static function Distinct<T>(a:Array<T>):Array<T>
 	{
 		var ret = new Array<T>();
-		var hash:Map<String, Int> = new Map<String, Int>();
+		var hash = new Map<String, Int>();
 		
 		for (i in a)
 		{
