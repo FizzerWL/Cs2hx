@@ -265,12 +265,16 @@ class Cs2Hx
 		if (Std.is(o, Int))
 			return Std.string(o);
 		
+		#if flash
+		return Std.string(o);
+		#else
 		//For now, every object gets a unique ID.  TODO: Wire up the GetHashCode function and use it here.
 		if (o.__csid__)
 			return o.__csid__;
 		var newID = Std.string(++_identity);
 		o.__csid__ = newID;
 		return newID;
+		#end
 	}
 	public static inline function MathMin(f:Int, s:Int):Int
 	{

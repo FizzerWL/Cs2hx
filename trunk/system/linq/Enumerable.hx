@@ -600,12 +600,37 @@ class Enumerable
 	}
 	
 	
-	public static function OrderByDescending<T>(a:Array<T>, selector:T -> Float):Array<T>
+	
+	public static function OrderByDescending_String<T>(a:Array<T>, selector:T -> String):Array<T>
+	{
+		var list:Array<T> = ToArray(a);
+		list.sort(function(a:T, b:T):Int 
+		{ 
+			var f = selector(a);
+			var s = selector(b);
+            if (f == s)
+                return 0;
+            else if (f < s)
+                return 1;
+            else
+                return -1;
+		} );
+		return list;
+	}
+	
+	public static function OrderByDescending_Float<T>(a:Array<T>, selector:T -> Float):Array<T>
 	{
 		var ret:Array<T> = OrderBy_Float(a, selector);
 		ret.reverse();
 		return ret;
 	}
+	public static function OrderByDescending_Int<T>(a:Array<T>, selector:T -> Int):Array<T>
+	{
+		var list:Array<T> = ToArray(a);
+		list.sort(function(f:T, s:T):Int { return selector(s) - selector(f); } );
+		return list;
+	}
+
 	public static function Sum(a:Array<Int>):Int
 	{
 		var ret:Int = 0;
