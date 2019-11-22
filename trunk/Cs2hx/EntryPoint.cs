@@ -22,7 +22,7 @@ namespace Cs2hx
             try
             {
 
-				Console.WriteLine("C# to haXe Converter\nSee http://www.codeplex.com/cs2hx for full info and documentation.\n\n");
+				Console.WriteLine("C# to haXe Converter\nSee https://github.com/FizzerWL/cs2hx for full info and documentation.\n\n");
 
 				if (args.Length == 0 || args.Any(o => o == "-?" || o == "--help" || o == "/?"))
 				{

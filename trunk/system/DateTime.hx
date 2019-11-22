@@ -1,4 +1,5 @@
 package system;
+import system.globalization.CultureInfo;
 
 class DateTime
 {
@@ -70,7 +71,7 @@ class DateTime
 	
 	public inline function ToShortDateString():String
 	{
-		return date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDay();
+		return (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
 	}
 	
 	static function FormatDatePiece(n:Float):String
@@ -88,7 +89,12 @@ class DateTime
 		ret.date = Date.fromString(str);
 		return ret;
 	}
-	
+	public static inline function Parse_String_IFormatProvider(str:String, culture:CultureInfo):DateTime
+	{
+		//TODO: Obey the culture
+		return Parse(str);
+	}
+
 	//TODO: Ticks doesn't give the same value as .net does
 	public inline function get_Ticks():Float
 	{

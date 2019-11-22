@@ -377,11 +377,31 @@ class Cs2Hx
 	
 	public static function TrimEnd(str:String, chars:Array<Int> = null):String
 	{
+		if (chars == null)
+			return str.rtrim();
+		
 		return throw new NotImplementedException();
+			
 	}
 	public static function TrimStart(str:String, chars:Array<Int> = null):String
 	{
-		return throw new NotImplementedException();
+		if (chars == null)
+			return str.ltrim();
+		var i = 0;
+		while (i < str.length)
+		{
+			var c = str.charCodeAt(i);
+			for (ch in chars)
+				if (c == ch)
+				{
+					i++;
+					continue;
+				}
+			
+			break;
+		}
+		
+		return str.substr(i);
 	}
 	
 	

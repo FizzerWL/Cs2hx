@@ -67,4 +67,20 @@ class HashSet<T> implements IEnumerable<T>
 	{
 		return keys;
 	}
+	
+	public function RemoveWhere(pred:T->Bool)
+	{
+		var i = 0;
+		while (i < keys.length)
+		{
+			var k = keys[i];
+			if (pred(k))
+			{
+				keys.splice(i, 1);
+				store.remove(Cs2Hx.Hash(k));
+			}
+			else
+				i++;
+		}
+	}
 }

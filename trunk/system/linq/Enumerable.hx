@@ -458,6 +458,23 @@ class Enumerable
 				ret = i;
 		return ret;
 	}
+	public static function Max_IEnumerableInt32(a:Array<Int>):Int
+	{
+		var ret:Int = First(a);
+		for (i in a)
+			if (i > ret)
+				ret = i;
+		return ret;
+	}
+	public static function Min_IEnumerableInt32(a:Array<Int>):Int
+	{
+		var ret:Int = First(a);
+		for (i in a)
+			if (i < ret)
+				ret = i;
+		return ret;
+	}
+
 	public static function Min_Float(a:Array<Float>):Float
 	{
 		var ret = First(a);

@@ -10,12 +10,8 @@ class StringBuilder
 	public function new(initial:Dynamic = null)
 	{
 		if (initial == null)
-		{
 			buffer = "";
-			return;
-		}
-
-		if (Std.is(initial, String))
+		else if (Std.is(initial, String))
 			buffer = initial;
 		else
 			buffer = "";
@@ -50,7 +46,8 @@ class StringBuilder
 	
 	public inline function Append(append:String):StringBuilder
 	{
-		buffer += append;
+		if (append != null)
+			buffer += append;
 		return this;
 	}
 	
