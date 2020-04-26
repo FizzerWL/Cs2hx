@@ -96,6 +96,10 @@ class MathCS
 	{
 		return Math.fceil(a);
 	}
+	public static inline function Floor_Double(a:Float):Float
+	{
+		return Math.ffloor(a);
+	}
 
 	public static inline var PI:Float = 3.1415926535897932384626433832795;
 	

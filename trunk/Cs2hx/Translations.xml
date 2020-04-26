@@ -70,7 +70,7 @@
   <Method SourceObject="System.Collections.Generic.List" Match="RemoveAt" ReplaceWith="splice">
     <Argument Location="1" Action="Insert 1" />
   </Method>
-  <Method SourceObject="System.Collections.Generic.List" Match=".ctor">
+  <Method SourceObject="System.Collections.Generic.List" Match=".ctor" ArgumentTypes="int">
     <Argument Location="0" Action="DeleteIfPresent" />
   </Method>
 
