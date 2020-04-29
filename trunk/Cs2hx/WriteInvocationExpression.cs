@@ -24,7 +24,7 @@ namespace Cs2hx
 
 			var translateOpt = MethodTranslation.Get(symbolInfo.Symbol.As<IMethodSymbol>());
 			var memberReferenceExpressionOpt = invocationExpression.Expression as MemberAccessExpressionSyntax;
-			var returnTypeHaxe = TypeProcessor.ConvertType(methodSymbol.ReturnType);
+			//var returnTypeHaxe = TypeProcessor.ConvertType(methodSymbol.ReturnType);
 			var firstParameter = true;
 			
 			var extensionNamespace = methodSymbol.IsExtensionMethod ? methodSymbol.ContainingNamespace.FullNameWithDot().ToLower() + methodSymbol.ContainingType.Name : null; //null means it's not an extension method, non-null means it is

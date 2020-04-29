@@ -163,8 +163,24 @@ namespace Cs2hx
 
             var trans = TypeTranslation.Get(typeStr);
 
-			if (named != null && named.IsGenericType && !named.IsUnboundGenericType && TypeArguments(named).Any() && (trans == null || trans.SkipGenericTypes == false))
-				return ConvertType(named.ConstructUnboundGenericType()) + "<" + string.Join(", ", TypeArguments(named).Select(o => ConvertType(o) ?? "Dynamic")) + ">";
+            if (named != null && named.IsGenericType && !named.IsUnboundGenericType && TypeArguments(named).Any() && (trans == null || trans.SkipGenericTypes == false))
+            {
+                //Generic type
+                var genericTypeRoot = ConvertType(named.ConstructUnboundGenericType());
+                var genericTypeArgs = TypeArguments(named).ToList();
+                var genericTypeArgsConverted = genericTypeArgs.Select(o => ConvertType(o) ?? "Dynamic").ToList();
+
+                if (genericTypeRoot == "system.collections.generic.Dictionary" || genericTypeRoot == "system.collections.generic.HashSet")
+                {
+                    //Cs2hx does not support the GetHashCode() or Equals() functions, and therefore will only work correctly with basic types as the keys of dictionaries and hash sets.  We should throw on any improper usage since it may not run the same as the original C#
+                    var hashArg = genericTypeArgsConverted[0];
+
+                    if (genericTypeArgs[0].TypeKind != TypeKind.TypeParameter && hashArg != "Int" && hashArg != "String" && hashArg != "Dynamic") //TODO: Is Dynamic really ok in this list?  This will happen on a Dictionary<object, ...>, which could be a problem unless it was used carefully.
+                        throw new Exception("Improper hash type: " + hashArg + " used on " + genericTypeRoot); //TODO: How can we provide code location?
+                }
+
+                return genericTypeRoot + "<" + string.Join(", ", genericTypeArgsConverted) + ">";
+            }
             
             switch (typeStr)
 			{

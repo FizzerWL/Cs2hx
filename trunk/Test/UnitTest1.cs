@@ -1514,6 +1514,13 @@ namespace Blargh
 			var z = hash.Select(o => 3).ToArray();
 			var g = hash.GroupBy(o => o).Select(o => o.Count()).Min();
         }
+        public static void AddOrRemove<T>(this HashSet<T> hs, T item, bool add)
+        {
+            if (add)
+                hs.Add(item);
+            else
+                hs.Remove(item);
+        }
     }
 }", @"
 package blargh;
@@ -1555,6 +1562,17 @@ class Utilities
 		var z:Array<Int> = system.linq.Enumerable.ToArray(system.linq.Enumerable.Select(Cs2Hx.GetEnumeratorNullCheck(hash), function (o:Int):Int { return 3; } ));
 		var g:Int = system.linq.Enumerable.Min(system.linq.Enumerable.Select(system.linq.Enumerable.GroupBy(Cs2Hx.GetEnumeratorNullCheck(hash), function (o:Int):Int { return o; } ), function (o:system.linq.IGrouping<Int, Int>):Int { return system.linq.Enumerable.Count(Cs2Hx.GetEnumeratorNullCheck(o)); } ));
 
+    }
+    public static function AddOrRemove<T>(hs:system.collections.generic.HashSet<T>, item:T, add:Bool):Void
+    {
+        if (add)
+        {
+            hs.Add(item);
+        }
+        else
+        {
+            hs.Remove(item);
+        }
     }
     public function new()
     {
