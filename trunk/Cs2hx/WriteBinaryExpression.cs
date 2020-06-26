@@ -52,7 +52,12 @@ namespace Cs2hx
             if (!method.Name.StartsWith("op_"))
                 return false;
 
-            //Don't consider overloaded operators from the System namespace.  Things like string wind up here and we don't need them to.
+            if (method.ContainingType.SpecialType == SpecialType.System_DateTime)
+                return true;
+            if (method.ContainingType.Name == "TimeSpan" && method.ContainingNamespace.FullName() == "System")
+                return true;
+
+            //Don't consider overloaded operators from the System namespace, except for exceptions listed above.  Things like string wind up here and we don't need them to.  Eventually we'll likely want to inverse this and just disable string and other specific types we don't want.
             if (method.ContainingNamespace.FullNameWithDot().StartsWith("System."))
                 return false;
 
@@ -63,7 +68,7 @@ namespace Cs2hx
             
             //Exclude anything that gets converted to a primitive type
             var typeTranslation = Translations.TypeTranslation.Get(method.ContainingNamespace.FullNameWithDot() + method.ContainingType.Name);
-            if (typeTranslation != null && (typeTranslation.ReplaceWith == "Int" || typeTranslation.ReplaceWith == "String"))
+            if (typeTranslation != null && (typeTranslation.ReplaceWith == "Int" || typeTranslation.ReplaceWith == "String" || typeTranslation.ReplaceWith == "Float" || typeTranslation.ReplaceWith == "Bool"))
                 return false;
 
             return true;

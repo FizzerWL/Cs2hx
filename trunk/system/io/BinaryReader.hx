@@ -61,7 +61,14 @@ class BinaryReader
 	
 	public function ReadInt64():Float
 	{
-		return Std.parseFloat(ReadString());
+		//getBigInt64 isn't supported on enough browsers yet as of 2020, so we implement this manually
+		var low = ReadUInt32();
+		var high = ReadUInt32();
+		
+		var lowUnsigned = low >= 0 ? low : 4294967296 + low;
+		
+		return high * 4294967296 + lowUnsigned;
+		
 	}
 	public function ReadInt32():Int
 	{

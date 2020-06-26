@@ -6,7 +6,7 @@ class TimeSpan
 
 	public var Milliseconds(get,null):Int;
 	public var Minutes(get,null):Int;
-	public var Ticks(get,null):Float;
+	//public var Ticks(get,null):Float;
 	public var TotalMilliseconds(get,null):Float;
 	public var Days(get,null):Int;
 	public var Hours(get,null):Int;
@@ -28,7 +28,7 @@ class TimeSpan
 	
 	public function toString():String
 	{
-		return Std.string(this.Ticks);
+		return Std.string(this.TotalMilliseconds);
 	}
 	
 	public function new(milliseconds:Float = 0)
@@ -41,25 +41,27 @@ class TimeSpan
 		return new TimeSpan(0);
 	}
 	
+	/*
 	public static inline function FromTicks(ticks:Float):TimeSpan
 	{
 		return new TimeSpan(ticks);
-	}
+	}*/
 	
 	public function CompareTo_TimeSpan(span:TimeSpan):Int
 	{
-		return Std.int(this.Ticks - span.Ticks);
+		return Std.int(this.TotalMilliseconds - span.TotalMilliseconds);
 	}
 
 	public inline function Subtract(other:TimeSpan):TimeSpan
 	{
-		return TimeSpan.FromTicks(this.Ticks - other.Ticks);
+		return TimeSpan.FromMilliseconds(this.TotalMilliseconds - other.TotalMilliseconds);
 	}
-	
+
+	/*  Ticks isn't the same as .net's Ticks, which we can't easily support without a bigint type.
 	public inline function get_Ticks() : Float
 	{
 		return _totalMilliseconds;
-	}
+	}*/
 	
 	public inline function get_Days() : Int
 	{
@@ -141,5 +143,30 @@ class TimeSpan
 	public static inline var MILLISECONDS_IN_HOUR : Float = 3600000;
 	public static inline var MILLISECONDS_IN_MINUTE : Float = 60000;
 	public static inline var MILLISECONDS_IN_SECOND : Float = 1000;
+	
+	public static inline function op_Equality(t1:TimeSpan, t2:TimeSpan):Bool
+	{
+		return t1.TotalMilliseconds == t2.TotalMilliseconds;
+	}
+	public static inline function op_Inequality(t1:TimeSpan, t2:TimeSpan):Bool
+	{
+		return t1.TotalMilliseconds != t2.TotalMilliseconds;
+	}
+	public static inline function op_GreaterThan(t1:TimeSpan, t2:TimeSpan):Bool
+	{
+		return t1.TotalMilliseconds > t2.TotalMilliseconds;
+	}
+	public static inline function op_LessThan(t1:TimeSpan, t2:TimeSpan):Bool
+	{
+		return t1.TotalMilliseconds < t2.TotalMilliseconds;
+	}
+	public static inline function op_GreaterThanOrEqual(t1:TimeSpan, t2:TimeSpan):Bool
+	{
+		return t1.TotalMilliseconds >= t2.TotalMilliseconds;
+	}
+	public static inline function op_LessThanOrEqual(t1:TimeSpan, t2:TimeSpan):Bool
+	{
+		return t1.TotalMilliseconds <= t2.TotalMilliseconds;
+	}
 }
 

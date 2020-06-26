@@ -24,6 +24,9 @@ namespace Cs2hx
                 throw new Exception("methodSymbolUntyped is null");
             var methodSymbol = (IMethodSymbol)methodSymbolUntyped;
 
+            if (type.SpecialType == SpecialType.System_DateTime && expression.ArgumentList.Arguments.Count == 1)
+                throw new Exception("You cannot use the DateTime constructor with one argument (ticks).  .net Ticks and Haxe Ticks have different meanings, so this would result in problems. " + Utility.Descriptor(expression));
+
             if (type.SpecialType == SpecialType.System_Object)
             {
                 //new object() results in the CsObject type being made.  This is only really useful for locking

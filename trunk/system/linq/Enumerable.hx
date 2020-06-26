@@ -466,6 +466,14 @@ class Enumerable
 				ret = i;
 		return ret;
 	}
+	public static function Max_IEnumerableDouble(a:Array<Float>):Float
+	{
+		var ret:Float = First(a);
+		for (i in a)
+			if (i > ret)
+				ret = i;
+		return ret;
+	}
 	public static function Min_IEnumerableInt32(a:Array<Int>):Int
 	{
 		var ret:Int = First(a);
@@ -575,7 +583,7 @@ class Enumerable
 		for (e in a)
 		{
 			var m = func(e);
-			if (m.Ticks > max.Ticks)
+			if (DateTime.op_GreaterThan(m, max))
 				max = m;
 		}
 		return max;

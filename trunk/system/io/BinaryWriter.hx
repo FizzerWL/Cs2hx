@@ -9,6 +9,7 @@ import system.text.UTF8Encoding;
 #end
 
 import haxe.io.Bytes;
+import haxe.io.BytesBuffer;
 import haxe.io.BytesOutput;
 
 class BinaryWriter
@@ -65,12 +66,54 @@ class BinaryWriter
 		for (i in 0...2)
 			writer.writeByte(data >> (8 * i));
 	}
-	public function Write_UInt32(data:Int):Void //Should be uint...
+	public function Write_Int64(f:Float):Void
+	{
+		//setBigInt64 isn't supported on enough browsers yet as of 2020, so we implement this manually
+		//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView/setBigInt64
+		if (f >= 0)
+		{
+			var high = f % 4294967296;
+			var low = f / 4294967296;
+			Write_UInt32(Std.int(high));
+			Write_UInt32(Std.int(low));
+		}
+		else
+		{
+			var highRaw = (-f) % 4294967296;
+			var lowRaw = (-f) / 4294967296;
+			var high = ~Std.int(highRaw);
+			var low = ~Std.int(lowRaw);
+			
+			//Add one
+			var c00 = (high & 0xFFFF) + 1;
+            var c16 = c00 >> 16;
+            c00 &= 0xFFFF;
+            c16 += high >> 16;
+            var c32 = c16 >> 16;
+            c16 &= 0xFFFF;
+            c32 += low & 0xFFFF;
+            var c48 = c32 >> 16;
+            c32 &= 0xFFFF;
+            c48 += low >> 16;
+            c48 &= 0xFFFF;
+            high = (c16 << 16) | c00;
+            low = (c48 << 16) | c32;
+			
+			
+			Write_UInt32(Std.int(high));
+			Write_UInt32(Std.int(low));
+		}
+
+	}
+	public function Write_UInt32(data:Int):Void
 	{
 		#if flash
 		writer.writeUnsignedInt(data);
 		#else
-		throw new NotImplementedException();
+		writer.writeByte(data & 0xFF);
+		writer.writeByte((data >> 8) & 0xFF);
+		writer.writeByte((data >> 16) & 0xFF);
+		writer.writeByte((data >> 24) & 0xFF);
 		#end
 	}
 	public function Write_String(data:String):Void

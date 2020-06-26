@@ -175,7 +175,7 @@ namespace Cs2hx
                     //Cs2hx does not support the GetHashCode() or Equals() functions, and therefore will only work correctly with basic types as the keys of dictionaries and hash sets.  We should throw on any improper usage since it may not run the same as the original C#
                     var hashArg = genericTypeArgsConverted[0];
 
-                    if (genericTypeArgs[0].TypeKind != TypeKind.TypeParameter && hashArg != "Int" && hashArg != "String" && hashArg != "Dynamic") //TODO: Is Dynamic really ok in this list?  This will happen on a Dictionary<object, ...>, which could be a problem unless it was used carefully.
+                    if (genericTypeArgs[0].TypeKind != TypeKind.TypeParameter && hashArg != "Int" && hashArg != "String" && hashArg != "Float" && hashArg != "Dynamic") //TODO: Is Dynamic really ok in this list?  This will happen on a Dictionary<object, ...>, which could be a problem unless it was used carefully.
                         throw new Exception("Improper hash type: " + hashArg + " used on " + genericTypeRoot); //TODO: How can we provide code location?
                 }
 

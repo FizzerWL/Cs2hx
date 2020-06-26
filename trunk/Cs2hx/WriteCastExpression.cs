@@ -35,10 +35,11 @@ namespace Cs2hx
 			if (subExpression is ParenthesizedExpressionSyntax)
 				subExpression = subExpression.As<ParenthesizedExpressionSyntax>().Expression;
 
-			if (symbol.Symbol != null && castingFromHaxe != "Int" && castingFromHaxe != "String" && castingFromHaxe != "Bool")
+
+            if (symbol.Symbol != null && castingFromHaxe != "Int" && castingFromHaxe != "String" && castingFromHaxe != "Bool" && castingFromHaxe != "Float")
 			{
-				//when the symbol is non-null, this indicates we're calling a cast operator function
-				WriteCastOperator(writer, expression, (IMethodSymbol)symbol.Symbol, destTypeHaxe);
+                //when the symbol is non-null, this indicates we're calling a cast operator function
+                WriteCastOperator(writer, expression, (IMethodSymbol)symbol.Symbol, destTypeHaxe);
 			}
 			else if (destTypeHaxe.StartsWith("Nullable"))
 			{

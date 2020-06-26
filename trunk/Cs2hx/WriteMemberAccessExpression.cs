@@ -26,9 +26,9 @@ namespace Cs2hx
 				if (memberName == "Empty" && typeStr == "System.String")
 					writer.Write("\"\"");
 				else if (memberName == "MaxValue" && typeStr == "System.Double")
-					writer.Write("3.4028235e+38");
+					writer.Write("3.4028235e+54");
 				else if (memberName == "MinValue" && typeStr == "System.Double")
-					writer.Write("1.4e-45");
+					writer.Write("-3.4028235e+54");
 				else if (memberName == "MaxValue" && typeStr == "System.Int64")
 					writer.Write("999900000000000000");
 				else if (memberName == "NaN")
