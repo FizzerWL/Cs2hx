@@ -6,7 +6,10 @@ class HttpUtility
 {
 	public static inline function HtmlEncode(s:String):String
 	{
-		return StringTools.htmlEscape(s);
+		if (s == null)
+			return "";
+		else
+			return StringTools.htmlEscape(s);
 	}
 	
 	public static inline function HtmlDecode(s:String):String

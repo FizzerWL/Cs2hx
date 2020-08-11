@@ -1,4 +1,5 @@
 package system;
+import haxe.crypto.Base64;
 import haxe.io.Bytes;
 
 class Convert
@@ -25,8 +26,15 @@ class Convert
 	
 	public static function ToBase64String(bytes:Bytes):String
 	{
-		return throw new NotImplementedException("ToBase64String");
+		return Base64.encode(bytes);
 	}
+	
+	public static function FromBase64String(str:String):Bytes
+	{
+		return Base64.decode(str);
+	}
+	
+	
 
 	public static function toString(i:Int, base:Int):String
 	{
