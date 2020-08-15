@@ -39,7 +39,7 @@ namespace Cs2hx
 
 			var defaultOverloadOpt = PickDefault(overloadedGroup);
 			
-			if (method == defaultOverloadOpt || method.ConstructedFrom == defaultOverloadOpt)
+			if (SymbolEqualityComparer.Default.Equals(method, defaultOverloadOpt) || SymbolEqualityComparer.Default.Equals(method.ConstructedFrom, defaultOverloadOpt))
 				return method.Name; //return the name unchanged
 
 			return ExpandedMethodName(method);

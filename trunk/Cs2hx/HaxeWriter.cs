@@ -50,19 +50,30 @@ namespace Cs2hx
 
         public void Dispose()
         {
+            WriteFinal();
+
+            if (Writer != null)
+                Writer.Dispose();
+        }
+
+        private void WriteFinal()
+        {
             if (_path == null)
                 return;
+
+            var final = _builder.ToString();
+            if (File.Exists(_path) && File.ReadAllText(_path) == final)
+                return; //don't write if it's already up to date.  This just prevents unnecessary reloads by IDEs, it wouldn't cause problems if we didn't check.
 
             //Remove read only so we can write it
             if (File.Exists(_path))
                 File.SetAttributes(_path, FileAttributes.Normal);
 
-            File.WriteAllText(_path, _builder.ToString());
+            File.WriteAllText(_path, final);
 
             //Set read-only on generated files
             File.SetAttributes(_path, FileAttributes.ReadOnly);
 
-            Writer.Dispose();
         }
 
         public void WriteOpenBrace()

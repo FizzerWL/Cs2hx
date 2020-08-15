@@ -94,12 +94,19 @@ Options available:
 				if (pathToSolution == null)
 					throw new Exception("/sln parameter not passed");
 
-                FixMsbuild();
+                //FixMsbuild();
 
                 var workspace = MSBuildWorkspace.Create();
+                workspace.WorkspaceFailed += (_, e) =>
+                {
+                    //Console.WriteLine("WorkspaceFailed: " + e.Diagnostic.ToString());
+                };
                 var solution = workspace.OpenSolutionAsync(pathToSolution).Result;
 
 				var projectsList = solution.Projects.ToList();
+
+                if (projectsList.Count == 0)
+                    throw new Exception("Solution has no projects");
 
 				if (projects != null)
 					TrimList(projectsList, projects);
@@ -135,7 +142,7 @@ Options available:
         /// </summary>
         private static void FixMsbuild()
         {
-            // Locates all of the instances of Visual Studio 2017 on the machine with MSBuild.
+            // Locates all of the instances of Visual Studio on the machine with MSBuild.
             var instances = MSBuildLocator.QueryVisualStudioInstances().ToArray();
             if (!instances.Any())
                 throw new Exception("No Visual Studio instances found.");

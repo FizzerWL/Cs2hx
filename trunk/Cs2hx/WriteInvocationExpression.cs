@@ -247,7 +247,7 @@ namespace Cs2hx
                     throw new Exception("Expected a single generic name, got " + string.Join(", ", name) + "  " + Utility.Descriptor(invocationExpression));
                 if (name.Count > 0 && name.Single().TypeArgumentList.Arguments.Count > 0)
                 {
-                    var typePrmIndex = methodSymbol.TypeParameters.IndexOf(methodSymbol.TypeParameters.Single(o => o == typePrm));
+                    var typePrmIndex = methodSymbol.TypeParameters.IndexOf(methodSymbol.TypeParameters.Single(o => SymbolEqualityComparer.Default.Equals(o, typePrm)));
                     var genericVar = name.Single().TypeArgumentList.Arguments.ElementAt(typePrmIndex);
                     if (genericVar.ToString() == typePrm.ToString())
                         writer.Write("t" + (typePrmIndex + 1));
