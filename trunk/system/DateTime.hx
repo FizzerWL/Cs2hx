@@ -1,5 +1,6 @@
 package system;
 import system.globalization.CultureInfo;
+using StringTools;
 
 class DateTime
 {
@@ -66,7 +67,19 @@ class DateTime
 			return date.getFullYear() + "/" + FormatDatePiece(date.getMonth() + 1) + "/" + FormatDatePiece(date.getDate()) + 
 				" " + date.getHours() + ":" + FormatDatePiece(date.getMinutes()) + ":" + FormatDatePiece(date.getSeconds());
 		else
-			throw new NotImplementedException();
+		{
+			//Convert the most common codes from C# format to strftime format.  This doesn't try to do all of them, just enough that the most common format strings will work.
+			var fmt = format
+				.replace("yyyy", "%Y")
+				.replace("MM", "%m")
+				.replace("dd", "%d")
+				.replace("HH", "%H")
+				.replace("mm", "%M")
+				.replace("ss", "%S")
+				.replace("fff", ""); //%L throws "not implemented yet" on js target. Just leave it off for now.
+			return DateTools.format(date, fmt);
+			
+		}
 	}
 	
 	public inline function ToShortDateString():String
