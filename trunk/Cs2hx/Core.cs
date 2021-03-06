@@ -25,7 +25,6 @@ namespace Cs2hx
 				var typeInfo = Program.GetModel(node).GetTypeInfo((ExpressionSyntax)node);
 
 				if (typeInfo.ConvertedType != null && typeInfo.ConvertedType.Name == "Nullable" && 
-					
 					(typeInfo.Type == null || (TypeProcessor.ConvertType(typeInfo.Type) != TypeProcessor.ConvertType(typeInfo.ConvertedType))))
 				{
 					//When assigning into a nullable, we must construct the nullable type.

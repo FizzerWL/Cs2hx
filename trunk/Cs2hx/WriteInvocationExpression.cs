@@ -20,26 +20,30 @@ namespace Cs2hx
 			var expressionSymbol = model.GetSymbolInfo(invocationExpression.Expression);
             if (symbolInfo.Symbol == null)
                 throw new Exception("InvocationExpression could not be identified.  Are you sure the C# is valid? " + Utility.Descriptor(invocationExpression));
-			var methodSymbol = symbolInfo.Symbol.OriginalDefinition.As<IMethodSymbol>().UnReduce();
+			var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
+			var origMethodSymbol = methodSymbol.OriginalDefinition.As<IMethodSymbol>().UnReduce();
 
 			var translateOpt = MethodTranslation.Get(symbolInfo.Symbol.As<IMethodSymbol>());
 			var memberReferenceExpressionOpt = invocationExpression.Expression as MemberAccessExpressionSyntax;
 			//var returnTypeHaxe = TypeProcessor.ConvertType(methodSymbol.ReturnType);
 			var firstParameter = true;
+
+			if (methodSymbol.TypeArguments.Any(o => o.SpecialType == SpecialType.System_Char) && origMethodSymbol.ContainingType.Name != "Enumerable")
+				throw new Exception("Char cannot be passed as a type argument. methodName=" + origMethodSymbol.Name + " " + Utility.Descriptor(invocationExpression)); //the called function could call .ToString on it, which would give the int representation instead of the char.  We could fix this by wrapping chars in a class but that would hit performance, so instead just re-write the offending C#.  Skip this requirement for System.Linq.Enumerable because it is typically just mapping to a lambda, such as Select or TakeWhile, and our lambda can handle it correctly.  Ideally we'd detect if the type parameter is only used in a lambda
 			
-			var extensionNamespace = methodSymbol.IsExtensionMethod ? methodSymbol.ContainingNamespace.FullNameWithDot().ToLower() + methodSymbol.ContainingType.Name : null; //null means it's not an extension method, non-null means it is
+			var extensionNamespace = origMethodSymbol.IsExtensionMethod ? origMethodSymbol.ContainingNamespace.FullNameWithDot().ToLower() + origMethodSymbol.ContainingType.Name : null; //null means it's not an extension method, non-null means it is
 			string methodName;
 			ExpressionSyntax subExpressionOpt;
 
-			if (methodSymbol.ContainingType.Name == "Enum")
+			if (origMethodSymbol.ContainingType.Name == "Enum")
 			{
-				if (methodSymbol.Name == "Parse")
+				if (origMethodSymbol.Name == "Parse")
 				{
 					WriteEnumParse(writer, invocationExpression);
 					return;
 				}
 
-				if (methodSymbol.Name == "GetValues")
+				if (origMethodSymbol.Name == "GetValues")
 				{
 					WriteEnumGetValues(writer, invocationExpression);
 					return;
@@ -52,10 +56,10 @@ namespace Cs2hx
 			}
 			else if (memberReferenceExpressionOpt != null && memberReferenceExpressionOpt.Expression is PredefinedTypeSyntax)
 			{
-				switch (methodSymbol.Name)
+				switch (origMethodSymbol.Name)
 				{
 					case "Parse":
-						var t = TypeProcessor.ConvertType(methodSymbol.ReturnType);
+						var t = TypeProcessor.ConvertType(origMethodSymbol.ReturnType);
 
 						if (t == "Bool")
 						{
@@ -72,21 +76,21 @@ namespace Cs2hx
 
 						break;
 					case "TryParse":
-						methodName = "TryParse" + TypeProcessor.ConvertType(methodSymbol.Parameters[1].Type);
+						methodName = "TryParse" + TypeProcessor.ConvertType(origMethodSymbol.Parameters[1].Type);
 						extensionNamespace = "Cs2Hx";
 						break;
 					default:
-						methodName = methodSymbol.Name;
+						methodName = origMethodSymbol.Name;
 						extensionNamespace = "Cs2Hx";
 						break;
 				}
 			}
 			else if (translateOpt != null && translateOpt.ReplaceWith != null)
 				methodName = translateOpt.ReplaceWith;
-			else if (methodSymbol.MethodKind == MethodKind.DelegateInvoke)
+			else if (origMethodSymbol.MethodKind == MethodKind.DelegateInvoke)
 				methodName = null;
 			else
-				methodName = OverloadResolver.MethodName(methodSymbol);
+				methodName = OverloadResolver.MethodName(origMethodSymbol);
 
 			if (translateOpt != null && translateOpt.HasComplexReplaceWith)
 			{
@@ -96,7 +100,7 @@ namespace Cs2hx
 
 			if (translateOpt != null && translateOpt.SkipExtensionParameter)
 				subExpressionOpt = null;
-			else if (methodSymbol.MethodKind == MethodKind.DelegateInvoke)
+			else if (origMethodSymbol.MethodKind == MethodKind.DelegateInvoke)
 				subExpressionOpt = invocationExpression.Expression;
 			else if (memberReferenceExpressionOpt != null)
 			{
@@ -110,7 +114,7 @@ namespace Cs2hx
 
 
 			//Determine if it's an extension method called in a non-extension way.  In this case, just pretend it's not an extension method
-			if (extensionNamespace != null && subExpressionOpt != null && model.GetTypeInfo(subExpressionOpt).ConvertedType.ToString() == methodSymbol.ContainingNamespace + "." + methodSymbol.ContainingType.Name)
+			if (extensionNamespace != null && subExpressionOpt != null && model.GetTypeInfo(subExpressionOpt).ConvertedType.ToString() == origMethodSymbol.ContainingNamespace + "." + origMethodSymbol.ContainingType.Name)
 				extensionNamespace = null;
 
 			if (translateOpt != null && !string.IsNullOrEmpty(translateOpt.ExtensionNamespace))
@@ -134,7 +138,7 @@ namespace Cs2hx
 				{
 					firstParameter = false;
 
-					if (methodSymbol.IsExtensionMethod)
+					if (origMethodSymbol.IsExtensionMethod)
 						WriteForEachStatement.CheckWriteEnumerator(writer, subExpressionOpt, true);
 					else
 						Core.Write(writer, subExpressionOpt);
@@ -235,10 +239,10 @@ namespace Cs2hx
 				writer.Write("(");
 			}
 
-            var prms = TranslateParameters(translateOpt, SortArguments(methodSymbol, invocationExpression.ArgumentList.Arguments, invocationExpression, extensionNamespace != null), invocationExpression).ToList();
+            var prms = TranslateParameters(translateOpt, SortArguments(origMethodSymbol, invocationExpression.ArgumentList.Arguments, invocationExpression, extensionNamespace != null), invocationExpression).ToList();
 
             //If we invoke a method with type parameters that aren't used in the argument list, the haxe function won't have a way to see what args were used. To give it a way, add those as parameters at the end
-            foreach (var typePrm in Utility.PassTypeArgsToMethod(methodSymbol))
+            foreach (var typePrm in Utility.PassTypeArgsToMethod(origMethodSymbol))
             {
                 var name = invocationExpression.Expression.ChildNodes().OfType<GenericNameSyntax>().ToList();
                 if (name.Count == 0)
@@ -247,7 +251,7 @@ namespace Cs2hx
                     throw new Exception("Expected a single generic name, got " + string.Join(", ", name) + "  " + Utility.Descriptor(invocationExpression));
                 if (name.Count > 0 && name.Single().TypeArgumentList.Arguments.Count > 0)
                 {
-                    var typePrmIndex = methodSymbol.TypeParameters.IndexOf(methodSymbol.TypeParameters.Single(o => SymbolEqualityComparer.Default.Equals(o, typePrm)));
+                    var typePrmIndex = origMethodSymbol.TypeParameters.IndexOf(origMethodSymbol.TypeParameters.Single(o => SymbolEqualityComparer.Default.Equals(o, typePrm)));
                     var genericVar = name.Single().TypeArgumentList.Arguments.ElementAt(typePrmIndex);
                     if (genericVar.ToString() == typePrm.ToString())
                         writer.Write("t" + (typePrmIndex + 1));
@@ -265,7 +269,7 @@ namespace Cs2hx
                 else
                     writer.Write(", ");
 
-				if (!inParams && IsParamsArgument(invocationExpression, arg.ArgumentOpt, methodSymbol) && TypeProcessor.ConvertType(model.GetTypeInfo(arg.ArgumentOpt.Expression).Type).StartsWith("Array<") == false)
+				if (!inParams && IsParamsArgument(invocationExpression, arg.ArgumentOpt, origMethodSymbol) && TypeProcessor.ConvertType(model.GetTypeInfo(arg.ArgumentOpt.Expression).Type).StartsWith("Array<") == false)
 				{
 					inParams = true;
 					writer.Write("[ ");

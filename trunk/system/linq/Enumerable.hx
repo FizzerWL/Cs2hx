@@ -53,7 +53,7 @@ class Enumerable
 	{
 		return a - b; 
 	}
-	public static function ToDictionary < T, K, V > (a:Array < T > , getKey:T -> K, getValue:T -> V):Dictionary<K,V>
+	public static function ToDictionary < T, K, V > (a:Array <T> , getKey:T -> K, getValue:T -> V):Dictionary<K,V>
 	{
 		var ret:Dictionary<K,V> = new Dictionary();
 		
@@ -520,6 +520,18 @@ class Enumerable
 		}
 		return min;
 	}
+	
+	public static function Min_IEnumerable_FuncDouble<T>(a:Array<T>, func:T->Float):Float
+	{
+		var min = 999900000000000000;
+		for (e in a)
+		{
+			var m = func(e);
+			if (m < min)
+				min = m;
+		}
+		return min;
+	}
 	public static function Max_IEnumerable_FuncDouble<T>(a:Array<T>, func:T->Float):Float
 	{
 		var max = -999900000000000000;
@@ -592,7 +604,12 @@ class Enumerable
 	public static function OrderBy_Float<T>(a:Array<T>, selector:T -> Float):Array<T>
 	{
 		var list:Array<T> = ToArray(a);
-		list.sort(function(f:T, s:T):Int { return Std.int(selector(f) - selector(s)); } );
+		list.sort(function(f:T, s:T):Int 
+		{ 
+			var d = selector(f) - selector(s);
+			//We can't just return Std.int(d), since the floats might be out of integer range which would return the wrong result.
+			return d > 0 ? 1 : d < 0 ? -1 : 0;
+		} );
 		return list;
 	}
 	public static function OrderBy_Int<T>(a:Array<T>, selector:T -> Int):Array<T>
@@ -694,6 +711,19 @@ class Enumerable
 		return ret;
 	}
 	
+	public static function Average(a:Array<Int>):Float
+	{
+		var sum:Float = 0;
+		var count:Int = 0;
+		
+		for (e in a)
+		{
+			sum += e;
+			count++;
+		}
+		
+		return sum / count;
+	}
 	public static function Average_IEnumerableDouble(a:Array<Float>):Float
 	{
 		var sum:Float = 0;
@@ -739,5 +769,18 @@ class Enumerable
 		for(i in 1...a.length)
 			c = func(c, a[i]);
 		return c;
+	}
+	
+	public static function TakeWhile<T>(a:Array<T>, func:T->Bool):Array<T>
+	{
+		var ret = new Array<T>();
+		for (e in a)
+		{
+			if (func(e))
+				ret.push(e);
+			else
+				break;
+		}
+		return ret;
 	}
 }

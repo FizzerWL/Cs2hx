@@ -5,6 +5,7 @@ import system.NotImplementedException;
 class Stream
 {
 	var _bytes:Bytes;
+	public var CanRead:Bool = true;
 
 	public function new(bytes:Bytes) 
 	{

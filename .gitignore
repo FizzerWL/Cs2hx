@@ -10,3 +10,4 @@ TestResults/
 trunk/packages
 .hg
 .vs
+*.editorconfig

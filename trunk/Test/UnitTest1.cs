@@ -3788,6 +3788,34 @@ class Foo
 
 }");
         }
+
+
+
+        [TestMethod]
+        [ExpectedException(typeof(AggregateException), "Char cannot be passed as a type argument")]
+        public void CharPassedAsGeneric()
+        {
+
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public static class Utilities
+    {
+        public static void SomeFunction()
+        {
+            var a = 'a';
+            Foo(a);
+        }
+
+        static string Foo<T>(T t)  
+        {
+            return t.ToString();
+        }
+    }
+}", @"");
+        }
     }
 }
 

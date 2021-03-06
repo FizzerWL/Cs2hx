@@ -4,9 +4,12 @@ using StringTools;
 
 class DateTime
 {
-	public static var Now(get,null):DateTime;
+	public static var Now(get, null):DateTime;
+	public static var UtcNow(get,null):DateTime;
 	public static var MaxValue(get,null):DateTime;
-	public static var MinValue(get,null):DateTime;
+	public static var MinValue(get, null):DateTime;
+	
+	public var Kind:Int = DateTimeKind.Utc;
 
 	//public var Ticks(get, null):Float;
 	public var Year(get, null):Int;
@@ -19,8 +22,10 @@ class DateTime
 	
 	public var date:Date;
 	
-	public function new(first:Float = 0, second:Int = -1, third:Int = -1, forth:Int = -1, fifth:Int = -1, sixth:Int = -1)
+	public function new(first:Float = 0, second:Int = -1, third:Int = -1, forth:Int = -1, fifth:Int = -1, sixth:Int = -1, kind:Int = DateTimeKind.Utc)
 	{
+		this.Kind = kind;
+		
 		if (first == 0)
 			date = Date.fromTime(0);
 		else if (first == -1)
@@ -158,10 +163,20 @@ class DateTime
 	{
 		return new DateTime(-1);
 	}
+	public static inline function get_UtcNow():DateTime 
+	{
+		return new DateTime(-1);
+	}
+	
+	public inline function ToUniversalTime():DateTime
+	{
+		return this;
+	}
 	
 	public inline function Subtract(other:DateTime):TimeSpan
 	{
-		Assert.Fatal(other != null, "Subtract called with null date");
+		if (other == null)
+			throw new Exception("Subtract called with null date");
 		return new TimeSpan(date.getTime() - other.date.getTime());
 	}
 
