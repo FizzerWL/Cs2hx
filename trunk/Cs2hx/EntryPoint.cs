@@ -82,9 +82,11 @@ Options available:
                     else if (arg.StartsWith("/ctorHelperName:"))
                         ctorHelperName = arg.Substring(16);
                     else if (arg.StartsWith("/whitelist:"))
+                    {
                         foreach (var line in File.ReadAllLines(arg.Substring(11)))
                             if (!string.IsNullOrWhiteSpace(line))
                                 whitelist.Add(line);
+                    }
                     else if (arg.StartsWith("/buildFirst:"))
                         buildFirst = bool.Parse(arg.Substring(12));
                     else
@@ -94,7 +96,7 @@ Options available:
 				if (pathToSolution == null)
 					throw new Exception("/sln parameter not passed");
 
-                //FixMsbuild();
+                FixMsbuild();
 
                 var workspace = MSBuildWorkspace.Create();
                 workspace.WorkspaceFailed += (_, e) =>
@@ -147,7 +149,7 @@ Options available:
             if (!instances.Any())
                 throw new Exception("No Visual Studio instances found.");
 
-            //Console.WriteLine("Visual Studio intances:");
+            Console.WriteLine("Visual Studio intances: " + string.Join(", ",  instances.Select(o => o.Name + " -" + o.Version + " " + o.MSBuildPath)));
 
             //foreach (var instance in instances)
             //{
@@ -158,11 +160,11 @@ Options available:
 
             // We register the first instance that we found. This will cause MSBuildWorkspace to use the MSBuild installed in that instance.
             // Note: This has to be registered *before* creating MSBuildWorkspace. Otherwise, the MEF composition used by  MSBuildWorkspace will fail to compose.
-            var registeredInstance = instances.First();
+            var registeredInstance = instances.Last();
             MSBuildLocator.RegisterInstance(registeredInstance);
 
-            //Console.WriteLine($"Registered: {registeredInstance.Name} - {registeredInstance.Version}");
-            //Console.WriteLine();
+            Console.WriteLine($"Registered visual studio: {registeredInstance.Name} - {registeredInstance.Version}");
+            Console.WriteLine();
         }
         private static void TrimList(List<Project> projectsList, string projectsCsv)
 		{

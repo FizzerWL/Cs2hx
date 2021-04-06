@@ -9,7 +9,7 @@ class DateTime
 	public static var MaxValue(get,null):DateTime;
 	public static var MinValue(get, null):DateTime;
 	
-	public var Kind:Int = DateTimeKind.Utc;
+	public var Kind:Int;  //TODO: Our kind processing does not match C#'s. 
 
 	//public var Ticks(get, null):Float;
 	public var Year(get, null):Int;
@@ -22,7 +22,7 @@ class DateTime
 	
 	public var date:Date;
 	
-	public function new(first:Float = 0, second:Int = -1, third:Int = -1, forth:Int = -1, fifth:Int = -1, sixth:Int = -1, kind:Int = DateTimeKind.Utc)
+	public function new(first:Float = 0, second:Int = -1, third:Int = -1, forth:Int = -1, fifth:Int = -1, sixth:Int = -1, kind:Int = DateTimeKind.Unspecified)
 	{
 		this.Kind = kind;
 		
@@ -90,6 +90,11 @@ class DateTime
 	public inline function ToShortDateString():String
 	{
 		return (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+	}
+	
+	public function ToLongTimeString():String
+	{
+		return date.getHours() + ":" + FormatDatePiece(date.getMinutes()) + ":" + FormatDatePiece(date.getSeconds());
 	}
 	
 	static function FormatDatePiece(n:Float):String
@@ -161,16 +166,19 @@ class DateTime
 	
 	public static inline function get_Now():DateTime 
 	{
-		return new DateTime(-1);
+		return new DateTime(-1, -1, -1, -1, -1, -1, DateTimeKind.Local);
 	}
 	public static inline function get_UtcNow():DateTime 
 	{
-		return new DateTime(-1);
+		return new DateTime(-1, -1, -1, -1, -1, -1, DateTimeKind.Utc);
 	}
 	
 	public inline function ToUniversalTime():DateTime
 	{
-		return this;
+		if (this.Kind == DateTimeKind.Utc)
+			return this;
+		else
+			return new DateTime(date.getTime(), -1, -1, -1, -1, -1, DateTimeKind.Utc);
 	}
 	
 	public inline function Subtract(other:DateTime):TimeSpan

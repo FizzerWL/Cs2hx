@@ -242,12 +242,9 @@ class Enumerable
 	{
 		var ret = new Array<TO>();
 		for (i in a)
-		{
 			if (Std.is(i, type))
-			{
 				ret.push(cast i);
-			}
-		}
+				
 		return ret;
 	}
 	
