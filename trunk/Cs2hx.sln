@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cs2hx", "Cs2hx\Cs2hx.csproj", "{9E6DE880-241E-451B-86F1-36EE3E10B316}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cs2hxNetFramework", "Cs2hxNetFramework\Cs2hxNetFramework.csproj", "{9E6DE880-241E-451B-86F1-36EE3E10B316}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{91E43481-3801-4E6D-84BA-1221F2D11D68}"
 EndProject
@@ -40,5 +40,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3E32A7B9-4AA2-457B-9A78-3DAB858B48C9}
 	EndGlobalSection
 EndGlobal

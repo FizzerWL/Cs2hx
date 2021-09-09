@@ -175,9 +175,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cs2hx\Cs2hx.csproj">
+    <ProjectReference Include="..\Cs2hxNetFramework\Cs2hxNetFramework.csproj">
       <Project>{9e6de880-241e-451b-86f1-36ee3e10b316}</Project>
-      <Name>Cs2hx2</Name>
+      <Name>Cs2hxNetFramework</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
