@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Translations>
+  <Method SourceObject="*" Match="ToString" ReplaceWith="toString" />
+  <Method SourceObject="*" Match="GetType" ExtensionNamespace="system.Cs2Hx" />
+  <Type Match="System.Type" SourceObject="*" ReplaceWith="system.TypeCS" />
+
+  <Method SourceObject="System.String" Match="IndexOf" ReplaceWith="indexOf" />
+  <Method SourceObject="System.String" Match="IndexOf" ArgumentTypes="char" ExtensionNamespace="system.Cs2Hx" ReplaceWith="IndexOfChar" />
+  <Method SourceObject="System.String" Match="IndexOf" ArgumentTypes="char int" ExtensionNamespace="system.Cs2Hx" ReplaceWith="IndexOfChar" />
+  <Method SourceObject="System.String" Match="IndexOfAny" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="LastIndexOf" ReplaceWith="lastIndexOf" />
+  <Method SourceObject="System.String" Match="Substring" ReplaceWith="substr" />
+  <Method SourceObject="System.String" Match="Split" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="Replace" ReplaceWith="replace" />
+  <Method SourceObject="System.String" Match="Replace" ArgumentTypes="char char" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="ToLower" ReplaceWith="toLowerCase" />
+  <Method SourceObject="System.String" Match="ToUpper" ReplaceWith="toUpperCase" />
+  <Method SourceObject="System.String" Match="Remove" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="StartsWith" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="EndsWith" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="Trim" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="TrimStart" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="TrimEnd" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="IsNullOrEmpty" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+  <Method SourceObject="System.String" Match="Join" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+  <Method SourceObject="System.String" Match="ToCharArray" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="Contains" ReplaceWith="StringContains" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.String" Match="Equals" ExtensionNamespace="system.Cs2Hx" />
+  <Property SourceObject="System.String" Match="Length" ReplaceWith="length" />
+  
+  <Method SourceObject="System.Char" Match="IsLetterOrDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+  <Method SourceObject="System.Char" Match="IsDigit" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+
+  <Property SourceObject="System.Collections.Generic.Queue" Match="Count" ReplaceWith="length" />
+  <Method SourceObject="System.Collections.Generic.Queue" Match="Enqueue" ReplaceWith="push" />
+  <Method SourceObject="System.Collections.Generic.Queue" Match="Dequeue" ReplaceWith="shift" />
+  <Method SourceObject="System.Collections.Generic.Queue" Match="Peek" ReplaceWith="First" ExtensionNamespace="system.linq.Enumerable" />
+  <Method SourceObject="System.Collections.Generic.Queue" Match=".ctor">
+    <Argument Location="0" Action="DeleteIfPresent" />
+  </Method>
+  <Method SourceObject="System.Collections.Generic.Queue" Match="Clear" ReplaceWith="Clear" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Array" Match="Sort" ReplaceWith="sort" />
+  <Property SourceObject="System.Array" Match="Length" ReplaceWith="length" />
+
+  <Property SourceObject="System.Collections.Generic.Dictionary.KeyCollection" Match="Count" ReplaceWith="length" />
+  <Property SourceObject="System.Collections.Generic.Dictionary.ValueCollection" Match="Count" ReplaceWith="length" />
+  
+  <Property SourceObject="System.Collections.Generic.ICollection" Match="Count" ReplaceWith="length" />
+
+
+  <Property SourceObject="System.Collections.Generic.List" Match="Count" ReplaceWith="length" />
+  <Property SourceObject="System.Collections.Generic.IList" Match="Count" ReplaceWith="length" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Reverse" ReplaceWith="reverse" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Contains" ReplaceWith="Contains" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="ToArray" ReplaceWith="ToArray" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Add" ReplaceWith="push" />
+  <Method SourceObject="System.Collections.Generic.List" Match="AddRange" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="ForEach" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Clear" ReplaceWith="Clear" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Sort" ReplaceWith="sort" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Sort" ArgumentTypes="int int System.Collections.Generic.IComparer&lt;T&gt;" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Insert" ReplaceWith="insert" />
+  <Method SourceObject="System.Collections.Generic.List" Match="InsertRange" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="IndexOf" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="LastIndexOf" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="RemoveRange" ReplaceWith="splice" />
+  <Method SourceObject="System.Collections.Generic.List" Match="Remove" ReplaceWith="remove" />
+  <Method SourceObject="System.Collections.Generic.List" Match="RemoveAll" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="FindIndex" ExtensionNamespace="system.Cs2Hx" />
+  <Method SourceObject="System.Collections.Generic.List" Match="RemoveAt" ReplaceWith="splice">
+    <Argument Location="1" Action="Insert 1" />
+  </Method>
+  <Method SourceObject="System.Collections.Generic.List" Match=".ctor" ArgumentTypes="int">
+    <Argument Location="0" Action="DeleteIfPresent" />
+  </Method>
+
+
+  <Method SourceObject="System.IO.MemoryStream" Match=".ctor" ArgumentTypes="int">
+    <Argument Location="0" Action="DeleteIfPresent" />
+  </Method>
+
+
+  <Method SourceObject="System.Linq.Enumerable" Match="Contains" ReplaceWith="Contains" ExtensionNamespace="system.Cs2Hx" />
+
+  <!--<Method SourceObject="System.Linq.Enumerable" Match="OfType">
+    <Argument Location="0" Action="Insert {genericType}" />
+  </Method>-->
+
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_Int">
+    <MatchTypeParameter TypeParameterIndex="1" Match="int" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_Int">
+    <MatchTypeParameter TypeParameterIndex="1" Match="ushort" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_String">
+    <MatchTypeParameter TypeParameterIndex="1" Match="string" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_Float">
+    <MatchTypeParameter TypeParameterIndex="1" Match="long" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_Float">
+    <MatchTypeParameter TypeParameterIndex="1" Match="double" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderBy" ReplaceWith="OrderBy_Float">
+    <MatchTypeParameter TypeParameterIndex="1" Match="float" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderByDescending" ReplaceWith="OrderByDescending_Int">
+    <MatchTypeParameter TypeParameterIndex="1" Match="int" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderByDescending" ReplaceWith="OrderByDescending_Int">
+    <MatchTypeParameter TypeParameterIndex="1" Match="ushort" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderByDescending" ReplaceWith="OrderByDescending_String">
+    <MatchTypeParameter TypeParameterIndex="1" Match="string" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderByDescending" ReplaceWith="OrderByDescending_Float">
+    <MatchTypeParameter TypeParameterIndex="1" Match="long" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderByDescending" ReplaceWith="OrderByDescending_Float">
+    <MatchTypeParameter TypeParameterIndex="1" Match="double" />
+  </Method>
+  <Method SourceObject="System.Linq.Enumerable" Match="OrderByDescending" ReplaceWith="OrderByDescending_Float">
+    <MatchTypeParameter TypeParameterIndex="1" Match="float" />
+  </Method>
+
+  <Type Match="System.Guid" SourceObject="*" ReplaceWith="String" />
+  <Method SourceObject="System.Guid" Match="NewGuid" ReplaceWith="NewGuid" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+  <Property SourceObject="System.Guid" Match="Empty" ReplaceWith="EmptyGuid" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+  <Method SourceObject="System.Guid" Match="Parse" ReplaceWith="GuidParse" ExtensionNamespace="system.Cs2Hx" SkipExtensionParameter="true" />
+
+
+  <Type Match="System.MulticastDelegate" SourceObject="*" ReplaceWith="Dynamic" />
+  <Type Match="System.Math" SourceObject="*" ReplaceWith="system.MathCS" />
+  
+</Translations>
