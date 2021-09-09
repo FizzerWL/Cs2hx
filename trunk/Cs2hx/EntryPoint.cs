@@ -7,11 +7,11 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Xml;
 using System.Diagnostics;
+using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.MSBuild;
-using Microsoft.Build.Locator;
 
 namespace Cs2hx
 {
