@@ -8,18 +8,24 @@ class UTF8Encoding extends Encoding
 {
 	public function GetString(b:Bytes):String
 	{
-		return throw new NotImplementedException();
+		#if js
+		var decoder = untyped __js__("new TextDecoder()");
+		var arr = haxe.io.UInt8Array.fromBytes(b);
+        return decoder.decode(arr);
+		#else
+		throw new NotImplementedException();
+		#end	
 	}
 	
 	public function GetBytes_String(str:String):Bytes
 	{
-		/*
-		//This works in flash on Windows and Mac, but not Linux.  Commented out until a solution can be found that works everywhere.
-		var r:ByteArray = new ByteArray();
-		r.writeMultiByte(str, "utf-8");
-		return Bytes.ofData(r);
-		*/
-		return throw new NotImplementedException();
+		#if js
+		var encoder = untyped __js__("new TextEncoder()");
+        return haxe.io.UInt8Array.fromArray(encoder.encode(str)).view.buffer;
+		#else
+		throw new NotImplementedException();
+		#end	
+		
 	}
 	
 	public function new() 

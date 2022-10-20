@@ -342,7 +342,15 @@ class Enumerable
 
 		return ret;
 	}
-	
+	public static function Select_IEnumerable_Func<FROM, TO>(a:Array<FROM>, func:FROM -> TO):Array<TO>
+	{
+		var ret = new Array<TO>();
+		
+		for (i in a)
+			ret.push(func(i));
+
+		return ret;
+	}
 	public static function Select_IEnumerable_FuncInt32<FROM, TO>(a:Array<FROM>, func:FROM->Int->TO):Array<TO>
 	{
 		var ret = new Array<TO>();

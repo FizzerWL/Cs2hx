@@ -17,4 +17,8 @@ class Uri
 		return throw new NotImplementedException();
 	}
 	
+	public static function TryCreate(str:String, type:Int, out:CsRef<Uri>):Bool
+	{
+		return throw new NotImplementedException();
+	}
 }

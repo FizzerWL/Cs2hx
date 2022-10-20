@@ -45,6 +45,10 @@ class DateTime
 		return new DateTime(date.getTime() - span.TotalMilliseconds);
 	}
 	
+	public inline function AddYears(years:Float):DateTime
+	{
+		return new DateTime(date.getTime() + TimeSpan.FromDays(years * 365.2425).TotalMilliseconds);
+	}
 	public inline function AddDays(days:Float):DateTime
 	{
 		return new DateTime(date.getTime() + TimeSpan.FromDays(days).TotalMilliseconds);
@@ -81,7 +85,7 @@ class DateTime
 				.replace("HH", "%H")
 				.replace("mm", "%M")
 				.replace("ss", "%S")
-				.replace("fff", ""); //%L throws "not implemented yet" on js target. Just leave it off for now.
+				.replace("fff", "000"); //%L throws "not implemented yet" on js target. Just leave it off for now.
 			return DateTools.format(date, fmt);
 			
 		}
