@@ -12,7 +12,7 @@ This means CS2HX can be a:
 
 # Project Goals
 
-CS2HX is designed for situations where you need to share code/logic between C# and another platform, such as a Flash/Flex application or an iPhone application.
+CS2HX is designed for situations where you need to share code/logic between C# and another platform, such as a Javascript application or an iPhone application.
 
 The program will parse your raw C# source files and output raw haXe source files. As C# and haXe are very similar languages in many ways, the code that comes out looks remarkably similar to the code going in. This makes debugging and profling easy.
 
