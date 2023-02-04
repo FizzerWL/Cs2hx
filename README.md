@@ -3,7 +3,6 @@
 CS2HX converts your C# 4.0 code into haXe code. haXe is a multi-target language, so the resulting haXe code can be converted to many other languages.
 
 This means CS2HX can be a:
-- C# to ActionScript converter
 - C# to JavaScript converter
 - C# to Java converter
 - C# to PHP converter
