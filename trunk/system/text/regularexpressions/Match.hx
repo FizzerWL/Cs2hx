@@ -2,11 +2,13 @@ package system.text.regularexpressions;
 
 class Match
 {
+	public var Success:Bool;
+	public var Groups:GroupCollection;
 
-	public function new(e:EReg) 
+	public function new(success:Bool, g:GroupCollection) 
 	{
-		this.Groups = new GroupCollection(e);
+		this.Success = success;
+		this.Groups = g;
 	}
 	
-	public var Groups:GroupCollection;
 }

@@ -131,12 +131,12 @@ namespace Cs2hx
 
 				var typeHaxe = TypeProcessor.ConvertType(right);
 
-				writer.Write("(Std.is(" + leftStr + ", " + typeHaxe + ") ? cast(" + leftStr + ", " + typeHaxe + ") : null)");
+				writer.Write("(Std.isOfType(" + leftStr + ", " + typeHaxe + ") ? cast(" + leftStr + ", " + typeHaxe + ") : null)");
 
 			}
 			else if (operatorToken.Kind() == SyntaxKind.IsKeyword)
 			{
-				writer.Write("Std.is(");
+				writer.Write("Std.isOfType(");
 				Core.Write(writer, left);
 				writer.Write(", ");
 				writer.Write(TypeProcessor.RemoveGenericArguments(TypeProcessor.ConvertType(right)));

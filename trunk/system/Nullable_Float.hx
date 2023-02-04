@@ -13,8 +13,8 @@ class Nullable_Float
 		val = initial;
 	}
 	
-	public var Value(get_Value, never):Float;
-	public var HasValue(get_HasValue, never):Bool;
+	public var Value(get, never):Float;
+	public var HasValue(get, never):Bool;
 	
 	public function get_Value():Float
 	{

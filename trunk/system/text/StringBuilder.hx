@@ -11,13 +11,13 @@ class StringBuilder
 	{
 		if (initial == null)
 			buffer = "";
-		else if (Std.is(initial, String))
+		else if (Std.isOfType(initial, String))
 			buffer = initial;
 		else
 			buffer = "";
 	}
 	
-	public var Length(get_Length, never):Int;
+	public var Length(get, never):Int;
 	
 	public function get_Length():Int
 	{

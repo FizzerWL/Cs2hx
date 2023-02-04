@@ -37,7 +37,7 @@ class XDocument extends XContainer
 
 	public override function Add(x:Dynamic):Void
 	{
-		if (Std.is(x, XElement))
+		if (Std.isOfType(x, XElement))
 		{
 			Root = x;
 			_x = x._x;

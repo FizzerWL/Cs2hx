@@ -242,7 +242,7 @@ class Enumerable
 	{
 		var ret = new Array<TO>();
 		for (i in a)
-			if (Std.is(i, type))
+			if (Std.isOfType(i, type))
 				ret.push(cast i);
 				
 		return ret;

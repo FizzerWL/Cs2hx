@@ -9,7 +9,7 @@ class UTF8Encoding extends Encoding
 	public function GetString(b:Bytes):String
 	{
 		#if js
-		var decoder = untyped __js__("new TextDecoder()");
+		var decoder = js.Syntax.code("new TextDecoder()");
 		var arr = haxe.io.UInt8Array.fromBytes(b);
         return decoder.decode(arr);
 		#else
@@ -20,7 +20,7 @@ class UTF8Encoding extends Encoding
 	public function GetBytes_String(str:String):Bytes
 	{
 		#if js
-		var encoder = untyped __js__("new TextEncoder()");
+		var encoder = js.Syntax.code("new TextEncoder()");
         return haxe.io.UInt8Array.fromArray(encoder.encode(str)).view.buffer;
 		#else
 		throw new NotImplementedException();

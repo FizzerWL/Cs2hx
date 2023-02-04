@@ -24,9 +24,9 @@ class XContainer extends XNode
 	
 	public function Add(obj:Dynamic):Void
 	{
-		if (Std.is(obj, XElement))
+		if (Std.isOfType(obj, XElement))
 			_x.addChild(cast(obj, XElement)._x);
-		else if (Std.is(obj, XAttribute))
+		else if (Std.isOfType(obj, XAttribute))
 		{
 			var attr = cast(obj, XAttribute);
 			SetAttributeValue(attr.Name.LocalName, attr.Value);

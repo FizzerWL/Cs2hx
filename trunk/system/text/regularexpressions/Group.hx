@@ -9,4 +9,11 @@ class Group
 	}
 	
 	public var Value:String;
+	public var Success = true;
+	
+	public function toString():String
+	{
+		return Value;
+	}
+	
 }

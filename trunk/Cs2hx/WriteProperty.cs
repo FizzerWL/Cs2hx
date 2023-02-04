@@ -102,14 +102,14 @@ namespace Cs2hx
                 writer.Write("(");
 
                 if (getter != null)
-                    writer.Write("get_" + property.Identifier.ValueText);
+                    writer.Write("get");
                 else
                     writer.Write("never");
 
                 writer.Write(", ");
 
                 if (setter != null)
-                    writer.Write("set_" + property.Identifier.ValueText);
+                    writer.Write("set");
                 else
                     writer.Write("never");
 

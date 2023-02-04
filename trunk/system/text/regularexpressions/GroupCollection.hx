@@ -4,20 +4,22 @@ import system.NotImplementedException;
 class GroupCollection
 {
 	
-	private var _e:EReg;
+	private var _getStr:String->Group;
+	private var _getIndex:Int->Group;
 
-	public function new(e:EReg) 
+	public function new(getStr:String->Group, getIndex:Int->Group) 
 	{
-		_e = e;
+		_getStr = getStr;
+		_getIndex = getIndex;
 	}
 	
 	public function GetValue_String(name:String):Group
 	{
-		return throw new NotImplementedException();
+		return _getStr(name);
 	}
 	
 	public function GetValue_Int32(index:Int):Group
 	{
-		return new Group(_e.matched(index));
+		return _getIndex(index);
 	}
 }

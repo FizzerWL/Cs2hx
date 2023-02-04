@@ -70,7 +70,7 @@ class Dictionary<K, V> implements IEnumerable<KeyValuePair<K,V>>
 		return val;
 	}
 	
-	public var Keys(get_Keys, never):Array<K>;
+	public var Keys(get, never):Array<K>;
 	public function get_Keys():Array<K>
 	{
 		return keys;

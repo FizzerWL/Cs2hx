@@ -170,6 +170,10 @@ class Cs2Hx
 		return a;
 	}
 	
+	public static inline function Split_Char_StringSplitOptions(s:String, char:Int, options:Int = 0):Array<String>
+	{
+		return Split(s, [char], options);
+	}
 	public static inline function Split__StringSplitOptions(s:String, chars:Array<Int>, options:Int):Array<String>
 	{
 		return Split(s, chars, options);
@@ -260,9 +264,9 @@ class Cs2Hx
 	{
 		if (o == null)
 			return "";
-		if (Std.is(o, String))
+		if (Std.isOfType(o, String))
 			return o;
-		if (Std.is(o, Int))
+		if (Std.isOfType(o, Int))
 			return Std.string(o);
 		
 		#if flash

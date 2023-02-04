@@ -273,7 +273,12 @@ namespace Cs2hx
 			if (constraint == null)
 				return identifier;
 
-			return identifier + ": (" + string.Join(", ", constraint.Constraints.OfType<TypeConstraintSyntax>().ToList().Select(o => TypeProcessor.ConvertType(o.Type))) + ")";
+            var c = constraint.Constraints.OfType<TypeConstraintSyntax>().ToList().Select(o => TypeProcessor.ConvertType(o.Type));
+
+            if (c.Count() == 0)
+                return identifier;
+
+			return identifier + ": (" + string.Join(" & ", c) + ")";
 		}
 
         public static void WriteIndexerDeclaration(HaxeWriter writer, IndexerDeclarationSyntax decl)
