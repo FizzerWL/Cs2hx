@@ -93,7 +93,7 @@ namespace Cs2hx
 				return overloadsWithMinParams[0];
 
 			//If multiple overloads take the fewest number of parameters, just pick one arbitrarily
-			return overloadedGroup[0];
+			return overloadedGroup.OrderBy(o => o.ToString().Length).First();
 		}
 	}
 }

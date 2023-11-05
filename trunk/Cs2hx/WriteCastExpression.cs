@@ -35,7 +35,6 @@ namespace Cs2hx
 			if (subExpression is ParenthesizedExpressionSyntax)
 				subExpression = subExpression.As<ParenthesizedExpressionSyntax>().Expression;
 
-
             if (symbol.Symbol != null && castingFromHaxe != "Int" && castingFromHaxe != "String" && castingFromHaxe != "Bool" && castingFromHaxe != "Float")
 			{
                 //when the symbol is non-null, this indicates we're calling a cast operator function
@@ -69,6 +68,7 @@ namespace Cs2hx
 			{
                 //casts to and from dynamic will be automatic, however we have to manually specify the type.  Otherwise, we saw cases on the js target where haxe would not translate properties from "X" to "get_X()".
                 //The only way I've found to specify the type of an expression is to in-line an anonymous function.  Haxe optimizes this away so there's no runtime hit.
+                //This also solves the dreaded "Cast type parameters must be dyanamic" error that haxe sometimes gives when casting dynamics
                 writer.Write("(function():" + destTypeHaxe + " return ");
                 Core.Write(writer, expression.Expression);
                 writer.Write(")()");

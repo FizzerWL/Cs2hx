@@ -48,7 +48,7 @@ class BinaryWriter
 		writer.writeFullBytes(data, 0, data.length);
 		#end
 	}
-	public function Write_Int32(data:Int):Void
+	public function Write(data:Int):Void
 	{
 		#if flash
 		writer.writeInt(data);
@@ -135,7 +135,7 @@ class BinaryWriter
 		
 		#end
 	}
-	public function Write(data:Bool):Void
+	public function Write_Boolean(data:Bool):Void
 	{
 		#if flash
 		writer.writeBoolean(data);

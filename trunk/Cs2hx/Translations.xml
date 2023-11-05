@@ -40,6 +40,7 @@
   </Method>
   <Method SourceObject="System.Collections.Generic.Queue" Match="Clear" ReplaceWith="Clear" ExtensionNamespace="system.Cs2Hx" />
   <Method SourceObject="System.Array" Match="Sort" ReplaceWith="sort" />
+  <Method SourceObject="System.Array" Match="Copy" ReplaceWith="ArrayCopy" ExtensionNamespace="system.Cs2Hx"  SkipExtensionParameter="true" />
   <Property SourceObject="System.Array" Match="Length" ReplaceWith="length" />
 
   <Property SourceObject="System.Collections.Generic.Dictionary.KeyCollection" Match="Count" ReplaceWith="length" />

@@ -32,7 +32,7 @@ class ConcurrentDictionary<K, V>
 		_dict.Add(key, val);
 		return val;
 	}
-	public function GetOrAdd(key:K, valueFactory:K->V):V
+	public function GetOrAdd_TKey_Func(key:K, valueFactory:K->V):V
 	{
 		if (_dict.ContainsKey(key))
 			return _dict.GetValue_TKey(key);

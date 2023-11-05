@@ -7,7 +7,7 @@ class MathCS
 	{
 	}
 	
-	public static inline function Max_Int32_Int32(f:Int, s:Int):Int
+	public static inline function Max(f:Int, s:Int):Int
 	{
 		return f > s ? f : s;
 	}
@@ -25,7 +25,11 @@ class MathCS
 	}
 	
 	
-	public static inline function Min_Int32_Int32(f:Int, s:Int):Int
+	public static inline function Min(f:Int, s:Int):Int
+	{
+		return f < s ? f : s;
+	}
+	public static inline function Min_Int64_Int64(f:Float, s:Float):Float
 	{
 		return f < s ? f : s;
 	}
@@ -38,7 +42,7 @@ class MathCS
 		return f < s ? f : s;
 	}
 	
-	public static inline function Abs_Int32(a:Int):Int
+	public static inline function Abs(a:Int):Int
 	{
 		return a >= 0 ? a : -a;
 	}
@@ -92,11 +96,11 @@ class MathCS
 		return Math.atan(a);
 	}
 	
-	public static inline function Ceiling_Double(a:Float):Float
+	public static inline function Ceiling(a:Float):Float
 	{
 		return Math.fceil(a);
 	}
-	public static inline function Floor_Double(a:Float):Float
+	public static inline function Floor(a:Float):Float
 	{
 		return Math.ffloor(a);
 	}
