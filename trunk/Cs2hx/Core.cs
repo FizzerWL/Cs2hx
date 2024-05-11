@@ -160,8 +160,14 @@ namespace Cs2hx
 		public static void WriteBlock(HaxeWriter writer, BlockSyntax block)
 		{
 			writer.WriteOpenBrace();
-			foreach (var statement in block.Statements)
-				Write(writer, statement);
+
+            if (block.Statements.Count == 0)
+                TriviaProcessor.ProcessTrivias(writer, block.DescendantTrivia());
+            else
+            {
+                foreach (var statement in block.Statements)
+                    Write(writer, statement);
+            }
 			writer.WriteCloseBrace();
 		}
 
