@@ -228,7 +228,7 @@ namespace Blargh
             var dict = new Dictionary<int, int>();
 			dict[3] = 4;
 			var i = dict[3];
-			var array = new int[3];
+			int[] array = new int[0];
 			array[0] = 1;
 			array[1]++;
 			var str = ""hello"";
@@ -665,6 +665,13 @@ namespace Blargh
 #if CS2HX
 			Console.WriteLine(""cs2hx3"");
 #endif
+
+            if (true)
+            {
+#if CS2HX
+			    Console.WriteLine(""cs2hx4"");
+#endif
+            }
         }
     }
 }", @"
@@ -681,6 +688,10 @@ class SomeClass
 		Console.WriteLine(""cs2hx2"");
 		system.Console.WriteLine(""outside"");
 		Console.WriteLine(""cs2hx3"");
+        if (true)
+        {
+            Console.WriteLine(""cs2hx4"");
+        }
     }
 }");
         }
@@ -849,7 +860,7 @@ package blargh;
 
 class Box
 {
-    public var Width(get_Width, set_Width):Float;
+    public var Width(get, set):Float;
     public function get_Width():Float
     {
         return __autoProp_Width;
@@ -2068,7 +2079,7 @@ class Utilities
 	public static function OverOne():Void
 	{
 		OverOne_Int32(3);
-		system.MathCS.Max_Int32_Int32(3, 3);
+		system.MathCS.Max(3, 3);
 		system.MathCS.Max_Double_Double(4.0, 4.0);
 		system.MathCS.Max_Single_Single(5, 5);
 	}
@@ -2131,11 +2142,11 @@ class Utilities
     {
         var s:String = ""Blah"";
         var list:Array<Int> = new Array<Int>();
-        if (Std.is(s, String))
+        if (Std.isOfType(s, String))
         {
             system.Console.WriteLine(""Yes"");
         }
-        if (Std.is(list, Array))
+        if (Std.isOfType(list, Array))
         {
             system.Console.WriteLine(""Yes"");
         }
@@ -2219,7 +2230,7 @@ class TopLevel
     {
     	throw new Exception(""Abstract item called"");
     }
-	public var AbstractProperty(get_AbstractProperty, never):String;
+	public var AbstractProperty(get, never):String;
 	
     public function get_AbstractProperty():String
     {
@@ -2231,7 +2242,7 @@ class TopLevel
         system.Console.WriteLine(""TopLevel::VirtualMethod"");
     }
 
-    public var VirtualProperty(get_VirtualProperty, never):String;
+    public var VirtualProperty(get, never):String;
     public function get_VirtualProperty():String
     {
         return ""TopLevel::VirtualProperty"";
@@ -2345,7 +2356,7 @@ package blargh;
 class Box
 {
     private var _width:Float = 0;
-    public var Width(get_Width, set_Width):Float;
+    public var Width(get, set):Float;
     public function get_Width():Float
     {
         return _width;
@@ -2355,13 +2366,13 @@ class Box
         _width = value;
 		return value;
     }
-    public var SetOnly(never, set_SetOnly):Float;
+    public var SetOnly(never, set):Float;
     public function set_SetOnly(value:Float):Float
     {
         system.Console.WriteLine_Single(value);
 		return value;
     }
-    public var GetOnly(get_GetOnly, never):Int;
+    public var GetOnly(get, never):Int;
     public function get_GetOnly():Int
     {
         return 4;
