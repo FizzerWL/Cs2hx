@@ -3166,7 +3166,6 @@ class Utilities
         [TestMethod]
         public void StringJoin()
         {
-
             TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
 using System;
 
@@ -3438,6 +3437,7 @@ namespace Foo
 
 		public static void Foo()
 		{
+            Method1();
 			Method1(1);
 			Method1(1, 2);
 			Method1(1, 2, 3);
@@ -3469,15 +3469,16 @@ class Bar
 	}
 	public static function Foo():Void
 	{
+		Method1([]);
 		Method1([ 1 ]);
 		Method1([ 1, 2 ]);
 		Method1([ 1, 2, 3 ]);
 		Method1([ 1, 2, 3, 4 ]);
-		Method2(1);
+		Method2(1, []);
 		Method2(1, [ 2 ]);
 		Method2(1, [ 2, 3 ]);
 		Method2(1, [ 2, 3, 4 ]);
-		Method3(1, 2);
+		Method3(1, 2, []);
 		Method3(1, 2, [ 3 ]);
 		Method3(1, 2, [ 3, 4 ]);
 	}

@@ -150,6 +150,18 @@ class Enumerable {
 		return i;
 	}
 
+	public static function Last_IEnumerable_FuncBoolean<T>(a:Array<T>, func:T->Bool):T {
+		var i:T = null;
+		for (e in a)
+			if (func(e))
+				i = e;
+
+		if (i == null)
+			throw new Exception("No matching items");
+
+		return i;
+	}
+
 	public static function LastOrDefault_IEnumerable_FuncBoolean<T>(a:Array<T>, func:T->Bool):T {
 		var i:T = null;
 		for (e in a)

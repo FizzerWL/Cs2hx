@@ -295,6 +295,16 @@ namespace Cs2hx
 			if (inParams)
 				writer.Write(" ]");
 
+			if (methodSymbol.Parameters.Any(o => o.IsParams) && !inParams && prms.Count < methodSymbol.Parameters.Count())
+			{
+                //the last parameter was a params, but we didn't call it with any. Therefore, call it with a blank array
+                if (firstParameter)
+					firstParameter = false;
+				else
+					writer.Write(", ");
+				writer.Write("[]"); 
+			}
+
 
             writer.Write(")");
 		}
