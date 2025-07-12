@@ -379,9 +379,20 @@ namespace Cs2hx
 					break;
 
 				ret.Add(new TransformedArgument(arg));
-			}
 
-			var namedArgs = arguments.Skip(ret.Count).ToDictionary(o => o.NameColon.Name.Identifier.ValueText, o => o);
+            }
+
+			var namedArgs = arguments.Skip(ret.Count).ToDictionary(arg =>
+			{
+                if (arg.NameColon == null)
+                    throw new Exception("NameColon null: " + arg + " on " + Utility.Descriptor(expressionForErr));
+                if (arg.NameColon.Name == null)
+                    throw new Exception("NameColon.Name null: " + arg + " on " + Utility.Descriptor(expressionForErr));
+                if (arg.NameColon.Name.Identifier == null)
+                    throw new Exception("NameColon.Name.Identifier null: " + arg + " on " + Utility.Descriptor(expressionForErr));
+
+                return arg.NameColon.Name.Identifier.ValueText;
+			}, o => o);
 
             var prms = method.Parameters.ToList().Skip(ret.Count + (isExtensionMethodCall ? 1 : 0)).ToList();
 			foreach (var param in prms)

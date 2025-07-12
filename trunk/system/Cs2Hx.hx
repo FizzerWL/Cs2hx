@@ -9,16 +9,29 @@ import system.text.StringBuilder;
 
 class Cs2Hx {
 	public static function ParseOrZero(str:String):Int {
-		#if flash
-		return Std.parseInt(str);
-		#else
 		var r = Std.parseInt(str);
-		return r == null ? 0 : r;
-		#end
+		if (r == null)
+			return 0;
+		if (r > 2147483648 || r < -2147483648)
+			return 0; //out-of-range values should result in no-parse, to match C# behavior.  Javascript would happily store values like 1+e78 in an Int
+
+		return r;
 	}
 
-	public static inline function GuidParse(s:String):String {
-		return s;
+	public static function GuidParse(s:String):String {
+		//we keep all our guids in the format like 0345A86AECC846D7B026879CB1C3B862, so for consistency turn it into that format.  But first check to see if it already is as a minor perf improvement
+		var i = 0;
+		while (i < s.length) {
+			var c = s.charCodeAt(i);
+			if (c == 45 //hyphen
+				|| (c >= 97 && c <= 102)) //lower case character
+			{
+				//standardize the guid
+				return s.replace("-", "").toUpperCase();
+			}
+			i++;
+		}
+		return s; //already standardized
 	}
 
 	public static function Remove_Int32_Int32(s:String, startIndex:Int, count:Int):String {
@@ -123,8 +136,18 @@ class Cs2Hx {
 		return IndexOf(a, item) != -1;
 	}
 
-	public static inline function StringContains(haystack:String, needle:String):Bool {
-		return haystack.indexOf(needle) != -1;
+	public static inline function StringContains(haystack:String, needle:String, comparisonType:Int = StringComparison.Ordinal):Bool {
+		if (comparisonType == StringComparison.OrdinalIgnoreCase)
+			return haystack.toLowerCase().indexOf(needle.toLowerCase()) != -1;
+		else
+			return haystack.indexOf(needle) != -1;
+	}
+
+	public static function IndexOfStringComparison(haystack:String, value:String, comparisonType:Int):Int { 
+		if (comparisonType == StringComparison.OrdinalIgnoreCase)
+			return haystack.toLowerCase().indexOf(value.toLowerCase());
+		else
+			return haystack.indexOf(value);
 	}
 
 	public static inline function IndexOfChar(s:String, c:Int, startAt:Int = 0):Int {
@@ -412,11 +435,11 @@ class Cs2Hx {
 	}
 
 	public static function IsUpper(char:Int):Bool {
-		return throw new NotImplementedException();
+		return char >= 65 && char <= 90;
 	}
 
 	public static function ToLower(char:Int):Int {
-		return throw new NotImplementedException();
+		return IsUpper(char) ? char + 32 : char;
 	}
 
 	public static function TryParseInt(s:String, out:CsRef<Int>):Bool {
@@ -424,8 +447,11 @@ class Cs2Hx {
 
 		if (i == null)
 			return false;
-		if (i == 0 && s != "0")
-			return false;
+		// if (i == 0 && s != "0") //TODO: I don't think this is necessary anymore?  Olden days parseInt would return 0 on failure so we had to check for string == "0"
+		// 	return false;
+
+		if (i < -2147483648 || i > 2147483648)
+			return false; //don't match out-of-range values, to match C# behavior.
 
 		out.Value = i;
 		return true;

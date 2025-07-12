@@ -174,8 +174,10 @@ namespace Cs2hx
 					{
                         var type = Program.GetModel(left).GetTypeInfo(e);
                         var otherType = Program.GetModel(left).GetTypeInfo(otherSide);
-						//Check for enums being converted to strings by string concatenation
-						if (operatorToken.Kind() == SyntaxKind.PlusToken && type.Type.TypeKind == TypeKind.Enum && otherType.ConvertedType.SpecialType == SpecialType.System_String)
+                        //Check for enums being converted to strings by string concatenation
+                        if (otherType.ConvertedType == null)
+                            throw new Exception("otherType.ConvertedType is null");
+						if (type.Type != null && operatorToken.Kind() == SyntaxKind.PlusToken && type.Type.TypeKind == TypeKind.Enum && otherType.ConvertedType.SpecialType == SpecialType.System_String)
 						{
 							writer.Write(type.Type.ContainingNamespace.FullNameWithDot().ToLower());
 							writer.Write(WriteType.TypeName(type.Type.As<INamedTypeSymbol>()));
@@ -183,14 +185,14 @@ namespace Cs2hx
 							Core.Write(writer, e);
 							writer.Write(")");
 						}
-                        else if (operatorToken.Kind() == SyntaxKind.PlusToken && type.Type.SpecialType == SpecialType.System_Char && otherType.Type.SpecialType != SpecialType.System_Char && otherType.Type.SpecialType != SpecialType.System_Int32)
+                        else if (type.Type != null && operatorToken.Kind() == SyntaxKind.PlusToken && type.Type.SpecialType == SpecialType.System_Char && otherType.Type.SpecialType != SpecialType.System_Char && otherType.Type.SpecialType != SpecialType.System_Int32)
                         {
                             //Chars are integers in haxe, so when string-concatening them we must convert them to strings
                             writer.Write("Cs2Hx.CharToString(");
                             Core.Write(writer, e);
                             writer.Write(")");
                         }
-                        else if (operatorToken.Kind() == SyntaxKind.PlusToken && !(e is BinaryExpressionSyntax) && type.Type.SpecialType == SpecialType.System_String && CouldBeNullString(Program.GetModel(e), e))
+                        else if (type.Type != null && operatorToken.Kind() == SyntaxKind.PlusToken && !(e is BinaryExpressionSyntax) && type.Type.SpecialType == SpecialType.System_String && CouldBeNullString(Program.GetModel(e), e))
                         {
                             //In .net, concatenating a null string does not alter the output. However, in haxe's js target, it produces the "null" string. To counter this, we must check non-const strings.
                             writer.Write("system.Cs2Hx.NullCheck(");

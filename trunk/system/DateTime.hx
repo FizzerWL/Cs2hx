@@ -73,7 +73,7 @@ class DateTime
 	public inline function toString(format:String = null):String
 	{
 		if (format == null)
-			return date.getFullYear() + "/" + FormatDatePiece(date.getMonth() + 1) + "/" + FormatDatePiece(date.getDate()) + 
+			return date.getFullYear() + "-" + FormatDatePiece(date.getMonth() + 1) + "-" + FormatDatePiece(date.getDate()) + 
 				" " + date.getHours() + ":" + FormatDatePiece(date.getMinutes()) + ":" + FormatDatePiece(date.getSeconds());
 		else
 		{

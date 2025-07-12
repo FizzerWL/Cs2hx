@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -32,7 +33,7 @@ namespace Cs2hx
 					writer.Write(TypeProcessor.ConvertType(typeInfo.ConvertedType));
 					writer.Write("(");
 
-					if (typeInfo.Type != null)
+					if (node.ToString() != "null")
 						Factory(writer, node);
 
 					writer.Write(")");

@@ -437,6 +437,13 @@ class Enumerable {
 		return ret;
 	}
 
+	public static function Max_IEnumerableInt64(a:Array<Float>):Float {
+		var ret:Float = First(a);
+		for (i in a)
+			if (i > ret)
+				ret = i;
+		return ret;
+	}
 	public static function Max_IEnumerableDouble(a:Array<Float>):Float {
 		var ret:Float = First(a);
 		for (i in a)
@@ -444,7 +451,11 @@ class Enumerable {
 				ret = i;
 		return ret;
 	}
-
+	
+	public static inline function Max_IEnumerableSingle(a:Array<Float>):Float {
+		return Max_IEnumerableDouble(a);
+	}
+	
 	public static function Min_IEnumerableInt32(a:Array<Int>):Int {
 		var ret:Int = First(a);
 		for (i in a)
@@ -663,6 +674,9 @@ class Enumerable {
 		for (i in a)
 			ret += func(i);
 		return ret;
+	}
+	public static inline function Sum_IEnumerable_FuncSingle<T>(a:Array<T>, func:T->Float):Float {
+		return Sum_IEnumerable_FuncDouble(a, func);
 	}
 
 	public static function Average(a:Array<Int>):Float {

@@ -5,6 +5,7 @@
   <Type Match="System.Type" SourceObject="*" ReplaceWith="system.TypeCS" />
 
   <Method SourceObject="System.String" Match="IndexOf" ReplaceWith="indexOf" />
+  <Method SourceObject="System.String" Match="IndexOf" ArgumentTypes="string System.StringComparison" ExtensionNamespace="system.Cs2Hx" ReplaceWith="IndexOfStringComparison" />
   <Method SourceObject="System.String" Match="IndexOf" ArgumentTypes="char" ExtensionNamespace="system.Cs2Hx" ReplaceWith="IndexOfChar" />
   <Method SourceObject="System.String" Match="IndexOf" ArgumentTypes="char int" ExtensionNamespace="system.Cs2Hx" ReplaceWith="IndexOfChar" />
   <Method SourceObject="System.String" Match="IndexOfAny" ExtensionNamespace="system.Cs2Hx" />

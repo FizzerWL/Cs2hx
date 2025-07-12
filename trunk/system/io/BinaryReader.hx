@@ -1,5 +1,6 @@
 package system.io;
 
+import haxe.io.Eof;
 import haxe.io.BytesInput;
 import haxe.io.Bytes;
 import system.text.StringBuilder;
@@ -27,10 +28,11 @@ class BinaryReader
 		arr.endian = Endian.LITTLE_ENDIAN;
 		#else
 		reader = new BytesInput(readFrom.ToArray());
+		//reader.bigEndian = false;  //commented since it's already the default
 		#end
 	}
 	
-	public function Read7BitEncodedInt():Int
+	private function Read7BitEncodedInt():Int
 	{
 		var num3:Int;
 		var num:Int = 0;
@@ -50,13 +52,18 @@ class BinaryReader
 	
 	public function ReadBytes(num:Int):Bytes
 	{
+		try {
 		var r:Bytes = Bytes.alloc(num);
 		
 		var i:Int = 0;
 		while (i < num)
-			r.set(i++, this.ReadByte());
+			r.set(i++, this.ReadByteInternal());
 
 		return r;
+		}
+		catch (e:Eof) {
+			throw new EndOfStreamException();
+		}
 	}
 	
 	public function ReadInt64():Float
@@ -72,38 +79,59 @@ class BinaryReader
 	}
 	public function ReadInt32():Int
 	{
+		try {
 		#if flash
 		return arr.readInt();
 		#else
 		return reader.readInt32();
 		#end
+		}
+		catch (e:Eof) {
+			throw new EndOfStreamException();
+		}
 	}
 	public function ReadUInt16():Int
 	{
+		try {
 		#if flash
 		return arr.readUnsignedShort();
 		#else
 		return reader.readUInt16();
 		#end
+		}
+		catch (e:Eof) {
+			throw new EndOfStreamException();
+		}
 	}
 	public function ReadInt16():Int
 	{
+		try {
 		#if flash
 		return arr.readShort();
 		#else
 		return reader.readInt16();
 		#end
+		}
+		catch (e:Eof) {
+			throw new EndOfStreamException();
+		}
 	}
 	public function ReadUInt32():Int //should be uint
 	{
+		try {
 		#if flash
 		return arr.readUnsignedInt();
 		#else
 		return reader.readInt32();
 		#end
+		}
+		catch (e:Eof) {
+			throw new EndOfStreamException();
+		}
 	}
 	public function ReadString():String
 	{
+		try {
 		var bytes:Int = Read7BitEncodedInt();
 		
 		#if flash
@@ -116,32 +144,59 @@ class BinaryReader
 		return arr.getString(0, arr.length);
 		
 		#end
+		}
+		catch (e:Eof) {
+			throw new EndOfStreamException();
+		}
 	}
 	public function ReadBoolean():Bool
 	{
+		try {
 		#if flash
 		return arr.readBoolean();
 		#else
 		return reader.readByte() != 0;
 		#end
+		}
+		catch (e:Eof) {
+			throw new EndOfStreamException();
+		}
 	}
 	public function ReadDouble():Float
 	{
+		try {
 		#if flash
 		return arr.readDouble();
 		#else
 		return reader.readDouble();
 		#end
+		}
+		catch (e:Eof) {
+			throw new EndOfStreamException();
+		}
 	}
 	public function ReadSingle():Float
 	{
+		try {
 		#if flash
 		return arr.readFloat();
 		#else
 		return reader.readFloat();
 		#end
+		}
+		catch (e:Eof) {
+			throw new EndOfStreamException();
+		}
 	}
-	public function ReadByte():Int
+	public function ReadByte():Int {
+		try {
+			return ReadByteInternal();
+		}
+		catch (e:Eof) {
+			throw new EndOfStreamException();
+		}
+	}
+	public function ReadByteInternal():Int
 	{
 		#if flash
 		return arr.readUnsignedByte();
