@@ -455,6 +455,9 @@ class Enumerable {
 	public static inline function Max_IEnumerableSingle(a:Array<Float>):Float {
 		return Max_IEnumerableDouble(a);
 	}
+	public static inline function Min_IEnumerableSingle(a:Array<Float>):Float {
+		return Min_IEnumerableDouble(a);
+	}
 	
 	public static function Min_IEnumerableInt32(a:Array<Int>):Int {
 		var ret:Int = First(a);

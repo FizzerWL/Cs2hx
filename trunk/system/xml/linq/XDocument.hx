@@ -16,6 +16,9 @@ class XDocument extends XContainer
 	
 	public static function Parse(str:String):XDocument
 	{
+		if (str == null)
+			throw new Exception("XDocument.Parse str is null");
+
 		var d = new XDocument();
 		try
 		{
@@ -28,6 +31,10 @@ class XDocument extends XContainer
 		d.Root = new XElement();
 		d.Root._x = d._x.firstElement();
 		return d;
+	}
+
+	public static function Parse_String_LoadOptions(str:String, opts:Int):XDocument {
+		return Parse(str); //TODO: Obey options
 	}
 	
 	public static function Load(path:String):XDocument

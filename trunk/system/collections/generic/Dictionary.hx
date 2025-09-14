@@ -10,7 +10,7 @@ class Dictionary<K, V> implements IEnumerable<KeyValuePair<K,V>>
 	private var store:Map<String, V>;
 	private var keys:Array<K>;
 	
-	public function new(unused:Dynamic = null)
+	public function new(capacity:Int = 0)
 	{
 		store = new Map<String, V>();
 		keys = new Array<K>();

@@ -19,7 +19,7 @@ namespace Cs2hx
 			var symbolInfo = model.GetSymbolInfo(invocationExpression);
 			var expressionSymbol = model.GetSymbolInfo(invocationExpression.Expression);
             if (symbolInfo.Symbol == null)
-                throw new Exception("InvocationExpression could not be identified.  Are you sure the C# is valid? " + Utility.Descriptor(invocationExpression));
+                throw new Exception("InvocationExpression could not be identified.  Are you sure the C# is valid? " + Utility.Descriptor(invocationExpression) + " " + invocationExpression.Expression.ToString());
 			var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
 			var origMethodSymbol = methodSymbol.OriginalDefinition.As<IMethodSymbol>().UnReduce();
 

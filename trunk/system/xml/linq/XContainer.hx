@@ -131,14 +131,27 @@ class XContainer extends XNode
 	}
 	
 	public var Name(get, never):XName;
-	public function get_Name():XName
-	{
+	public function get_Name():XName {
 		return new XName(_x.nodeName);
 	}
 	
-	public function Nodes():Array<XNode>
-	{
-		return throw new NotImplementedException();
+	public function Nodes():Array<XNode> {
+		//Nodes is supposed to return XElement, XText, XComment, XProcessingInstruction, XDocumentType.  It does not return attributes.  Currently we only return elements since we never bothered implementing XText, and we don't need the others
+
+		var ret = new Array<XNode>();
+
+		for(e in Elements())
+			ret.push(e);
+
+		//if (this.Value != null)
+		//	ret.push(new XText(this.Value));
+
+		return ret;
+	}
+
+	override function Remove() {
+		super.Remove();
+		this._x.parent.removeChild(this._x);
 	}
 
 

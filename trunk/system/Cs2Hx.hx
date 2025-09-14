@@ -178,22 +178,55 @@ class Cs2Hx {
 	}
 
 	public static function Split(s:String, chars:Array<Int>, options:Int = 0):Array<String> {
-		var charString:String = "";
 
-		for (c in chars)
-			charString += String.fromCharCode(c);
+		var split:Array<String>;
 
-		var split = s.split(charString);
+		if (chars == null || chars.length == 0)
+			split = [s];
+		else if (chars.length == 1) {
+			split = s.split(String.fromCharCode(chars[0]));
+		}
+		else {
+			//Multiple chars.
+			/*regex version, should work but untested:
+			
+			var sepChars = separators.map(function(code) return String.fromCharCode(code));
+			var regex = new EReg("[" + sepChars.map(EReg.escape).join("") + "]", "");
+			return regex.split(input);*/
 
-		if (options == StringSplitOptions.RemoveEmptyEntries) {
-			var ret = new Array<String>();
-			for (e in split)
-				if (!IsNullOrEmpty(e))
-					ret.push(e);
+			var buffer = new StringBuf();
 
-			return ret;
-		} else
+			var sepSet = new Map<Int,Bool>();
+			for (code in chars)
+				sepSet.set(code, true);
+			
+
+			split = new Array<String>();
+			for (i in 0...s.length) {
+				var ch = s.charCodeAt(i);
+				if (sepSet.exists(ch)) {
+					// flush buffer to result
+					split.push(buffer.toString());
+					buffer = new StringBuf();
+				}
+				else
+					buffer.addChar(ch);
+			}
+
+			// flush last piece
+			split.push(buffer.toString());
+		}
+
+		if (options != StringSplitOptions.RemoveEmptyEntries)
 			return split;
+
+	
+		var ret = new Array<String>();
+		for (e in split)
+			if (!IsNullOrEmpty(e))
+				ret.push(e);
+
+		return ret;
 	}
 
 	public static inline function Join(sep:String, a:Array<String>):String {
@@ -223,6 +256,14 @@ class Cs2Hx {
 		return IsLetterOrDigit(str.charCodeAt(index));
 	}
 
+	static var letterMap:Map<Int, Bool>;
+	public static function IsLetter(ch:Int):Bool // TODO: This differs from char.IsLetter since it only recognizes ascii characters.
+	{
+		if (letterMap == null)
+			letterMap = MakeMap("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+		return letterMap.exists(ch);
+	}
 	public static function IndexOf<T>(a:Array<T>, item:T):Int {
 		for (i in 0...a.length)
 			if (a[i] == item)
@@ -371,6 +412,9 @@ class Cs2Hx {
 		return str.substr(i, e - i + 1);
 	}
 
+	public static inline function TrimEnd_(str:String, chars:Array<Int> = null):String {
+		return TrimEnd(str, chars);
+	}
 	public static function TrimEnd(str:String, chars:Array<Int> = null):String {
 		if (chars == null)
 			return str.rtrim();
@@ -509,5 +553,22 @@ class Cs2Hx {
 
 	public static function ArrayCopy(sourceArray:Array<Dynamic>, sourceIndex:Int, destinationArray:Array<Dynamic>, destinationIndex:Int, length:Int) {
 		throw new NotImplementedException("TODO");
+	}
+
+	public static inline function ReferenceEquals(obj1:Dynamic, obj2:Dynamic):Bool { 
+		return obj1 == obj2;
+	}
+
+	public static function PadLeft_Int32_Char(str:String, padWidth:Int, padChar:Int):String {
+		var charsToAdd = padWidth - str.length;
+		if (charsToAdd <= 0)
+			return str;
+
+		var ch = String.fromCharCode(padChar);
+
+		var ret = str;
+		for(i in 0...charsToAdd)
+			ret = ch + ret;
+		return ret;
 	}
 }

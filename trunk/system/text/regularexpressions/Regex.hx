@@ -67,6 +67,13 @@ class Regex {
 		});
 	}
 
+	public static function Replace_String_String_String_RegexOptions(input:String, pattern:String, replacement:String, opts:Int):String { 
+		return throw new NotImplementedException();
+	}
+	public static function Replace_String_String_String(input:String, pattern:String, replacement:String):String { 
+		return throw new NotImplementedException();
+	}
+
 	public static function Escape(str:String):String {
 		return throw new NotImplementedException();
 	}

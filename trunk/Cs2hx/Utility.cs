@@ -159,6 +159,9 @@ namespace Cs2hx
 
         public static string Descriptor(SyntaxNode node)
         {
+            if (node == null)
+				return "(null)";
+
             var sb = new StringBuilder();
 			sb.Append(node.Span.ToString() + " ");
 

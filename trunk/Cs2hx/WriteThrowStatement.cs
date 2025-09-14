@@ -46,6 +46,8 @@ namespace Cs2hx
 
         static bool ReturnsVoid(SyntaxNode node)
         {
+            var origNode = node;
+
             while (node != null)
             {
                 var method = node as MethodDeclarationSyntax;
@@ -72,7 +74,8 @@ namespace Cs2hx
                 node = node.Parent;
             }
 
-            throw new Exception("Node not in a body");
+            //TODO: we can end up here if we throw in an operator overload
+            return true; //throw new Exception("Node not in a body. " + Utility.Descriptor(origNode));
         }
 
         public static void GoExpression(HaxeWriter writer, ThrowExpressionSyntax expr)
