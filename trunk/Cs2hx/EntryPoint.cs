@@ -99,13 +99,15 @@ Options available:
                 FixMsbuild();
 
                 var workspace = MSBuildWorkspace.Create();
-                workspace.WorkspaceFailed += (_, e) =>
-                {
-                    //Console.WriteLine("WorkspaceFailed: " + e.Diagnostic.ToString());
-                };
-                var solution = workspace.OpenSolutionAsync(pathToSolution).Result;
+                //workspace.WorkspaceFailed += (_, e) => Console.WriteLine("WorkspaceFailed: " + e.Diagnostic.ToString());
+                //workspace.DocumentOpened += (_, e) => Console.WriteLine("DocumentOpened: " + e.Document.ToString());
 
-				var projectsList = solution.Projects.ToList();
+                Console.WriteLine("Opening solution...");
+                var sw = Stopwatch.StartNew();
+                var solution = workspace.OpenSolutionAsync(pathToSolution).Result;
+                Console.WriteLine("Solution opened in " + sw.Elapsed);
+
+                var projectsList = solution.Projects.ToList();
 
                 if (projectsList.Count == 0)
                     throw new Exception("Solution has no projects");
@@ -124,7 +126,7 @@ Options available:
 				foreach (var project in projectsList)
 				{
 					Console.WriteLine("Converting project " + project.Name + "...");
-					var sw = Stopwatch.StartNew();
+					sw = Stopwatch.StartNew();
 					Program.Go(project.GetCompilationAsync().Result, outDir, extraTranslations, ctorHelperName, whitelist, buildFirst);
 					Console.WriteLine("Finished project " + project.Name + " in " + sw.Elapsed);
 				}
