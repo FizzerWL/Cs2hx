@@ -14,12 +14,70 @@ namespace Cs2hx
         {
             var propertySymbol = Program.GetModel(property).GetDeclaredSymbol(property);
             var isInterface = propertySymbol.ContainingType.TypeKind == TypeKind.Interface;
-            bool isAutoProperty = false;
 
-            Action<AccessorDeclarationSyntax, bool> writeRegion = (region, get) =>
+            bool hasGetter, hasSetter;
+            SyntaxNode getterBody, setterBody;
+            bool isAutoProperty;
+
+            if (property.AccessorList != null)
+            {
+                var g = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.IsKind(SyntaxKind.GetKeyword));
+                hasGetter = g != null;
+                getterBody = hasGetter ? g.Body : null;
+
+                var s = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.IsKind(SyntaxKind.SetKeyword));
+                hasSetter = s != null;
+                setterBody = hasSetter ? s.Body : null;
+
+                isAutoProperty = hasGetter && hasSetter && getterBody == null && setterBody == null && !property.Modifiers.Any(SyntaxKind.AbstractKeyword);
+            }
+            else
+            {
+                //If AccessorList is null, assume it's an expression bodied member
+                hasGetter = true;
+                getterBody = property.ExpressionBody.Expression;
+                hasSetter = false;
+                setterBody = null;
+                isAutoProperty = false;
+            }
+
+
+			if (!property.Modifiers.Any(SyntaxKind.OverrideKeyword))
+            {
+                //Write the property declaration.  Overridden properties don't need this.
+                writer.WriteIndent();
+				if (property.Modifiers.Any(SyntaxKind.PublicKeyword) || property.Modifiers.Any(SyntaxKind.InternalKeyword))
+                    writer.Write("public ");
+				if (property.Modifiers.Any(SyntaxKind.StaticKeyword))
+                    writer.Write("static ");
+
+                writer.Write("var ");
+                writer.Write(property.Identifier.ValueText);
+                writer.Write("(");
+
+                if (hasGetter || isAutoProperty)
+                    writer.Write("get");
+                else
+                    writer.Write("never");
+
+                writer.Write(", ");
+
+                if (hasSetter || isAutoProperty)
+                    writer.Write("set");
+                else
+                    writer.Write("never");
+
+                writer.Write("):");
+                writer.Write(TypeProcessor.ConvertType(property.Type));
+                writer.Write(";\r\n");
+            }
+
+
+
+            Action<SyntaxNode, bool> writeRegion = (body, get) =>
             {
                 writer.WriteIndent();
-					
+
                 if (property.Modifiers.Any(SyntaxKind.OverrideKeyword))
                     writer.Write("override ");
                 if (property.Modifiers.Any(SyntaxKind.PublicKeyword) || property.Modifiers.Any(SyntaxKind.ProtectedKeyword) || property.Modifiers.Any(SyntaxKind.InternalKeyword))
@@ -43,7 +101,7 @@ namespace Cs2hx
                 var isAbstract = property.Modifiers.Any(SyntaxKind.AbstractKeyword);
 
                 writer.WriteLine();
-				writer.WriteOpenBrace();
+                writer.WriteOpenBrace();
 
                 if (isAbstract)
                 {
@@ -51,85 +109,51 @@ namespace Cs2hx
                 }
                 else
                 {
-                    if (region.Body == null)
+                    if (isAutoProperty)
                     {
-                        //When we leave the body off in C#, it resolves to an automatic property.
-                        isAutoProperty = true;
                         if (get)
-                        {
                             writer.WriteLine("return __autoProp_" + property.Identifier.ValueText + ";");
-                        }
                         else
-                        {
                             writer.WriteLine("__autoProp_" + property.Identifier.Value + " = value;");
-                        }
+                    }
+                    else if (body == null)
+                        throw new Exception("No body at " + Utility.Descriptor(property));
+                    else if (body is BlockSyntax)
+                    {
+                        foreach (var statement in body.As<BlockSyntax>().Statements)
+                            Core.Write(writer, statement);
                     }
                     else
                     {
-                        foreach (var statement in region.Body.As<BlockSyntax>().Statements)
-                            Core.Write(writer, statement);
+                        //Expression bodied member
+                        writer.WriteIndent();
+                        writer.Write("return ");
+                        Core.Write(writer, body);
+                        writer.Write(";\r\n");
                     }
 
                     if (!get)
                     {
                         //all haXe property setters must return a value.
-						writer.WriteLine("return value;");
+                        writer.WriteLine("return value;");
                     }
                 }
 
-				writer.WriteCloseBrace();
-				writer.WriteLine();
+                writer.WriteCloseBrace();
+                writer.WriteLine();
             };
-            
-            var getter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind() == SyntaxKind.GetKeyword);
-            var setter = property.AccessorList.Accessors.SingleOrDefault(o => o.Keyword.Kind() == SyntaxKind.SetKeyword);
 
-            if (getter == null && setter == null)
-                throw new Exception("Property must have either a get or a set");
-
-
-			if (!property.Modifiers.Any(SyntaxKind.OverrideKeyword))
-            {
-                //Write the property declaration.  Overridden properties don't need this.
-                writer.WriteIndent();
-				if (property.Modifiers.Any(SyntaxKind.PublicKeyword) || property.Modifiers.Any(SyntaxKind.InternalKeyword))
-                    writer.Write("public ");
-				if (property.Modifiers.Any(SyntaxKind.StaticKeyword))
-                    writer.Write("static ");
-
-                writer.Write("var ");
-                writer.Write(property.Identifier.ValueText);
-                writer.Write("(");
-
-                if (getter != null)
-                    writer.Write("get");
-                else
-                    writer.Write("never");
-
-                writer.Write(", ");
-
-                if (setter != null)
-                    writer.Write("set");
-                else
-                    writer.Write("never");
-
-                writer.Write("):");
-                writer.Write(TypeProcessor.ConvertType(property.Type));
-                writer.Write(";\r\n");
-            }
 
             if (!isInterface) //interfaces get only the property decl, never the functions
             {
-                if (getter != null)
-                    writeRegion(getter, true);
-                if (setter != null)
-                    writeRegion(setter, false);
+                if (hasGetter || isAutoProperty)
+                    writeRegion(getterBody, true);
+                if (hasSetter || isAutoProperty)
+                    writeRegion(setterBody, false);
             }
 
             if (isAutoProperty)
-            {
                 writer.WriteLine("var __autoProp_" + property.Identifier.ValueText + TypeProcessor.ConvertTypeWithColon(property.Type) + " = " + TypeProcessor.DefaultValue(TypeProcessor.ConvertType(property.Type)) + ";");
-            }
         }
     }
 }

@@ -3828,6 +3828,38 @@ namespace Blargh
     }
 }", @"");
         }
+
+
+        
+        [TestMethod]
+        public void ExpressionBodiedMember()
+        {
+
+            TestFramework.TestCode(MethodInfo.GetCurrentMethod().Name, @"
+using System;
+
+namespace Blargh
+{
+    public class Utilities
+    {
+        public int Prop => 404;
+    }
+}", @"
+package blargh;
+" + WriteImports.StandardImports + @"
+
+class Utilities
+{
+    public var Prop(get, never):Int;
+    public function get_Prop():Int
+    {
+        return 404;
+    }
+    public function new()
+    {
+    }
+}");
+        }
     }
 }
 
