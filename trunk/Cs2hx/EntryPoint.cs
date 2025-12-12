@@ -147,7 +147,7 @@ Options available:
         private static void FixMsbuild()
         {
             // Locates all of the instances of Visual Studio on the machine with MSBuild.
-        	var instances = MSBuildLocator.QueryVisualStudioInstances().ToArray().ToList();
+        	var instances = MSBuildLocator.QueryVisualStudioInstances().ToList();
            instances.Sort((a,b)=>a.Version.CompareTo(b.Version));
             if (!instances.Any())
                 throw new Exception("No Visual Studio instances found.");

@@ -49,6 +49,10 @@ class Regex {
 		return throw new NotImplementedException();
 		#end
 	}
+	
+	public static function Matches_String_String(input:String, pattern:String):system.collections.generic.IEnumerable<Match> {
+		return throw new NotImplementedException("matches"); 
+	}
 
 	public static inline function Replace_String_String_MatchEvaluator(input:String, pattern:String, eval:Match->String):String {
 		return new Regex(pattern).Replace_String_MatchEvaluator(input, eval);

@@ -74,7 +74,7 @@ namespace Cs2hx
 
 			return scope.DescendantNodes().OfType<InvocationExpressionSyntax>()
 				.SelectMany(o => o.ArgumentList.Arguments)
-				.Where(o => o.RefOrOutKeyword.Kind() != SyntaxKind.None)
+				.Where(o => !o.RefOrOutKeyword.IsKind(SyntaxKind.None))
 				.Any(o => SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(o.Expression).Symbol, symbol));
 
 		}

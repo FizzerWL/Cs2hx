@@ -13,7 +13,7 @@ namespace Cs2hx
 	{
 		public static void Go(HaxeWriter writer, ConversionOperatorDeclarationSyntax method)
 		{
-			if (method.ImplicitOrExplicitKeyword.Kind() != SyntaxKind.ExplicitKeyword)
+			if (!method.ImplicitOrExplicitKeyword.IsKind(SyntaxKind.ExplicitKeyword))
 				throw new Exception("Implicit cast operators are not supported " + Utility.Descriptor(method));
 
 			writer.WriteIndent();

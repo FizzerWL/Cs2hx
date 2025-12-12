@@ -28,12 +28,12 @@ namespace Cs2hx
 				if (_triviaProcessed.TryAdd(trivia, null)) //ensure we don't look at the same trivia multiple times
 				{
 
-					if (trivia.Kind() == SyntaxKind.IfDirectiveTrivia)
+					if (trivia.IsKind(SyntaxKind.IfDirectiveTrivia))
 					{
 						if (GetConditions(trivia, "#if ").Contains("CS2HX"))
 							literalCode = true;
 					}
-					else if (trivia.Kind() == SyntaxKind.DisabledTextTrivia && literalCode)
+					else if (trivia.IsKind(SyntaxKind.DisabledTextTrivia) && literalCode)
 					{
 						writer.Write(trivia.ToString());
 						literalCode = false;
@@ -79,14 +79,14 @@ namespace Cs2hx
 							if (!triviaProcessed.TryAdd(trivia, null))
 								return;
 
-							if (trivia.Kind() == SyntaxKind.EndIfDirectiveTrivia)
+							if (trivia.IsKind(SyntaxKind.EndIfDirectiveTrivia))
 							{
 								if (skipCount > 0)
 									skipCount--;
 								if (elseCount > 0)
 									elseCount--;
 							}
-							else if (trivia.Kind() == SyntaxKind.IfDirectiveTrivia)
+							else if (trivia.IsKind(SyntaxKind.IfDirectiveTrivia))
 							{
 								if (skipCount > 0)
 									skipCount++;
@@ -101,7 +101,7 @@ namespace Cs2hx
 									elseCount = 1;
 
 							}
-							else if (trivia.Kind() == SyntaxKind.ElseDirectiveTrivia)
+							else if (trivia.IsKind(SyntaxKind.ElseDirectiveTrivia))
 							{
 								if (elseCount == 1)
 								{

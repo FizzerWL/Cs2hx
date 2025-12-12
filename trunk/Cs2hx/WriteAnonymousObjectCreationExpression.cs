@@ -18,7 +18,7 @@ namespace Cs2hx
 			writer.Write("(");
 
 			bool first = true;
-			foreach (var field in expression.Initializers.OrderBy(o => o.NameEquals.Name.Identifier.ValueText))
+			foreach (var field in expression.Initializers.OrderBy(o => o.NameEquals == null || o.NameEquals.Name == null || o.NameEquals.Name.Identifier == null ? "null" : o.NameEquals.Name.Identifier.ValueText))
 			{
 				if (first)
 					first = false;

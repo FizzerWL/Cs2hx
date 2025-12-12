@@ -20,7 +20,7 @@ namespace Cs2hx
 			writer.WriteOpenBrace();
 
 			//First process all blocks except the section with the default block
-			foreach (var section in switchStatement.Sections.Where(o => o.Labels.None(z => z.Keyword.Kind() == SyntaxKind.DefaultKeyword)))
+			foreach (var section in switchStatement.Sections.Where(o => o.Labels.None(z => z.Keyword.IsKind(SyntaxKind.DefaultKeyword))))
 			{
 				writer.WriteIndent();
 				writer.Write("case ");
@@ -61,7 +61,7 @@ namespace Cs2hx
 			}
 
 			//Now write the default section
-			var defaultSection = switchStatement.Sections.SingleOrDefault(o => o.Labels.Any(z => z.Keyword.Kind() == SyntaxKind.DefaultKeyword));
+			var defaultSection = switchStatement.Sections.SingleOrDefault(o => o.Labels.Any(z => z.Keyword.IsKind(SyntaxKind.DefaultKeyword)));
 			if (defaultSection != null)
 			{
 				if (defaultSection.Labels.Count > 1)

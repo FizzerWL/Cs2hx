@@ -57,7 +57,7 @@ namespace Cs2hx
                                 return true;
 
                             //Using them as concatenation in strings is OK
-                            if (node.Parent is BinaryExpressionSyntax && node.Parent.As<BinaryExpressionSyntax>().OperatorToken.Kind() == SyntaxKind.PlusToken)
+                            if (node.Parent is BinaryExpressionSyntax && node.Parent.As<BinaryExpressionSyntax>().OperatorToken.IsKind(SyntaxKind.PlusToken))
                                 return true; //we only check that it's a PlusToken, which could be addition or string concatenation, but C# doesn't allow adding exceptions so it's not necessary to check further
 
                             var typeInfo = Program.GetModel(node).GetTypeInfo(node);

@@ -73,7 +73,7 @@ namespace Cs2hx
                 Core.Write(writer, expression.Expression);
                 writer.Write(")()");
 			}
-			else if (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.Kind() == SyntaxKind.SlashToken).None())
+			else if (destTypeHaxe == "Int" && castingFromHaxe == "Int" && expression.DescendantNodes().OfType<BinaryExpressionSyntax>().Where(o => o.OperatorToken.IsKind(SyntaxKind.SlashToken)).None())
 			{
 				//Eat casts from Int to Int.  Enums getting casted to int fall here, and since we use ints to represent enums anyway, it's not necessary.  However, if we contain the division operator, and since haxe division always produces floating points and C# integer division produces integers, we can't rely on the C# expression type so cast anyway.
 				Core.Write(writer, expression.Expression);

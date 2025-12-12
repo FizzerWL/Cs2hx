@@ -18,7 +18,7 @@ namespace Cs2hx
 			if (str.StartsWith("@"))
 				str = "\"" + str.RemoveFromStartOfString("@\"").RemoveFromEndOfString("\"").Replace("\\", "\\\\").Replace("\"\"", "\\\"") + "\"";
 			
-			if (expression.Token.Kind() == SyntaxKind.CharacterLiteralToken)
+			if (expression.Token.IsKind(SyntaxKind.CharacterLiteralToken))
 			{
 				//chars just get written as integers
                 

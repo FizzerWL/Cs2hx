@@ -29,7 +29,7 @@ namespace Cs2hx
                 hasSetter = s != null;
                 setterBody = hasSetter ? s.Body : null;
 
-                isAutoProperty = hasGetter && hasSetter && getterBody == null && setterBody == null && !property.Modifiers.Any(SyntaxKind.AbstractKeyword);
+                isAutoProperty = hasGetter && hasSetter && getterBody == null && setterBody == null && !property.Modifiers.Any(SyntaxKind.AbstractKeyword) && !isInterface;
             }
             else
             {

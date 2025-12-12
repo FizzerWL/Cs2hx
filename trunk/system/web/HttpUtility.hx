@@ -36,4 +36,16 @@ class HttpUtility
 	{
 		return throw new NotImplementedException();
 	}
+	
+	public static function HtmlAttributeEncode(s:String):String
+	{
+		if (s == null) return "";
+
+        return s
+            .split("&").join("&amp;")
+            .split("\"").join("&quot;")
+            .split("'").join("&#39;")
+            .split("<").join("&lt;")
+            .split(">").join("&gt;");
+	}
 }

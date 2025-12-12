@@ -277,13 +277,13 @@ namespace Cs2hx
 
 
 				if (arg.ArgumentOpt != null
-					&& arg.ArgumentOpt.RefOrOutKeyword.Kind() != SyntaxKind.None
+					&& !arg.ArgumentOpt.RefOrOutKeyword.IsKind(SyntaxKind.None)
 					&& model.GetSymbolInfo(arg.ArgumentOpt.Expression).Symbol is IFieldSymbol)
 					throw new Exception("ref/out cannot reference fields, only local variables.  Consider using ref/out on a local variable and then assigning it into the field. " + Utility.Descriptor(invocationExpression));
 
 
 				//When passing an argument by ref or out, leave off the .Value suffix
-				if (arg.ArgumentOpt != null && arg.ArgumentOpt.RefOrOutKeyword.Kind() != SyntaxKind.None)
+				if (arg.ArgumentOpt != null && !arg.ArgumentOpt.RefOrOutKeyword.IsKind(SyntaxKind.None))
 					WriteIdentifierName.Go(writer, arg.ArgumentOpt.Expression.As<IdentifierNameSyntax>(), true);
 				else if (arg.ArgumentOpt != null)
 					WriteForEachStatement.CheckWriteEnumerator(writer, arg.ArgumentOpt.Expression, false);

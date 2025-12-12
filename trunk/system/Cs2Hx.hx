@@ -286,6 +286,14 @@ class Cs2Hx {
 
 		return digitMap.exists(ch);
 	}
+	
+	public static inline function IsWhiteSpace(ch:Int):Bool { 
+		return ch == 32;
+	}
+	
+	public static function Concat(strs:Array<String>):String { 
+		return strs.join("");
+	}
 
 	public static inline function IsInfinity(f:Float):Bool {
 		return !Math.isFinite(f);

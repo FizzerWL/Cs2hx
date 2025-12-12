@@ -36,11 +36,6 @@ class Dictionary<K, V> implements IEnumerable<KeyValuePair<K,V>>
 	{
 		return GetValue_TKey(key);
 	}
-	public inline function GetValue_Object(key:K):V
-	{
-		return GetValue_TKey(key);
-	}
-	
 	public function ContainsKey(key:K):Bool
 	{
 		return store.exists(Cs2Hx.Hash(key));

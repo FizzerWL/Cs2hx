@@ -25,7 +25,7 @@ namespace Cs2hx
 
 
             //Check for integer division.  Integer division is handled automatically in C#, but must be explicit in haxe.
-            if (expression.OperatorToken.Kind() == SyntaxKind.SlashToken && Program.GetModel(expression).GetTypeInfo(expression).Type.SpecialType == SpecialType.System_Int32)
+            if (expression.OperatorToken.IsKind(SyntaxKind.SlashToken) && Program.GetModel(expression).GetTypeInfo(expression).Type.SpecialType == SpecialType.System_Int32)
             {
                 //If parent is a cast to int, skip this step.  This isn't necessary for correctness, but it makes cleaner code.
                 var castIsExplicit = expression.Parent is ParenthesizedExpressionSyntax && expression.Parent.Parent is CastExpressionSyntax && expression.Parent.Parent.As<CastExpressionSyntax>().Type.ToString() == "int";
@@ -77,7 +77,7 @@ namespace Cs2hx
         public static void Go(HaxeWriter writer, ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
         {
 			//Check for index assignments, for example dictionary[4] = 3;
-			if (left is ElementAccessExpressionSyntax && operatorToken.Kind() == SyntaxKind.EqualsToken)
+			if (left is ElementAccessExpressionSyntax && operatorToken.IsKind(SyntaxKind.EqualsToken))
 			{
 				var elementAccess = (ElementAccessExpressionSyntax)left;
 
@@ -92,7 +92,7 @@ namespace Cs2hx
 
 
 			//Check for improper nullable access, unless it's assignment or string concat, which work fine.  Note that if they're trying to add nullable number types, it won't catch it since we can't tell if it's string concatentation or addition.  But haxe will fail to build, so it should still be caught easily enough.
-			if (operatorToken.Kind() != SyntaxKind.EqualsToken && operatorToken.Kind() != SyntaxKind.PlusToken)
+			if (!operatorToken.IsKind(SyntaxKind.EqualsToken) && !operatorToken.IsKind(SyntaxKind.PlusToken))
 			{
 				var model = Program.GetModel(left);
 				Func<ExpressionSyntax, bool> isNullable = e =>
@@ -105,14 +105,14 @@ namespace Cs2hx
 					throw new Exception("When using nullable types, you must use the .Value and .HasValue properties instead of the object directly " + Utility.Descriptor(left.Parent));
 			}
 
-			if (operatorToken.Kind() == SyntaxKind.PlusEqualsToken || operatorToken.Kind() == SyntaxKind.MinusEqualsToken)
+			if (operatorToken.IsKind(SyntaxKind.PlusEqualsToken) || operatorToken.IsKind(SyntaxKind.MinusEqualsToken))
 			{
 				//Check for event subscription/removal
 				var leftSymbol = Program.GetModel(left).GetSymbolInfo(left);
 				if (leftSymbol.Symbol is IEventSymbol)
 				{
 					Core.Write(writer, left);
-					if (operatorToken.Kind() == SyntaxKind.PlusEqualsToken)
+					if (operatorToken.IsKind(SyntaxKind.PlusEqualsToken))
 						writer.Write(".Add(");
 					else
 						writer.Write(".Remove(");
@@ -122,7 +122,7 @@ namespace Cs2hx
 				}
 			}
 
-			if (operatorToken.Kind() == SyntaxKind.AsKeyword)
+			if (operatorToken.IsKind(SyntaxKind.AsKeyword))
 			{
 				var leftStr = Utility.TryGetIdentifier(left);
 
@@ -134,7 +134,7 @@ namespace Cs2hx
 				writer.Write("(Std.isOfType(" + leftStr + ", " + typeHaxe + ") ? cast(" + leftStr + ", " + typeHaxe + ") : null)");
 
 			}
-			else if (operatorToken.Kind() == SyntaxKind.IsKeyword)
+			else if (operatorToken.IsKind(SyntaxKind.IsKeyword))
 			{
 				writer.Write("Std.isOfType(");
 				Core.Write(writer, left);
@@ -142,7 +142,7 @@ namespace Cs2hx
 				writer.Write(TypeProcessor.RemoveGenericArguments(TypeProcessor.ConvertType(right)));
 				writer.Write(")");
 			}
-			else if (operatorToken.Kind() == SyntaxKind.QuestionQuestionToken)
+			else if (operatorToken.IsKind(SyntaxKind.QuestionQuestionToken))
 			{
 				writer.Write("Cs2Hx.Coalesce(");
 				Core.Write(writer, left);
@@ -155,12 +155,12 @@ namespace Cs2hx
                 var leftType = Program.GetModel(left).GetTypeInfo(left);
                 var rightType = Program.GetModel(right).GetTypeInfo(right);
 
-                if ((operatorToken.Kind() == SyntaxKind.EqualsEqualsToken || operatorToken.Kind() == SyntaxKind.ExclamationEqualsToken)
+                if ((operatorToken.IsKind(SyntaxKind.EqualsEqualsToken) || operatorToken.IsKind(SyntaxKind.ExclamationEqualsToken))
                     && leftType.ConvertedType.SpecialType == SpecialType.System_Boolean
                     && rightType.ConvertedType.SpecialType == SpecialType.System_Boolean)
                 {
                     //Anytime we == or != booleans, we need to take special care when dealing with the js target.  haxe seems to leave some variables as undefined, which works fine as booleans in most comparisons, but not when comparing against each other such as "x == false"
-                    if (operatorToken.Kind() == SyntaxKind.ExclamationEqualsToken)
+                    if (operatorToken.IsKind(SyntaxKind.ExclamationEqualsToken))
                         writer.Write("!");
                     writer.Write("Cs2Hx.BoolCompare(");
                     Core.Write(writer, left);
@@ -177,7 +177,7 @@ namespace Cs2hx
                         //Check for enums being converted to strings by string concatenation
                         if (otherType.ConvertedType == null)
                             throw new Exception("otherType.ConvertedType is null");
-						if (type.Type != null && operatorToken.Kind() == SyntaxKind.PlusToken && type.Type.TypeKind == TypeKind.Enum && otherType.ConvertedType.SpecialType == SpecialType.System_String)
+						if (type.Type != null && operatorToken.IsKind(SyntaxKind.PlusToken) && type.Type.TypeKind == TypeKind.Enum && otherType.ConvertedType.SpecialType == SpecialType.System_String)
 						{
 							writer.Write(type.Type.ContainingNamespace.FullNameWithDot().ToLower());
 							writer.Write(WriteType.TypeName(type.Type.As<INamedTypeSymbol>()));
@@ -185,14 +185,14 @@ namespace Cs2hx
 							Core.Write(writer, e);
 							writer.Write(")");
 						}
-                        else if (type.Type != null && operatorToken.Kind() == SyntaxKind.PlusToken && type.Type.SpecialType == SpecialType.System_Char && otherType.Type.SpecialType != SpecialType.System_Char && otherType.Type.SpecialType != SpecialType.System_Int32)
+                        else if (type.Type != null && operatorToken.IsKind(SyntaxKind.PlusToken) && type.Type.SpecialType == SpecialType.System_Char && otherType.Type.SpecialType != SpecialType.System_Char && otherType.Type.SpecialType != SpecialType.System_Int32)
                         {
                             //Chars are integers in haxe, so when string-concatening them we must convert them to strings
                             writer.Write("Cs2Hx.CharToString(");
                             Core.Write(writer, e);
                             writer.Write(")");
                         }
-                        else if (type.Type != null && operatorToken.Kind() == SyntaxKind.PlusToken && !(e is BinaryExpressionSyntax) && type.Type.SpecialType == SpecialType.System_String && CouldBeNullString(Program.GetModel(e), e))
+                        else if (type.Type != null && operatorToken.IsKind(SyntaxKind.PlusToken) && !(e is BinaryExpressionSyntax) && type.Type.SpecialType == SpecialType.System_String && CouldBeNullString(Program.GetModel(e), e))
                         {
                             //In .net, concatenating a null string does not alter the output. However, in haxe's js target, it produces the "null" string. To counter this, we must check non-const strings.
                             writer.Write("system.Cs2Hx.NullCheck(");
@@ -227,7 +227,7 @@ namespace Cs2hx
 					}
 				};
 
-			if (operatorToken.Kind() == SyntaxKind.EqualsToken)
+			if (operatorToken.IsKind(SyntaxKind.EqualsToken))
 			{
 				var leftTypeHaxe = TypeProcessor.ConvertType(elementAccess.Expression);
 

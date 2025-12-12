@@ -1,6 +1,6 @@
 package system.collections.generic;
 
-class Stack<T>
+class Stack<T> implements IEnumerable<T>
 {
 	private var _store:Array<T>;
 
