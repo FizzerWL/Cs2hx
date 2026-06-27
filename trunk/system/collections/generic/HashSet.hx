@@ -83,4 +83,20 @@ class HashSet<T> implements IEnumerable<T>
 				i++;
 		}
 	}
+
+	public function Overlaps(other:Array<T>):Bool
+	{
+		for (item in other)
+			if (Contains(item))
+				return true;
+		return false;
+	}
+
+	public function IsSupersetOf(other:Array<T>):Bool
+	{
+		for (item in other)
+			if (!Contains(item))
+				return false;
+		return true;
+	}
 }

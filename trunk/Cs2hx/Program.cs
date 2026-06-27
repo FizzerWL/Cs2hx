@@ -78,7 +78,7 @@ namespace Cs2hx
 			if (!Directory.Exists(OutDir))
 				Directory.CreateDirectory(OutDir);
 
-			var allTypes = Compilation.SyntaxTrees
+            var allTypes = Compilation.SyntaxTrees
 				.SelectMany(o => o.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
 				.Select(o => new { Syntax = o, Symbol = GetModel(o).GetDeclaredSymbol(o), TypeName = WriteType.TypeName(GetModel(o).GetDeclaredSymbol(o)) })
 				.GroupBy(o => o.Symbol.ContainingNamespace.FullName() + "." + o.TypeName)

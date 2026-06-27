@@ -560,7 +560,7 @@ class Cs2Hx {
 	}
 
 	public static function ArrayCopy(sourceArray:Array<Dynamic>, sourceIndex:Int, destinationArray:Array<Dynamic>, destinationIndex:Int, length:Int) {
-		throw new NotImplementedException("TODO");
+		throw new NotImplementedException("ArrayCopy");
 	}
 
 	public static inline function ReferenceEquals(obj1:Dynamic, obj2:Dynamic):Bool { 

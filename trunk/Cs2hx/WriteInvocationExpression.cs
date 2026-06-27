@@ -284,7 +284,11 @@ namespace Cs2hx
 
 				//When passing an argument by ref or out, leave off the .Value suffix
 				if (arg.ArgumentOpt != null && !arg.ArgumentOpt.RefOrOutKeyword.IsKind(SyntaxKind.None))
+				{
+					if (!(arg.ArgumentOpt.Expression is IdentifierNameSyntax))
+						throw new Exception("Expected IdentifierName, got " + arg.ArgumentOpt.Expression.GetType().Name + " at " + Utility.Descriptor(arg.ArgumentOpt.Expression));
 					WriteIdentifierName.Go(writer, arg.ArgumentOpt.Expression.As<IdentifierNameSyntax>(), true);
+				}
 				else if (arg.ArgumentOpt != null)
 					WriteForEachStatement.CheckWriteEnumerator(writer, arg.ArgumentOpt.Expression, false);
 				else
