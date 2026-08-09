@@ -21,7 +21,27 @@ namespace Cs2hx
         {
             try
             {
+                // MSBuildLocator.RegisterInstance must run before any code that references
+                // MSBuild-dependent types (MSBuildWorkspace, Project, etc.) is JIT-compiled,
+                // otherwise the JIT eagerly resolves those types first and loads a stale
+                // bundled Microsoft.Build.dll instead of the one from the registered VS instance.
+                // See https://github.com/dotnet/roslyn/issues/26029
+                FixMsbuild();
 
+                Run(args);
+
+                Environment.ExitCode = 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\nException:");
+                Console.WriteLine(ex);
+                Environment.ExitCode = 1;
+            }
+        }
+
+        private static void Run(string[] args)
+        {
 				Console.WriteLine("C# to haXe Converter\nSee https://github.com/FizzerWL/cs2hx for full info and documentation.\n\n");
 
 				if (args.Length == 0 || args.Any(o => o == "-?" || o == "--help" || o == "/?"))
@@ -96,8 +116,6 @@ Options available:
 				if (pathToSolution == null)
 					throw new Exception("/sln parameter not passed");
 
-                FixMsbuild();
-
                 var workspace = MSBuildWorkspace.Create();
                 //workspace.WorkspaceFailed += (_, e) => Console.WriteLine("WorkspaceFailed: " + e.Diagnostic.ToString());
                 //workspace.DocumentOpened += (_, e) => Console.WriteLine("DocumentOpened: " + e.Document.ToString());
@@ -130,15 +148,6 @@ Options available:
 					Program.Go(project.GetCompilationAsync().Result, outDir, extraTranslations, ctorHelperName, whitelist, buildFirst);
 					Console.WriteLine("Finished project " + project.Name + " in " + sw.Elapsed);
 				}
-
-				Environment.ExitCode = 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("\nException:");
-                Console.WriteLine(ex);
-                Environment.ExitCode = 1;
-            }
         }
 
         /// <summary>

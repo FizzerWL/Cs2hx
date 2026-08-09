@@ -740,6 +740,17 @@ class Enumerable {
 		return c;
 	}
 
+	public static function SequenceEqual<T>(a:Array<T>, b:Array<T>):Bool {
+		if (a.length != b.length)
+			return false;
+
+		for (i in 0...a.length)
+			if (Cs2Hx.Hash(a[i]) != Cs2Hx.Hash(b[i]))
+				return false;
+
+		return true;
+	}
+
 	public static function TakeWhile<T>(a:Array<T>, func:T->Bool):Array<T> {
 		var ret = new Array<T>();
 		for (e in a) {
